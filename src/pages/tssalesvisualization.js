@@ -1207,6 +1207,7 @@ const SalesVisualization = () => {
   };
 
   const router = useRouter();
+  
   useEffect(() => {
     const authToken = GetAuthToken();
 

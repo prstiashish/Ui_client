@@ -1161,11 +1161,11 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
               disabled={loading}
               startIcon={loading ? <CircularProgress size={24} color="inherit" /> : null}
               style={{
-                backgroundColor: loading ? "#d6f5d6" : "#267326", // Darker green when loading, default green
+                backgroundColor: loading ? "#ffb84d" : "#00b300", // Darker green when loading, default green
                 color: loading ? "black" : "white", // White text color
                 // borderColor: loading ? '#006622' : '#009933', // Darker border color when loading, default green
                 "&:hover": {
-                  backgroundColor: loading ? "#d6f5d6" : "#267326", // Even darker green when loading, lighter green on hover
+                  backgroundColor: loading ? "#ffb84d" : "#00b300", // Even darker green when loading, lighter green on hover
                 },
               }}
             >

@@ -8,11 +8,15 @@ import debounce from "lodash.debounce";
 
 import StackedBarChart from "src/components/charts/StackedBarChart";
 import BarChartComp from "src/components/charts/BarChartComp";
+import  DonutChart from "src/components/charts/PieChart";
 import BarChartWeekly from "src/components/charts/BarChartWeekly";
 
 import BarChart from "src/components/charts/BarChart";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router"; // or use location from react-router
+import { GetAuthToken } from "src/components/charts/AuthDetails";
+import { GetSchema } from "src/components/charts/AuthDetails";
+import { GetTokenExpiredTime, GetRefreshToken, baseURLs } from "src/components/charts/AuthDetails";
 
 import {
   Grid,
@@ -67,6 +71,10 @@ const DevDashboard = () => {
   const [MTDTotalSales, setMTDTotalSales] = useState(0);
   const [MTDtotalCost, setMTDTotalCost] = useState(0);
   const [MTDTotalMargin, setMTDTotalMargin] = useState(0);
+
+  const [selectedFilter, setSelectedFilter] = useState(1);
+
+  const baseURL = baseURLs();
 
   // State for Stacked Chart Data
   const [stackedMonthWiseInfo, setStackedMonthWiseInfo] = useState({
@@ -1210,6 +1218,284 @@ const DevDashboard = () => {
     console.log("helooo");
   };
 
+
+
+  // ===================================code for line chartttt
+
+  // const baseURL = () =>
+  //   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/salesdata/v1/";
+
+const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refresh-token-auth"
+  const checkTokenExpired = () => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expTime = GetTokenExpiredTime();
+    const remainingTime = expTime - currentTime;
+    if (remainingTime <= 300) {
+      var refreshTokenUrl = token ;
+      const config = {
+        headers: {
+          "x-api-key": "xyz-abcd",
+          "Content-Type": "application/json",
+        },
+      };
+      const body = {
+        refresh_token: GetRefreshToken(),
+      };
+      axios
+        .post(refreshTokenUrl, body, config)
+        .then((response) => {
+          sessionStorage.setItem("IdToken", response.data.AuthenticationResult.IdToken);
+        })
+        .catch((error) => {
+          console.log("RefreshToken:", error);
+        });
+    } else {
+    }
+  };
+  const dimensionSetALL = () => {
+    // if (selectedBranch == "All") {
+    //   selectedBranch = "";
+    // }
+    // if (selectedBrand == "All") {
+    //   selectedBrand = "";
+    // }
+    // if (selectedBranchLabel == "All") {
+    //   selectedBranchLabel = "";
+    // }
+    // if (selectedChannel == "All") {
+    //   selectedChannel = "";
+    // }
+    // if (selectedOrderSource == "All") {
+    //   selectedOrderSource = "";
+    // }
+    // if (selectedMonth == "All") {
+    //   selectedMonth = "";
+    // }
+    // if (selectedQuarter == "All") {
+    //   selectedQuarter = "";
+    // }
+    // if (selectedWeek == "All") {
+    //   selectedWeek = "";
+    // }
+  };
+
+  const getConditions = () => {
+    const conditions = {};
+
+    // if (selectedBranch) {
+    //   conditions.branchkey = selectedBranch;
+    // }
+    // if (selectedBrand) {
+    //   conditions.BrandKey = selectedBrand;
+    // }
+    // if (selectedBranchLabel) {
+    //   conditions.FranchiseTypeKey = selectedBranchLabel;
+    // }
+    // if (selectedChannel) {
+    //   conditions.ChannelKey = selectedChannel;
+    // }
+    // if (selectedOrderSource) {
+    //   conditions.OrderSourceKey = selectedOrderSource;
+    // }
+    // if (selectedMonth) {
+    //   conditions.month = selectedMonth;
+    // }
+    // if (selectedQuarter) {
+    //   conditions.quarter = selectedQuarter;
+    // }
+    // if (selectedWeek) {
+    //   conditions.week = selectedWeek;
+    // }
+    // if (selectedYear) {
+    //   conditions.year = selectedYear;
+    // }
+
+    return conditions;
+  };
+  const WeekWiseSalesData = async () => {
+    try {
+      dimensionSetALL();
+      const conditions = getConditions();
+
+      let isWeekEnable = false;
+      let isQuarterEnable = false;
+      if (selectedFilter === 4) {
+        isWeekEnable = true;
+      }
+      if (selectedFilter === 3) {
+        isQuarterEnable = true;
+      }
+
+      const whereClause = conditions;
+
+      checkTokenExpired();
+
+      var baseUrl = baseURL + "get-cost-sales-info";
+      const config = {
+        headers: {
+          "x-api-key": "xyz-abcd",
+          Authorization: GetAuthToken(),
+          "Content-Type": "application/json",
+        },
+      };
+      const body = {
+        operation: "READ",
+        schema: GetSchema(),
+        function: "WeeklySalesMargin",
+        filter_criteria: {
+          where_clause: whereClause,
+        },
+      };
+
+      axios
+        .post(baseUrl, body, config)
+        .then((response) => {
+          if (response?.data?.WeeklySalesMarginInfo?.length > 0) {
+            const { WeeklySalesMarginInfo } = response.data;
+            const backgroundColorsWeekly = [
+              "#19b091",
+              "#f2a571",
+              "#21c2c3",
+              "#197fc0",
+              "#e75361",
+              "#758b98",
+              "#ff835c",
+            ];
+
+            const weeks = [...new Set(WeeklySalesMarginInfo.map((item) => item.weeknumber))];
+            const salPerday = {
+              Monday: [],
+              Tuesday: [],
+              Wednesday: [],
+              Thursday: [],
+              Friday: [],
+              Saturday: [],
+              Sunday: [],
+            };
+
+            const totalSalesByWeek = WeeklySalesMarginInfo.reduce((acc, curr) => {
+              if (!acc[curr.weeknumber]) {
+                acc[curr.weeknumber] = 0;
+              }
+              acc[curr.weeknumber] += curr.salesperday;
+              return acc;
+            }, {});
+
+            WeeklySalesMarginInfo.forEach((item) => {
+              const dayOfWeek = item.dayofweek.trim();
+              if (salPerday.hasOwnProperty(dayOfWeek)) {
+                const weekIndex = weeks.indexOf(item.weeknumber); // Find the index of the week
+                if (weekIndex !== -1) {
+                  salPerday[dayOfWeek][weekIndex] = item.salesperday || 0; // Fill in salesperday for the respective week
+                }
+              }
+            });
+
+            Object.keys(salPerday).forEach((dayOfWeek) => {
+              if (salPerday[dayOfWeek].length === 0) {
+                // If sales data is not available for this weekday, fill it with zeros
+                salPerday[dayOfWeek] = new Array(WeeklySalesMarginInfo.length).fill(0);
+              }
+            });
+
+            const datasets = [
+              {
+                label: "Total Sales per Week",
+                type: "line",
+                // backgroundColor: "rgba(217, 88, 88,0.4)",
+                borderColor: "#4E78A6",
+                // pointBackgroundColor: "#000000",
+
+                fill: false,
+                data: Object.values(totalSalesByWeek),
+                categoryPercentage: 1.0,
+                barPercentage: 0.2,
+                order: 2,
+                ticks: false,
+                pointStyle: "line",
+                pointBorderWidth: 5,
+                Legend: {
+                  shape: "line",
+                },
+              },
+              ...Object.keys(salPerday).map((dayOfWeek, index) => ({
+                type: "bar",
+                label: dayOfWeek,
+                backgroundColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
+                data: salPerday[dayOfWeek],
+                barPercentage: 1.0,
+                categoryPercentage: 0.5,
+                pointStyle: "rect",
+              })),
+            ];
+
+            setWeeklyChartData({
+              labels: weeks.map((weeknumber) => `Week ${weeknumber}`),
+              datasets: datasets,
+            });
+          } else {
+            setWeeklyChartData((prevChart) => ({
+              ...prevChart,
+              datasets: prevChart.datasets.map((dataset) => ({
+                ...dataset,
+                data: Array(dataset.data.length).fill(0),
+                type: undefined,
+              })),
+            }));
+            console.log("Weekly sales: No data found or the data is empty");
+          }
+        })
+        .catch((error) => {
+          console.error("Weekly sales Error:", error);
+        });
+    } catch (error) {
+      console.error("Error fetching data or updating Weekly sales:", error);
+    }
+  };
+  useEffect(() => {
+    const authToken = GetAuthToken();
+
+    if (!authToken || authToken.trim() === "") {
+      router.push("/login");
+    } else {
+      WeekWiseSalesData();
+    }
+  }, []);
+
+
+
+  const [WeeklyChartdata, setWeeklyChartData] = useState({
+    labels: [],
+    datasets: [],
+    categoryPercentage: 0,
+    plugins: [
+      {
+        datalabels: {
+          anchor: "end",
+          align: "top",
+          formatter: (value, context) => {
+            if (context.dataset.label === "Total Sales per Week") {
+              return value;
+            } else {
+              return "";
+            }
+          },
+          color: "#000",
+          font: {
+            weight: "bold",
+          },
+        },
+      },
+    ],
+  });
+
+  const chartTitleWeeklywise = "Weekly Total Sales";
+  const handleChartDoubleClick = () => {
+    setShowPopupChart(true);
+  };
+
+  // ======================================================
+
   return (
     <>
       <Grid item xs={12} md={12} style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -1427,9 +1713,16 @@ const DevDashboard = () => {
               overflow: "hidden",
               paddingBottom: "16px",
               height: "100%",
+
             }}
           >
-            <BarChart
+            {/* <BarChart
+              chartData={chartData}
+              // title={chartTitlemonthwise}
+              title={`Total Sales (${timeWindowMap[timeWindow] || "Month"})`}
+              onDoubleClick={() => console.log("Chart clicked")}
+            /> */}
+            <DonutChart
               chartData={chartData}
               // title={chartTitlemonthwise}
               title={`Total Sales (${timeWindowMap[timeWindow] || "Month"})`}
@@ -1483,6 +1776,24 @@ const DevDashboard = () => {
               title={chartTitleMarginAnalysis}
               // onDoubleClick={handleChartDoubleClick} // Ensure this function is defined elsewhere
               onDoubleClick={() => console.log("waterfall Chart clicked")}
+            />
+          </div>
+        </Grid>
+      </Grid>
+      <Grid container spacing={2} style={{ marginTop: "1%" }}>
+        <Grid item xs={12}>
+          <div
+            style={{
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+              borderRadius: "5px",
+              overflow: "hidden",
+              height: "100%",
+            }}
+          >
+            <BarChartWeekly
+              chartData={WeeklyChartdata}
+              title={chartTitleWeeklywise}
+              onDoubleClick={handleChartDoubleClick}
             />
           </div>
         </Grid>

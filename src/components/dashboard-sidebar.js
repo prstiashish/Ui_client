@@ -65,16 +65,23 @@ const items = [
   //   icon: <EqualizerIcon fontSize="small" />,
   //   title: "Sales Data Visualization",
   // },
-  // {
-  //   href: "/tstopsalesvisualization",
-  //   icon: <TrendingUpIcon fontSize="small" />,
-  //   title: "Top Trend Visualization",
-  // },
-  // {
-  //   href: "/datadrilldown",
-  //   icon: <TableViewIcon fontSize="small" />,
-  //   title: "Data Drill Down",
-  // },
+
+  {
+    href: "/devdashboard",
+    icon: <EqualizerIcon fontSize="small" />,
+    title: "Enterprise Dashboard",
+  },
+  {
+    href: "/datadrilldown",
+    icon: <TableViewIcon fontSize="small" />,
+    title: "Data Drill Down",
+  },
+  {
+    href: "/tstopsalesvisualization",
+    icon: <TrendingUpIcon fontSize="small" />,
+    title: "Top Trend Visualization",
+  },
+
 
   // new added
   // {
@@ -83,16 +90,16 @@ const items = [
   //   title: "Data Visualization",
   // },
 
-  {
-    href: "/devdashboard",
-    icon: <EqualizerIcon fontSize="small" />,
-    title: "Enterprise Dashboard",
-  },
+  // {
+  //   href: "/devdashboard",
+  //   icon: <EqualizerIcon fontSize="small" />,
+  //   title: "Enterprise Dashboard",
+  // },
 
   {
     href: "/datagraphs",
     icon: <ExploreIcon fontSize="small" />,
-    title: "Data Visualization",
+    title: "Query Analytics",
   },
   // {
   //   href: "/graphsdashboard",

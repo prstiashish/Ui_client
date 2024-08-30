@@ -1,0 +1,20 @@
+.popup {
+    position: fixed; /* Stays in place */
+    z-index: 1; /* Sit on top of other content */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Semi-transparent black background */
+    display: flex; /* Center content horizontally */
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 5px; /* Rounded corners */
+  }
+  
+  .popup p {
+    margin-bottom: 10px;
+    font-weight: bold;
+  }

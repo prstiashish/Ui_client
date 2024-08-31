@@ -182,6 +182,7 @@ const TopSalesVisualization = ({ isAuthenticated }) => {
 
   return (
     <>
+
       <Grid container spacing={2} style={{ marginTop: "0%" }}>
         <Grid item xs={2} sm>
           <FormControl fullWidth>
@@ -216,6 +217,9 @@ const TopSalesVisualization = ({ isAuthenticated }) => {
               <MenuItem value={30}>Top 30</MenuItem>
             </Select>
           </FormControl>
+
+
+         
         </Grid>
       </Grid>
       <Grid container spacing={1} style={{ marginTop: "1%", width: "100%" }}>

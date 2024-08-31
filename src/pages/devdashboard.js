@@ -8,7 +8,7 @@ import debounce from "lodash.debounce";
 
 import StackedBarChart from "src/components/charts/StackedBarChart";
 import BarChartComp from "src/components/charts/BarChartComp";
-import  DonutChart from "src/components/charts/PieChart";
+import DonutChart from "src/components/charts/PieChart";
 import BarChartWeekly from "src/components/charts/BarChartWeekly";
 
 import BarChart from "src/components/charts/BarChart";
@@ -126,6 +126,44 @@ const DevDashboard = () => {
   const router = useRouter();
   const { dimension, timeWindow } = router.query;
 
+  const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+  // for cards
+  const [totalSales, setTotalSales] = useState(0);
+
+  const [cogs, setCogs] = useState(0);
+
+  const [margin, setMargin] = useState(0);
+
+  useEffect(() => {
+    const urls = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+    const url = urls; // Replace with your actual URL
+    const defaultCardPayload = {
+      view: "measures-ytd-mtd",
+    };
+
+    const fetchCardData = async () => {
+      try {
+        const response = await axios.post(url, defaultCardPayload);
+        const data = response.data;
+        console.log(response.data, "cc");
+        if (data.YTD && data.YTD.length > 0) {
+          const ytdData = data.YTD[0]; // Assuming YTD data is at index 0
+
+          // Extract values
+          setTotalSales(ytdData.Total_Sales);
+          setCogs(ytdData.Cogs);
+          setMargin(ytdData.Margin);
+        }
+      } catch (error) {
+        console.error("Error fetching card data:", error);
+      }
+    };
+
+    fetchCardData();
+  }, []);
+
   const timeWindowMap = {
     M: "Month",
     Q: "Quarter",
@@ -162,12 +200,10 @@ const DevDashboard = () => {
         data: [],
         // backgroundColor: "rgba(73, 77, 140)",
         // backgroundColor: "rgba(73, 77, 140)", // Example color
-        backgroundColor: "#197fc0"
+        backgroundColor: "#197fc0",
       },
     ],
   });
-
-  const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
 
   const stableUrl = useMemo(() => url, [url]);
   const stablePayload = useMemo(() => defaultPayload, [defaultPayload]);
@@ -217,7 +253,6 @@ const DevDashboard = () => {
 
           const margin = parseFloat(yearData.Margin) || 0;
           setYTDTotalMargin(margin);
-
         }
         console.log("hiii");
       } else {
@@ -391,66 +426,6 @@ const DevDashboard = () => {
 
   // COGS this is rigth
 
-  // useEffect(() => {
-  //   if (responseData) {
-  //     const labels = responseData.map((item) => item.Month);
-
-  //     const suppliesCostData = responseData.map((item) => item.Supplies_Cost || 0);
-  //     const materialsCostData = responseData.map((item) => item.Materials_Cost || 0);
-
-  //     const discountsData = responseData.map((item) => item.Discounts || 0);
-
-  //     // Check if chart data needs updating
-  //     setStackedMonthWiseInfo((prevChart) => {
-  //       const needsUpdate = !(
-  //         JSON.stringify(prevChart.labels) === JSON.stringify(labels) &&
-  //         JSON.stringify(prevChart.datasets[0].data) === JSON.stringify(suppliesCostData) &&
-  //         JSON.stringify(prevChart.datasets[1].data) === JSON.stringify(materialsCostData) &&
-  //         JSON.stringify(prevChart.datasets[2].data) === JSON.stringify(discountsData)
-  //       );
-
-  //       if (needsUpdate) {
-  //         return {
-  //           ...prevChart,
-  //           labels: labels,
-  //           datasets: [
-  //             {
-  //               label: "Supplies Cost",
-  //               backgroundColor: "#df7970",
-  //               data: suppliesCostData,
-  //             },
-  //             {
-  //               label: "Materials Cost",
-  //               backgroundColor: "#f7b381",
-  //               data: materialsCostData,
-  //             },
-
-  //             {
-  //               label: "Discounts",
-  //               backgroundColor: "#51cda0",
-  //               data: discountsData,
-  //             },
-  //           ],
-  //         };
-  //       }
-
-  //       return prevChart;
-  //     });
-
-  //     // Update chart title based on conditions
-  //     const isWeekEnable = false; // Replace with actual condition
-  //     const isQuarterEnable = false; // Replace with actual condition
-
-  //     if (isWeekEnable) {
-  //       setChartTitleCostWise("Week Wise Cost Sales");
-  //     } else if (isQuarterEnable) {
-  //       setChartTitleCostWise("Quarter Wise Cost Sales");
-  //     } else {
-  //       setChartTitleCostWise("Monthly Cost Sales");
-  //     }
-  //   }
-  // }, [responseData]);
-
   const getProcessedDataByMonth = (data) => {
     return data.map((item) => ({
       label: item.Month, // Assuming 'Month' exists in your data
@@ -556,96 +531,6 @@ const DevDashboard = () => {
     }
   }, [responseData, timeWindow, dimension]);
 
-  // const getTaxesDataByMonth = (responseData) => {
-  //   if (!Array.isArray(responseData)) {
-  //     console.error("Expected responseData to be an array.");
-  //     return [];
-  //   }
-
-  //   return responseData.map((item) => ({
-  //     month: item.Month,
-  //     taxes: item.Taxes,
-  //   }));
-  // };
-
-  // useEffect(() => {
-  //   if (responseData) {
-  //     const taxesData = getTaxesDataByMonth(responseData);
-
-  //     const labels = taxesData.map((item) => item.month);
-  //     const data = taxesData.map((item) => item.taxes);
-
-  //     setTaxesChart((prevState) => {
-  //       // Only update if there are changes
-  //       if (
-  //         JSON.stringify(prevState.labels) !== JSON.stringify(labels) ||
-  //         JSON.stringify(prevState.datasets[0].data) !== JSON.stringify(data)
-  //       ) {
-  //         return {
-  //           ...prevState,
-  //           labels: labels,
-  //           datasets: [
-  //             {
-  //               ...prevState.datasets[0],
-  //               data: data,
-  //             },
-  //           ],
-  //         };
-  //       }
-  //       return prevState;
-  //     });
-
-  //     // Update chart title
-  //     setChartTitleTaxes("Monthly Taxes");
-  //   }
-  // }, [responseData]);
-
-  // const taxesData = responseData ? getTaxesDataByMonth(responseData) : [];
-
-  // 3rd tax
-  // useEffect(() => {
-  //   if (responseData && responseData.length > 0) {
-  //     // Extract the data for Taxes, Gross Amount, and Net Amount
-  //     const labels = responseData.map((item) => item.Month);
-  //     const taxesData = responseData.map((item) => item.Taxes);
-  //     const grossAmountData = responseData.map((item) => item.Gross_Amount);
-  //     const netAmountData = responseData.map((item) => item.Net_Amount);
-
-  //     // Only update the state if the data has changed to avoid unnecessary re-renders
-  //     setStackedSalesInfo((prevState) => {
-  //       const isDataSame =
-  //         JSON.stringify(prevState.labels) === JSON.stringify(labels) &&
-  //         JSON.stringify(prevState.datasets[0].data) === JSON.stringify(taxesData) &&
-  //         JSON.stringify(prevState.datasets[1].data) === JSON.stringify(grossAmountData) &&
-  //         JSON.stringify(prevState.datasets[2].data) === JSON.stringify(netAmountData);
-
-  //       if (isDataSame) return prevState;
-
-  //       return {
-  //         ...prevState,
-  //         labels: labels,
-  //         datasets: [
-  //           { ...prevState.datasets[0], data: taxesData },
-  //           { ...prevState.datasets[1], data: grossAmountData },
-  //           { ...prevState.datasets[2], data: netAmountData },
-  //         ],
-  //       };
-  //     });
-
-  //     // Update chart title based on your conditions
-  //     const isWeekEnable = false; // Replace with actual condition
-  //     const isQuarterEnable = false; // Replace with actual condition
-
-  //     if (isWeekEnable) {
-  //       setChartTitle("Week Wise Financial Breakdown");
-  //     } else if (isQuarterEnable) {
-  //       setChartTitle("Quarter Wise Financial Breakdown");
-  //     } else {
-  //       setChartTitle("Monthly Financial Breakdown");
-  //     }
-  //   }
-  // }, [responseData]);
-
   const getTaxesDataByMonth = (data) => {
     return data.map((item) => ({
       label: item.Month,
@@ -653,7 +538,6 @@ const DevDashboard = () => {
       grossAmount: item.Gross_Amount,
       netAmount: item.Net_Amount,
       disount: item.Discounts,
-
     }));
   };
 
@@ -685,8 +569,6 @@ const DevDashboard = () => {
     }));
   };
 
-
-
   useEffect(() => {
     if (responseData && responseData.length > 0) {
       let processedData;
@@ -713,7 +595,6 @@ const DevDashboard = () => {
       const taxesData = processedData.map((item) => item.taxes);
       const netAmountData = processedData.map((item) => item.netAmount);
       const discountsData = processedData.map((item) => item.discount);
-
 
       // Only update the state if the data has changed to avoid unnecessary re-renders
       setStackedSalesInfo((prevState) => {
@@ -807,105 +688,104 @@ const DevDashboard = () => {
   //   });
   // };
 
+  //   useEffect(() => {
+  //     if (responseData && responseData.length > 0) {
+  //       let processedData;
+  // let legendVisible = 0
+  //       switch (timeWindow) {
+  //         case "W":
+  //           processedData = getTaxesDataByWeek(responseData);
+  //           break;
+  //         case "Q":
+  //           processedData = getTaxesDataByQuarter(responseData);
+  //           break;
+  //         case "Y":
+  //           processedData = getTaxesDataByYear(responseData);
+  //           break;
+  //         case "M":
+  //         default:
+  //           processedData = getTaxesDataByMonth(responseData);
+  //           break;
+  //       }
 
-//   useEffect(() => {
-//     if (responseData && responseData.length > 0) {
-//       let processedData;
-// let legendVisible = 0
-//       switch (timeWindow) {
-//         case "W":
-//           processedData = getTaxesDataByWeek(responseData);
-//           break;
-//         case "Q":
-//           processedData = getTaxesDataByQuarter(responseData);
-//           break;
-//         case "Y":
-//           processedData = getTaxesDataByYear(responseData);
-//           break;
-//         case "M":
-//         default:
-//           processedData = getTaxesDataByMonth(responseData);
-//           break;
-//       }
+  //       // Extract labels and data
+  //       const labels = processedData.map((item) => item.label);
+  //       const grossAmountData = processedData.map((item) => item.grossAmount);
+  //       const taxesData = processedData.map((item) => item.taxes);
+  //       const netAmountData = processedData.map((item) => item.netAmount);
 
-//       // Extract labels and data
-//       const labels = processedData.map((item) => item.label);
-//       const grossAmountData = processedData.map((item) => item.grossAmount);
-//       const taxesData = processedData.map((item) => item.taxes);
-//       const netAmountData = processedData.map((item) => item.netAmount);
+  //       // Only update the state if the data has changed to avoid unnecessary re-renders
+  //       setStackedSalesInfo((prevState) => {
+  //         const isDataSame =
+  //           JSON.stringify(prevState.labels) === JSON.stringify(labels) &&
+  //           JSON.stringify(prevState.datasets[0].data) === JSON.stringify(taxesData) &&
+  //           JSON.stringify(prevState.datasets[1].data) === JSON.stringify(grossAmountData) &&
+  //           JSON.stringify(prevState.datasets[2].data) === JSON.stringify(netAmountData);
 
-//       // Only update the state if the data has changed to avoid unnecessary re-renders
-//       setStackedSalesInfo((prevState) => {
-//         const isDataSame =
-//           JSON.stringify(prevState.labels) === JSON.stringify(labels) &&
-//           JSON.stringify(prevState.datasets[0].data) === JSON.stringify(taxesData) &&
-//           JSON.stringify(prevState.datasets[1].data) === JSON.stringify(grossAmountData) &&
-//           JSON.stringify(prevState.datasets[2].data) === JSON.stringify(netAmountData);
+  //         if (isDataSame) return prevState;
 
-//         if (isDataSame) return prevState;
+  //         return {
+  //           ...prevState,
+  //           labels: labels,
+  //           legendVisible: legendVisible, // Ensure this value is appropriately set
+  //           datasets: [
+  //             { ...prevState.datasets[0], data: taxesData },
+  //             { ...prevState.datasets[1], data: grossAmountData },
+  //             { ...prevState.datasets[2], data: netAmountData },
+  //             {
+  //               label: "Taxes",
+  //               backgroundColor: "#ff835c",
+  //               data: taxesData,
+  //             },
+  //             {
+  //               label: "Gross Amount",
+  //               backgroundColor: "#F5DD61",
+  //               data: grossAmountData,
+  //             },
+  //             // {
+  //             //   label: "OtherCharge",
+  //             //   backgroundColor: "#4CB9E7",
+  //             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_otherchargeamount),
+  //             // },
+  //             // {
+  //             //   label: "Rounding",
+  //             //   backgroundColor: "#21c2c3",
+  //             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_rounding),
+  //             // },
+  //             // {
+  //             //   label: "Tip",
+  //             //   backgroundColor: "#f2a571",
+  //             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_tip),
+  //             // },
+  //             {
+  //               label: "Net Amount",
+  //               backgroundColor: "#9195F6",
+  //               data: netAmountData,
+  //             },
+  //           ],
+  //         };
+  //       });
 
-//         return {
-//           ...prevState,
-//           labels: labels,
-//           legendVisible: legendVisible, // Ensure this value is appropriately set
-//           datasets: [
-//             { ...prevState.datasets[0], data: taxesData },
-//             { ...prevState.datasets[1], data: grossAmountData },
-//             { ...prevState.datasets[2], data: netAmountData },
-//             {
-//               label: "Taxes",
-//               backgroundColor: "#ff835c",
-//               data: taxesData,
-//             },
-//             {
-//               label: "Gross Amount",
-//               backgroundColor: "#F5DD61",
-//               data: grossAmountData,
-//             },
-//             // {
-//             //   label: "OtherCharge",
-//             //   backgroundColor: "#4CB9E7",
-//             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_otherchargeamount),
-//             // },
-//             // {
-//             //   label: "Rounding",
-//             //   backgroundColor: "#21c2c3",
-//             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_rounding),
-//             // },
-//             // {
-//             //   label: "Tip",
-//             //   backgroundColor: "#f2a571",
-//             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_tip),
-//             // },
-//             {
-//               label: "Net Amount",
-//               backgroundColor: "#9195F6",
-//               data: netAmountData,
-//             },
-//           ],
-//         };
-//       });
-
-//       // Update chart title based on the selected time window
-//       const titles = {
-//         W: "Weekly Financial Breakdown",
-//         Q: "Quarterly Financial Breakdown",
-//         Y: "Yearly Financial Breakdown",
-//         M: "Monthly Financial Breakdown",
-//       };
-//       setChartTitle(titles[timeWindow] || "Monthly Financial Breakdown");
-//     } else {
-//       // If there's no responseData, reset the chart
-//       setStackedSalesInfo((prevChart) => ({
-//         ...prevChart,
-//         legendVisible: 0,
-//         datasets: prevChart.datasets.map((dataset) => ({
-//           ...dataset,
-//           data: Array(dataset.data.length).fill(0),
-//         })),
-//       }));
-//     }
-//   }, [responseData, timeWindow]);
+  //       // Update chart title based on the selected time window
+  //       const titles = {
+  //         W: "Weekly Financial Breakdown",
+  //         Q: "Quarterly Financial Breakdown",
+  //         Y: "Yearly Financial Breakdown",
+  //         M: "Monthly Financial Breakdown",
+  //       };
+  //       setChartTitle(titles[timeWindow] || "Monthly Financial Breakdown");
+  //     } else {
+  //       // If there's no responseData, reset the chart
+  //       setStackedSalesInfo((prevChart) => ({
+  //         ...prevChart,
+  //         legendVisible: 0,
+  //         datasets: prevChart.datasets.map((dataset) => ({
+  //           ...dataset,
+  //           data: Array(dataset.data.length).fill(0),
+  //         })),
+  //       }));
+  //     }
+  //   }, [responseData, timeWindow]);
 
   const [waterfallStackedBar, setWaterfallStackedBar] = useState({
     labels: [],
@@ -1218,20 +1098,18 @@ const DevDashboard = () => {
     console.log("helooo");
   };
 
-
-
   // ===================================code for line chartttt
 
   // const baseURL = () =>
   //   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/salesdata/v1/";
 
-const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refresh-token-auth"
+  const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refresh-token-auth";
   const checkTokenExpired = () => {
     const currentTime = Math.floor(Date.now() / 1000);
     const expTime = GetTokenExpiredTime();
     const remainingTime = expTime - currentTime;
     if (remainingTime <= 300) {
-      var refreshTokenUrl = token ;
+      var refreshTokenUrl = token;
       const config = {
         headers: {
           "x-api-key": "xyz-abcd",
@@ -1462,8 +1340,6 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
     }
   }, []);
 
-
-
   const [WeeklyChartdata, setWeeklyChartData] = useState({
     labels: [],
     datasets: [],
@@ -1549,7 +1425,7 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                {/* {YTDTotalSales} */}₹{YTDTotalSales.toLocaleString()}
+                {/* {YTDTotalSales} */}₹{totalSales.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1578,7 +1454,7 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                ₹{YTDtotalCost.toLocaleString()}
+                ₹{cogs.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1606,9 +1482,7 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                {/* ₹{totalProfit.toLocaleString()} */}
-                                ₹{YTDtotalMargin.toLocaleString()}
-
+                {/* ₹{totalProfit.toLocaleString()} */}₹{margin.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1636,9 +1510,7 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                {/* ₹{MTDTotalSales.toLocaleString()} */}
-                                ₹{MTDTotalSales.toLocaleString()}
-
+                {/* ₹{MTDTotalSales.toLocaleString()} */}₹{MTDTotalSales.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1700,7 +1572,16 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
           </Card>
         </Grid>
       </Grid>
-      <div style={{ marginBottom: "0px", fontWeight: "bold", padding: "0px", fontSize: "15px",marginTop:"10px", fontFamily:"-moz-initial" }}>
+      <div
+        style={{
+          marginBottom: "0px",
+          fontWeight: "bold",
+          padding: "0px",
+          fontSize: "15px",
+          marginTop: "10px",
+          fontFamily: "-moz-initial",
+        }}
+      >
         {dimension}
       </div>
 
@@ -1713,7 +1594,6 @@ const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refre
               overflow: "hidden",
               paddingBottom: "16px",
               height: "100%",
-
             }}
           >
             {/* <BarChart

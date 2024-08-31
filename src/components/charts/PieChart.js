@@ -69,161 +69,19 @@
 // }
 
 
-// import React, { useState, useEffect } from "react";
-// import { Chart as ChartJS, Title, Tooltip, Legend } from "chart.js";
-// import { Doughnut } from "react-chartjs-2";
-// import { IconButton, Dialog, DialogTitle, DialogContent, Grid } from "@mui/material";
-// import CloseIcon from "@mui/icons-material/Close";
-// import { BeatLoader } from "react-spinners";
-// import { BsArrowsFullscreen } from "react-icons/bs";
 
-// ChartJS.register(Title, Tooltip, Legend);
 
-// export default function DonutChart({ chartData, title }) {
-//   const [showPopupChart, setShowPopupChart] = useState(false);
-//   const [loading, setLoading] = useState(false);
 
-//   const handleChartDoubleClick = () => {
-//     setShowPopupChart(true);
-//   };
+// newwww
 
-//   useEffect(() => {
-//     setLoading(true);
-//     setTimeout(() => {
-//       setLoading(false);
-//     }, 1000);
-//   }, [chartData]);
 
-//   return (
-//     <>
-//       {loading || !chartData?.datasets?.length || !chartData?.datasets[0].data?.length ? (
-//         <div style={{ position: "relative", minHeight: "222px", marginLeft: "40%", alignContent: "center" }}>
-//           <BeatLoader color="#36D7B7" loading={true} size={10} />
-//         </div>
-//       ) : (
-//         <Grid container spacing={2}>
-//           <Grid item xs={12} md={showPopupChart ? 6 : 12}>
-//             <div style={{ position: "relative" }}>
-//               <div style={{ position: "absolute", right: 0 }}>
-//                 <IconButton onClick={handleChartDoubleClick}>
-//                   <BsArrowsFullscreen />
-//                 </IconButton>
-//               </div>
-//               <div style={{ width: "100%", height: "200px" }}>
-//                 <Doughnut
-//                   data={chartData}
-//                   options={{
-//                     plugins: {
-//                       title: {
-//                         display: true,
-//                         text: title,
-//                       },
-//                       legend: {
-//                         display: false,
-//                         position: "top",
-//                         labels: {
-//                           font: {
-//                             size: 12,
-//                           },
-//                         },
-//                       },
-//                       tooltip: {
-//                         callbacks: {
-//                           label: function (tooltipItem) {
-//                             return tooltipItem.label + ": " + tooltipItem.raw + "%";
-//                           },
-//                         },
-//                       },
-//                       datalabels: {
-//                         display: false, // Hide data labels on chart segments
-//                       },
-//                     },
-//                     responsive: true,
-//                     maintainAspectRatio: false,
-//                     cutout: "50%", // Ensure it's a donut chart
-//                   }}
-//                 />
-//               </div>
-//             </div>
-//           </Grid>
-//           {showPopupChart && (
-//             <Dialog
-//               open={true}
-//               onClose={() => setShowPopupChart(false)}
-//               fullWidth={true}
-//               maxWidth="lg"
-//               sx={{
-//                 "& .MuiDialog-paper": { width: "90%", maxWidth: "90%" },
-//                 "& .MuiDialogContent-root": {
-//                   overflow: "hidden",
-//                   padding: 0,
-//                 },
-//               }}
-//             >
-//               <DialogTitle>
-//                 <IconButton
-//                   aria-label="close"
-//                   onClick={() => setShowPopupChart(false)}
-//                   sx={{
-//                     position: "absolute",
-//                     right: 8,
-//                     top: 8,
-//                     color: "grey",
-//                   }}
-//                 >
-//                   <CloseIcon />
-//                 </IconButton>
-//               </DialogTitle>
-//               <DialogContent>
-//                 <div style={{ width: "100%", height: "400px" }}>
-//                   <Doughnut
-//                     data={chartData}
-//                     options={{
-//                       plugins: {
-//                         title: {
-//                           display: true,
-//                           text: title,
-//                         },
-//                         legend: {
-//                           display: true,
-//                           position: "top",
-//                           labels: {
-//                             font: {
-//                               size: 14,
-//                             },
-//                           },
-//                         },
-//                         tooltip: {
-//                           callbacks: {
-//                             label: function (tooltipItem) {
-//                               return tooltipItem.label + ": " + tooltipItem.raw + "%";
-//                             },
-//                           },
-//                         },
-//                         datalabels: {
-//                           display: false, // Hide data labels on chart segments
-//                         },
-//                       },
-//                       responsive: true,
-//                       maintainAspectRatio: false,
-//                       cutout: "50%", // Ensure it's a donut chart
-//                     }}
-//                   />
-//                 </div>
-//               </DialogContent>
-//             </Dialog>
-//           )}
-//         </Grid>
-//       )}
-//     </>
-//   );
-// }
+
 
 
 import React, { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import ChartJS from "chart.js/auto";
-import { IconButton, Dialog, DialogTitle, DialogContent, Grid } from "@mui/material";
+import { IconButton, Dialog, DialogTitle, DialogContent, Grid, Typography, Divider } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { BeatLoader } from "react-spinners";
 import { BsArrowsFullscreen } from "react-icons/bs";
@@ -243,9 +101,25 @@ const generateRandomColors = (count) => {
   return Array.from({ length: count }, getRandomColor);
 };
 
+// Function to format numbers into M (Million), K (Thousand), or C (Crore)
+const formatValue = (value) => {
+  if (value >= 10000000) {
+    return (value / 10000000).toFixed(2) + 'C'; // Convert to Crores
+  } else if (value >= 1000000) {
+    return (value / 1000000).toFixed(2) + 'M'; // Convert to Millions
+  } else if (value >= 1000) {
+    return (value / 1000).toFixed(2) + 'K'; // Convert to Thousands
+  } else {
+    return value.toFixed(2); // Keep the value as is
+  }
+};
+
 export default function DonutChart({ chartData, title }) {
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Calculate total sales and round off to 2 decimal places
+  const totalSales = chartData.datasets[0].data.reduce((acc, value) => acc + value, 0).toFixed(2);
 
   // Function to prepare chart data with random colors
   const prepareChartData = (data) => {
@@ -256,6 +130,16 @@ export default function DonutChart({ chartData, title }) {
         {
           ...data.datasets[0],
           backgroundColor: colors,
+          // Adding the formatted values directly on the chart
+          datalabels: {
+            display: true,
+            color: "#fff",
+            formatter: (value) => formatValue(value),
+            font: {
+              weight: "bold",
+              size: 12,
+            },
+          },
         },
       ],
     };
@@ -307,12 +191,10 @@ export default function DonutChart({ chartData, title }) {
                       tooltip: {
                         callbacks: {
                           label: function (tooltipItem) {
-                            return tooltipItem.label + ": " + tooltipItem.raw + "%";
+                            const originalValue = tooltipItem.raw.toFixed(2); // Show full value in tooltip
+                            return `${tooltipItem.label}: ${originalValue}`;
                           },
                         },
-                      },
-                      datalabels: {
-                        display: false,
                       },
                     },
                     responsive: true,
@@ -322,6 +204,10 @@ export default function DonutChart({ chartData, title }) {
                 />
               </div>
             </div>
+            {/* <Divider sx={{ my: 2 }} />
+            <Typography variant="h6" align="center">
+              Total Sales: {formatValue(parseFloat(totalSales))}
+            </Typography> */}
           </Grid>
           {showPopupChart && (
             <Dialog
@@ -373,12 +259,10 @@ export default function DonutChart({ chartData, title }) {
                         tooltip: {
                           callbacks: {
                             label: function (tooltipItem) {
-                              return tooltipItem.label + ": " + tooltipItem.raw + "%";
+                              const originalValue = tooltipItem.raw.toFixed(2); // Show full value in tooltip
+                              return `${tooltipItem.label}: ${originalValue}`;
                             },
                           },
-                        },
-                        datalabels: {
-                          display: false,
                         },
                       },
                       responsive: true,
@@ -387,6 +271,7 @@ export default function DonutChart({ chartData, title }) {
                     }}
                   />
                 </div>
+
               </DialogContent>
             </Dialog>
           )}

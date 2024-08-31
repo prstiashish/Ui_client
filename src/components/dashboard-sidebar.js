@@ -76,8 +76,14 @@ const items = [
     icon: <TableViewIcon fontSize="small" />,
     title: "Data Drill Down",
   },
+  // {
+  //   href: "/tstopsalesvisualization",
+  //   icon: <TrendingUpIcon fontSize="small" />,
+  //   title: "Top Trend Visualization",
+  // },
+
   {
-    href: "/tstopsalesvisualization",
+    href: "/devTopTrendsVisual",
     icon: <TrendingUpIcon fontSize="small" />,
     title: "Top Trend Visualization",
   },

@@ -25,8 +25,8 @@ const Login = () => {
     }),
     onSubmit: () => {
       const poolData = {
-        UserPoolId: "ap-south-1_J5ZthLaH3",
-        ClientId: "7s7cl2l71f9gvm754cofuoden7",
+        UserPoolId: "ap-south-1_BcdMGSPra",
+        ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
       };
 
       const authenticationData = {

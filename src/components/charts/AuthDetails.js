@@ -18,9 +18,9 @@ export const baseURLs = () =>
   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/salesdata/v1/";
 
 //dev
-// export const awsClientID = () => "6sv3ru6lpuljiuea0sdmshlvh8";
+export const awsClientID = () => "6sv3ru6lpuljiuea0sdmshlvh8";
 //Prod
-export const awsClientID = () => "3b41g664mjtaghfbtorjnf7639";
+// export const awsClientID = () => "3b41g664mjtaghfbtorjnf7639";
 
 export const baseAwsAuthenticateURL = () =>
   // "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/authenticate";

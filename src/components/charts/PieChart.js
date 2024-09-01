@@ -22,20 +22,37 @@ const generateRandomColors = (count) => {
   return Array.from({ length: count }, getRandomColor);
 };
 
+// Function to format numbers into lakhs or crores
+const formatToLakhsOrCrores = (value) => {
+  if (value >= 10000000) {
+    // Convert to crores
+    return (value / 10000000).toFixed(2) + " Cr";
+  } else if (value >= 100000) {
+    // Convert to lakhs
+    return (value / 100000).toFixed(2) + " L";
+  } else {
+    // Keep value as is (in thousands or lower)
+    return value.toFixed(2);
+  }
+};
+
 export default function DonutChart({ chartData, title }) {
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Function to prepare chart data with random colors
   const prepareChartData = (data) => {
-    // Highlighted Change: Added random color generation for chart segments
     const colors = generateRandomColors(data.labels.length);
+    const formattedData = data.datasets[0].data.map(formatToLakhsOrCrores);
+
     return {
-      ...data,
+      labels: data.labels,
       datasets: [
         {
           ...data.datasets[0],
-          backgroundColor: colors,  // Highlighted Change: Apply generated colors to datasets
+          backgroundColor: colors,
+          data: formattedData,  // Use formatted data for the graph
+          originalData: data.datasets[0].data, // Store original data for tooltip
         },
       ],
     };
@@ -53,7 +70,6 @@ export default function DonutChart({ chartData, title }) {
 
   return (
     <>
-      {/* Highlighted Change: Added check for loading and data existence */}
       {loading || !preparedChartData?.datasets?.length || !preparedChartData?.datasets[0].data?.length ? (
         <div style={{ position: "relative", minHeight: "222px", marginLeft: "40%", alignContent: "center" }}>
           <BeatLoader color="#36D7B7" loading={true} size={10} />
@@ -69,7 +85,7 @@ export default function DonutChart({ chartData, title }) {
               </div>
               <div style={{ width: "100%", height: "210px" }}>
                 <Doughnut
-                  data={preparedChartData} // Highlighted Change: Use prepared chart data with colors
+                  data={preparedChartData}
                   options={{
                     plugins: {
                       title: {
@@ -88,26 +104,21 @@ export default function DonutChart({ chartData, title }) {
                       tooltip: {
                         callbacks: {
                           label: function (tooltipItem) {
-                            let value = tooltipItem.raw;
-                            let formattedValue;
-
-                            if (value >= 10000000) {
-                              // Convert to crores
-                              formattedValue = (value / 10000000).toFixed(2) + " Cr";
-                            } else if (value >= 100000) {
-                              // Convert to lakhs
-                              formattedValue = (value / 100000).toFixed(2) + " L";
-                            } else {
-                              // Keep value as is (in thousands or lower)
-                              formattedValue = value.toFixed(2);
-                            }
-
-                            return tooltipItem.label + ": " + formattedValue;
+                            const originalValue = preparedChartData.datasets[0].originalData[tooltipItem.dataIndex];
+                            return tooltipItem.label + ": " + originalValue.toLocaleString();
                           },
                         },
                       },
                       datalabels: {
-                        display: false, // Hide data labels on chart segments
+                        display: true,
+                        formatter: function (value, context) {
+                          return value;  // Display formatted value (in lakhs or crores) on the chart
+                        },
+                        color: "#000",
+                        font: {
+                          size: 12,
+                          weight: 'bold',
+                        },
                       },
                     },
                     responsive: true,
@@ -149,7 +160,7 @@ export default function DonutChart({ chartData, title }) {
               <DialogContent>
                 <div style={{ width: "100%", height: "400px" }}>
                   <Doughnut
-                    data={preparedChartData} // Highlighted Change: Use prepared chart data with colors
+                    data={preparedChartData}
                     options={{
                       plugins: {
                         title: {
@@ -168,26 +179,21 @@ export default function DonutChart({ chartData, title }) {
                         tooltip: {
                           callbacks: {
                             label: function (tooltipItem) {
-                              let value = tooltipItem.raw;
-                              let formattedValue;
-
-                              if (value >= 10000000) {
-                                // Convert to crores
-                                formattedValue = (value / 10000000).toFixed(2) + " Cr";
-                              } else if (value >= 100000) {
-                                // Convert to lakhs
-                                formattedValue = (value / 100000).toFixed(2) + " L";
-                              } else {
-                                // Keep value as is (in thousands or lower)
-                                formattedValue = value.toFixed(2);
-                              }
-
-                              return tooltipItem.label + ": " + formattedValue;
+                              const originalValue = preparedChartData.datasets[0].originalData[tooltipItem.dataIndex];
+                              return tooltipItem.label + ": " + originalValue.toLocaleString();
                             },
                           },
                         },
                         datalabels: {
-                          display: false, // Hide data labels on chart segments
+                          display: true,
+                          formatter: function (value, context) {
+                            return value;  // Display formatted value (in lakhs or crores) on the chart
+                          },
+                          color: "#000",
+                          font: {
+                            size: 14,
+                            weight: 'bold',
+                          },
                         },
                       },
                       responsive: true,

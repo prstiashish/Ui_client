@@ -1,4 +1,3 @@
-// Removed unnecessary imports and simplified code structure
 import React, { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import ChartJS from "chart.js/auto";
@@ -40,7 +39,7 @@ export default function DonutChart({ chartData, title }) {
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Function to prepare chart data with random colors
+  // Function to prepare chart data with random colors and formatted values
   const prepareChartData = (data) => {
     const colors = generateRandomColors(data.labels.length);
     const formattedData = data.datasets[0].data.map(formatToLakhsOrCrores);
@@ -50,8 +49,8 @@ export default function DonutChart({ chartData, title }) {
       datasets: [
         {
           ...data.datasets[0],
-          backgroundColor: colors,
-          data: formattedData,  // Use formatted data for the graph
+          backgroundColor: colors,  // Apply generated colors to datasets
+          data: formattedData,      // Use formatted data for the graph
           originalData: data.datasets[0].data, // Store original data for tooltip
         },
       ],
@@ -85,7 +84,7 @@ export default function DonutChart({ chartData, title }) {
               </div>
               <div style={{ width: "100%", height: "210px" }}>
                 <Doughnut
-                  data={preparedChartData}
+                  data={preparedChartData} // Use prepared chart data with formatted values
                   options={{
                     plugins: {
                       title: {
@@ -160,7 +159,7 @@ export default function DonutChart({ chartData, title }) {
               <DialogContent>
                 <div style={{ width: "100%", height: "400px" }}>
                   <Doughnut
-                    data={preparedChartData}
+                    data={preparedChartData} // Use prepared chart data with colors and formatted values
                     options={{
                       plugins: {
                         title: {

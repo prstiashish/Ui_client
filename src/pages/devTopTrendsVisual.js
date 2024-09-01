@@ -188,12 +188,12 @@
 //                 label="Dimension"
 //                   >
 //                      <MenuItem value="Brand">Brand</MenuItem>
-//                 <MenuItem value="FranchiseType">FranchiseType</MenuItem>
+//                 <MenuItem value="Franchise Type">Franchise Type</MenuItem>
 //                 <MenuItem value="Region">Region</MenuItem>
 //                 <MenuItem value="Branch">Branch</MenuItem>
 //                 <MenuItem value="Channel">Channel</MenuItem>
 //                 <MenuItem value="Category">Category</MenuItem>
-//                 <MenuItem value="SubCategory">SubCategory</MenuItem>
+//                 <MenuItem value="Subcategory">Subcategory</MenuItem>
 //                 <MenuItem value="Product">Product</MenuItem>
 //                   </Select>
 //                 </FormControl>

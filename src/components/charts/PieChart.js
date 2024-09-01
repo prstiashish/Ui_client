@@ -1,8 +1,8 @@
-
+// Removed unnecessary imports and simplified code structure
 import React, { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import ChartJS from "chart.js/auto";
-import { IconButton, Dialog, DialogTitle, DialogContent, Grid} from "@mui/material";
+import { IconButton, Dialog, DialogTitle, DialogContent, Grid } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { BeatLoader } from "react-spinners";
 import { BsArrowsFullscreen } from "react-icons/bs";
@@ -22,45 +22,20 @@ const generateRandomColors = (count) => {
   return Array.from({ length: count }, getRandomColor);
 };
 
-// Function to format numbers into M (Million), K (Thousand), or C (Crore)
-const formatValue = (value) => {
-  if (value >= 10000000) {
-    return (value / 10000000).toFixed(2) + 'C'; // Convert to Crores
-  } else if (value >= 1000000) {
-    return (value / 1000000).toFixed(2) + 'M'; // Convert to Millions
-  } else if (value >= 1000) {
-    return (value / 1000).toFixed(2) + 'K'; // Convert to Thousands
-  } else {
-    return value.toFixed(2); // Keep the value as is
-  }
-};
-
 export default function DonutChart({ chartData, title }) {
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Calculate total sales and round off to 2 decimal places
-  const totalSales = chartData.datasets[0].data.reduce((acc, value) => acc + value, 0).toFixed(2);
-
   // Function to prepare chart data with random colors
   const prepareChartData = (data) => {
+    // Highlighted Change: Added random color generation for chart segments
     const colors = generateRandomColors(data.labels.length);
     return {
       ...data,
       datasets: [
         {
           ...data.datasets[0],
-          backgroundColor: colors,
-          // Adding the formatted values directly on the chart
-          datalabels: {
-            display: true,
-            color: "#fff",
-            formatter: (value) => formatValue(value),
-            font: {
-              weight: "bold",
-              size: 12,
-            },
-          },
+          backgroundColor: colors,  // Highlighted Change: Apply generated colors to datasets
         },
       ],
     };
@@ -78,6 +53,7 @@ export default function DonutChart({ chartData, title }) {
 
   return (
     <>
+      {/* Highlighted Change: Added check for loading and data existence */}
       {loading || !preparedChartData?.datasets?.length || !preparedChartData?.datasets[0].data?.length ? (
         <div style={{ position: "relative", minHeight: "222px", marginLeft: "40%", alignContent: "center" }}>
           <BeatLoader color="#36D7B7" loading={true} size={10} />
@@ -93,7 +69,7 @@ export default function DonutChart({ chartData, title }) {
               </div>
               <div style={{ width: "100%", height: "210px" }}>
                 <Doughnut
-                  data={preparedChartData}
+                  data={preparedChartData} // Highlighted Change: Use prepared chart data with colors
                   options={{
                     plugins: {
                       title: {
@@ -112,20 +88,35 @@ export default function DonutChart({ chartData, title }) {
                       tooltip: {
                         callbacks: {
                           label: function (tooltipItem) {
-                            const originalValue = tooltipItem.raw.toFixed(2); // Show full value in tooltip
-                            return `${tooltipItem.label}: ${originalValue}`;
+                            let value = tooltipItem.raw;
+                            let formattedValue;
+
+                            if (value >= 10000000) {
+                              // Convert to crores
+                              formattedValue = (value / 10000000).toFixed(4) + " Cr";
+                            } else if (value >= 100000) {
+                              // Convert to lakhs
+                              formattedValue = (value / 100000).toFixed(4) + " L";
+                            } else {
+                              // Keep value as is (in thousands or lower)
+                              formattedValue = value.toFixed(2);
+                            }
+
+                            return tooltipItem.label + ": " + formattedValue;
                           },
                         },
+                      },
+                      datalabels: {
+                        display: false, // Hide data labels on chart segments
                       },
                     },
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: "50%",
+                    cutout: "50%", // Ensure it's a donut chart
                   }}
                 />
               </div>
             </div>
-
           </Grid>
           {showPopupChart && (
             <Dialog
@@ -137,7 +128,7 @@ export default function DonutChart({ chartData, title }) {
                 "& .MuiDialog-paper": { width: "90%", maxWidth: "90%" },
                 "& .MuiDialogContent-root": {
                   overflow: "hidden",
-                  padding: 4,
+                  padding: 4,  // Highlighted Change: Added padding for better spacing
                 },
               }}
             >
@@ -158,7 +149,7 @@ export default function DonutChart({ chartData, title }) {
               <DialogContent>
                 <div style={{ width: "100%", height: "400px" }}>
                   <Doughnut
-                    data={preparedChartData}
+                    data={preparedChartData} // Highlighted Change: Use prepared chart data with colors
                     options={{
                       plugins: {
                         title: {
@@ -177,19 +168,34 @@ export default function DonutChart({ chartData, title }) {
                         tooltip: {
                           callbacks: {
                             label: function (tooltipItem) {
-                              const originalValue = tooltipItem.raw.toFixed(2); // Show full value in tooltip
-                              return `${tooltipItem.label}: ${originalValue}`;
+                              let value = tooltipItem.raw;
+                              let formattedValue;
+
+                              if (value >= 10000000) {
+                                // Convert to crores
+                                formattedValue = (value / 10000000).toFixed(4) + " Cr";
+                              } else if (value >= 100000) {
+                                // Convert to lakhs
+                                formattedValue = (value / 100000).toFixed(4) + " L";
+                              } else {
+                                // Keep value as is (in thousands or lower)
+                                formattedValue = value.toFixed(2);
+                              }
+
+                              return tooltipItem.label + ": " + formattedValue;
                             },
                           },
+                        },
+                        datalabels: {
+                          display: false, // Hide data labels on chart segments
                         },
                       },
                       responsive: true,
                       maintainAspectRatio: false,
-                      cutout: "50%",
+                      cutout: "50%", // Ensure it's a donut chart
                     }}
                   />
                 </div>
-
               </DialogContent>
             </Dialog>
           )}

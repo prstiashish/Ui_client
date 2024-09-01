@@ -88,7 +88,21 @@ export default function DonutChart({ chartData, title }) {
                       tooltip: {
                         callbacks: {
                           label: function (tooltipItem) {
-                            return tooltipItem.label + ": " + tooltipItem.raw + "%";
+                            let value = tooltipItem.raw;
+                            let formattedValue;
+
+                            if (value >= 10000000) {
+                              // Convert to crores
+                              formattedValue = (value / 10000000).toFixed(2) + " Cr";
+                            } else if (value >= 100000) {
+                              // Convert to lakhs
+                              formattedValue = (value / 100000).toFixed(2) + " L";
+                            } else {
+                              // Keep value as is (in thousands or lower)
+                              formattedValue = value.toFixed(2);
+                            }
+
+                            return tooltipItem.label + ": " + formattedValue;
                           },
                         },
                       },
@@ -154,7 +168,21 @@ export default function DonutChart({ chartData, title }) {
                         tooltip: {
                           callbacks: {
                             label: function (tooltipItem) {
-                              return tooltipItem.label + ": " + tooltipItem.raw + "%";
+                              let value = tooltipItem.raw;
+                              let formattedValue;
+
+                              if (value >= 10000000) {
+                                // Convert to crores
+                                formattedValue = (value / 10000000).toFixed(2) + " Cr";
+                              } else if (value >= 100000) {
+                                // Convert to lakhs
+                                formattedValue = (value / 100000).toFixed(2) + " L";
+                              } else {
+                                // Keep value as is (in thousands or lower)
+                                formattedValue = value.toFixed(2);
+                              }
+
+                              return tooltipItem.label + ": " + formattedValue;
                             },
                           },
                         },

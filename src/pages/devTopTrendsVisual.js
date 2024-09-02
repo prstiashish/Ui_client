@@ -188,7 +188,7 @@
 //                 label="Dimension"
 //                   >
 //                      <MenuItem value="Brand">Brand</MenuItem>
-//                 <MenuItem value="Franchise_Type">Franchise_Type</MenuItem>
+//                 <MenuItem value="Franchise_Type">Franchise Type</MenuItem>
 //                 <MenuItem value="Region">Region</MenuItem>
 //                 <MenuItem value="Branch">Branch</MenuItem>
 //                 <MenuItem value="Channel">Channel</MenuItem>
@@ -417,7 +417,7 @@ const MyComponent = () => {
                   label="Dimension"
                 >
                   <MenuItem value="Brand">Brand</MenuItem>
-                  <MenuItem value="Franchise_Type">Franchise_Type</MenuItem>
+                  <MenuItem value="Franchise_Type">Franchise Type</MenuItem>
                   <MenuItem value="Region">Region</MenuItem>
                   <MenuItem value="Branch">Branch</MenuItem>
                   <MenuItem value="Channel">Channel</MenuItem>

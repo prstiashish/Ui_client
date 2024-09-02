@@ -57,7 +57,7 @@ const Login = () => {
           sessionStorage.setItem("TokenExpiredTime", decodedIdToken.exp);
           const session = new SessionStorageService();
           session.setItem("currentUser", formik.values.email);
-          router.push("/tssalesvisualization");
+          router.push("devdashboard/");
         })
         .catch((error) => {
           console.error("Error:", error);

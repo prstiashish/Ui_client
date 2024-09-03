@@ -25,9 +25,12 @@ const Login = () => {
     }),
     onSubmit: () => {
       const poolData = {
+        // UserPoolId: "ap-south-1_BcdMGSPra",
+        // ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
         UserPoolId: "ap-south-1_J5ZthLaH3",
         ClientId: "7s7cl2l71f9gvm754cofuoden7",
       };
+      console.log(poolData, "poolData");
 
       const authenticationData = {
         Username: formik.values.email, //formik.values.email,
@@ -57,7 +60,9 @@ const Login = () => {
           sessionStorage.setItem("TokenExpiredTime", decodedIdToken.exp);
           const session = new SessionStorageService();
           session.setItem("currentUser", formik.values.email);
+          // router.push("/tssalesvisualization");
           router.push("devdashboard/");
+
         })
         .catch((error) => {
           console.error("Error:", error);

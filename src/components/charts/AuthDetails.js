@@ -20,13 +20,25 @@ export const baseURLs = () =>
 //dev
 // export const awsClientID = () => "6sv3ru6lpuljiuea0sdmshlvh8";
 //Prod
-export const awsClientID = () => "3b41g664mjtaghfbtorjnf7639";
-// export const awsClientID = () => "7s7cl2l71f9gvm754cofuoden7";
 
+
+// this is using which I commit
+export const awsClientID = () => "3b41g664mjtaghfbtorjnf7639";
+
+//new one
+// export const awsClientID = () => "7s7cl2l71f9gvm754cofuoden7";
 
 export const baseAwsAuthenticateURL = () =>
   // "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/authenticate";
+
+
+// this is which I commit
   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/authenticate/";
+
+
+// new one
+// "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
 
 // export const baseURLs = () => {
 //   debugger;

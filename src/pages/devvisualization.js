@@ -130,11 +130,20 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
     .filter((option) => option && option.toLowerCase().includes(searchValue.toLowerCase()))
     .filter((option) => option !== "All");
 
+// TTSF
+    // const getURL = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+
+
+    // Skippy GET
+    const getURL = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/skippi/Ui_dropdown.json"
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+         getURL
         );
 
         const newallData = response.data;

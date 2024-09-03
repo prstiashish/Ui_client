@@ -37,6 +37,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const [selectedDimension, setSelectedDimension] = useState("");
   const [selectedValues, setSelectedValues] = useState([]);
   const [selectedMeasure, setSelectedMeasure] = useState("");
+  console.log(selectedMeasure);
   const [selectCurrency, setSelectCurrency] = useState("");
   const [selectedTimeWindow, setSelectedTimeWindow] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -66,6 +67,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
 
   const [dimensions, setDimensions] = useState({});
   const [measures, setMeasures] = useState([]);
+  console.log(measures,'dropppp')
   const [currency, setCurrency] = useState([]);
   const [timeWindows, setTimeWindows] = useState([]);
 
@@ -128,11 +130,20 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     .filter((option) => option && option.toLowerCase().includes(searchValue.toLowerCase()))
     .filter((option) => option !== "All");
 
+
+// TTSF
+  // const getURL = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+
+
+
+  // Skippy GET
+  const getURL = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/skippi/Ui_dropdown.json"
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+         getURL
         );
 
         const newallData = response.data;
@@ -246,7 +257,17 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     const payload = formatData();
     // console.log(data, "dataaaaaaaa");
 
-    const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+
+    // for TTSF
+    // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+
+
+    // For Skippy POST
+    const url = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/";
+
+
     setLoading(true);
     try {
       const response = await fetch(url, {

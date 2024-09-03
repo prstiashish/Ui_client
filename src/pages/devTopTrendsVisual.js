@@ -188,12 +188,12 @@
 //                 label="Dimension"
 //                   >
 //                      <MenuItem value="Brand">Brand</MenuItem>
-//                 <MenuItem value="Franchise_Type">Franchise Type</MenuItem>
+//                 <MenuItem value="FranchiseType">FranchiseType</MenuItem>
 //                 <MenuItem value="Region">Region</MenuItem>
 //                 <MenuItem value="Branch">Branch</MenuItem>
 //                 <MenuItem value="Channel">Channel</MenuItem>
 //                 <MenuItem value="Category">Category</MenuItem>
-//                 <MenuItem value="Subcategory">Subcategory</MenuItem>
+//                 <MenuItem value="SubCategory">SubCategory</MenuItem>
 //                 <MenuItem value="Product">Product</MenuItem>
 //                   </Select>
 //                 </FormControl>
@@ -302,7 +302,13 @@ const MyComponent = () => {
   const [loading, setLoading] = useState(true);
   const [isSlideOpen, setIsSlideOpen] = useState(false);
 
-  const dataUrl = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/"; // Replace with your API endpoint
+  // TTSF
+  // const dataUrl = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/"; // Replace with your API endpoint
+
+
+  // Skippy
+  const dataUrl = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/"; // Replace with your API endpoint
+
 
   // Function to fetch data from API
   const fetchData = async (payload) => {
@@ -417,12 +423,12 @@ const MyComponent = () => {
                   label="Dimension"
                 >
                   <MenuItem value="Brand">Brand</MenuItem>
-                  <MenuItem value="Franchise_Type">Franchise Type</MenuItem>
+                  <MenuItem value="FranchiseType">FranchiseType</MenuItem>
                   <MenuItem value="Region">Region</MenuItem>
                   <MenuItem value="Branch">Branch</MenuItem>
                   <MenuItem value="Channel">Channel</MenuItem>
                   <MenuItem value="Category">Category</MenuItem>
-                  <MenuItem value="Subcategory">Subcategory</MenuItem>
+                  <MenuItem value="SubCategory">SubCategory</MenuItem>
                   <MenuItem value="Product">Product</MenuItem>
                 </Select>
               </FormControl>

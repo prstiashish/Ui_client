@@ -126,7 +126,16 @@ const DevDashboard = () => {
   const router = useRouter();
   const { dimension, timeWindow } = router.query;
 
-  const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+
+  // TTSF
+  // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+
+
+  // SKIPPY
+  const url = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/";
+
 
   // for cards
   const [totalSales, setTotalSales] = useState(0);
@@ -136,7 +145,12 @@ const DevDashboard = () => {
   const [margin, setMargin] = useState(0);
 
   useEffect(() => {
-    const urls = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+    // TTSF
+    // const urls = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+// SKIPPY POST
+    const urls = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/";
 
     const url = urls; // Replace with your actual URL
     const defaultCardPayload = {

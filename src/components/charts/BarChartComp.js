@@ -127,9 +127,9 @@ export default function BarChartComp({ chartData, title }) {
                               dataset.salesData &&
                               dataset.salesData[dataIndex] !== undefined
                             ) {
-                              return `Sales Amount: ${dataset.salesData[dataIndex]}`;
+                              return `Margin: ${dataset.salesData[dataIndex]}`;
                             } else {
-                              return "Sales Amount: N/A"; // Provide a default value if data is missing
+                              return "Margin: N/A"; // Provide a default value if data is missing
                             }
                           },
                         },
@@ -256,7 +256,7 @@ function PopupChart({ chartData, title, onClose }) {
               label: function (context) {
                 debugger;
                 if (context.dataset.label === "Margin Trend Analysis") {
-                  return "Sales Amount: " + context.dataset.salesData[context.dataIndex];
+                  return "Margin: " + context.dataset.salesData[context.dataIndex];
                 } else {
                   return "";
                 }

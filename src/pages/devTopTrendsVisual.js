@@ -392,7 +392,7 @@ const MyComponent = () => {
           fontFamily: "-moz-initial",
         }}
       >
-        {Sales Performance by ${dimension}}
+        {`Sales Performance by ${dimension}`}
       </div>
       {/* Slide-Out Panel */}
       <Drawer anchor="right" open={isSlideOpen} onClose={() => setIsSlideOpen(false)}>

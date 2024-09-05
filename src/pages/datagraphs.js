@@ -854,6 +854,8 @@ const App = () => {
           >
             <div style={{ width: "100%", height: "100%" }}>
               {currentData && (
+                <>
+              <h3 style={{ marginLeft: "20px" }}>{currentData.title}</h3>
                 <Bar
                   data={currentData}
                   options={{
@@ -914,6 +916,7 @@ const App = () => {
                     },
                   }}
                 />
+               </>
               )}
             </div>
           </DialogContent>

@@ -110,7 +110,18 @@ const MyComponent = () => {
           </Button>
         </Tooltip>
       </Grid>
-
+        <div
+        style={{
+          marginBottom: "0px",
+          fontWeight: "bold",
+          padding: "0px",
+          fontSize: "15px",
+          marginTop: "10px",
+          fontFamily: "-moz-initial",
+        }}
+      >
+        {Sales Performance by ${dimension}}
+      </div>
       {/* Slide-Out Panel */}
       <Drawer anchor="right" open={isSlideOpen} onClose={() => setIsSlideOpen(false)}>
         <div style={{ width: "300px", padding: "20px" }}>
@@ -153,7 +164,7 @@ const MyComponent = () => {
               </FormControl>
             </Box>
           </Grid>
-
+        
           {/* Top Limit Selection */}
           <Grid item xs={12}>
             <Box

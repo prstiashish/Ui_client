@@ -21,7 +21,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@mui/icons-material": "^5.15.15",
-    "@mui/material": "^6.1.1",
+    "@mui/material": "^5.15.15",
     "@mui/styles": "^5.0.2",
     "@mui/x-data-grid": "^7.1.1",
     "@mui/x-date-pickers": "^7.15.0",
@@ -77,5 +77,9 @@
     "eslint": "^8.57.0",
     "prettier": "2.6.2"
   },
-  "proxy": "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com"
+  "proxy": "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com",
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "middleware.js",
+  "keywords": [],
+  "license": "ISC"
 }

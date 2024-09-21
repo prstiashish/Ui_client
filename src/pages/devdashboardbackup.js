@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import axios from "axios"; // or fetch API
 import DevSlideOutPanel from "./devslidepannel"; // Ensure this path is correct
-import SlideOutPanel from "./slideoutpannel"; // Ensure this path is correct
 
 import { DashboardLayout } from "src/components/dashboard-layout";
 import debounce from "lodash.debounce";
 
 import StackedBarChart from "src/components/charts/StackedBarChart";
 import BarChartComp from "src/components/charts/BarChartComp";
+import DonutChart from "src/components/charts/PieChart";
 import BarChartWeekly from "src/components/charts/BarChartWeekly";
 
 import BarChart from "src/components/charts/BarChart";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router"; // or use location from react-router
+import { GetAuthToken } from "src/components/charts/AuthDetails";
+import { GetSchema } from "src/components/charts/AuthDetails";
+import { GetTokenExpiredTime, GetRefreshToken, baseURLs } from "src/components/charts/AuthDetails";
 
 import {
   Grid,
@@ -26,9 +29,11 @@ import {
   Button,
   Tooltip,
 } from "@mui/material";
+import DevVisualization from "./devvisualization";
 
 const DevDashboard = () => {
   // const [responseData, setResponseData] = useState(null);
+
   const [monthlyWiseSalesChart, setMonthWiseSalesChart] = useState({
     labels: [],
     datasets: [
@@ -57,7 +62,7 @@ const DevDashboard = () => {
   });
   const [chartTitleTaxes, setChartTitleTaxes] = useState("Monthly Taxes");
 
-  const [chartTitleCostWise, setChartTitleCostWise] = useState("Monthly Cost Sales");
+  const [chartTitleCostWise, setChartTitleCostWise] = useState("Cost of Goods Sold");
 
   const [YTDTotalSales, setYTDTotalSales] = useState(0);
   console.log(YTDTotalSales, "YTDTotalSalesYTDTotalSalesYTDTotalSales");
@@ -68,6 +73,10 @@ const DevDashboard = () => {
   const [MTDtotalCost, setMTDTotalCost] = useState(0);
   const [MTDTotalMargin, setMTDTotalMargin] = useState(0);
 
+  const [selectedFilter, setSelectedFilter] = useState(1);
+
+  const baseURL = baseURLs();
+
   // State for Stacked Chart Data
   const [stackedMonthWiseInfo, setStackedMonthWiseInfo] = useState({
     labels: [],
@@ -75,293 +84,384 @@ const DevDashboard = () => {
     legendVisible: 1,
   });
 
-  const [chartTitle, setChartTitle] = useState("Monthly Financial Breakdown");
+  // const [chartTitle, setChartTitle] = useState("Monthly Financial Breakdown");
+  const [chartTitle, setChartTitle] = useState("Cost of sales");
+
+
+  // const [stackedSalesInfo, setStackedSalesInfo] = useState({
+  //   labels: [],
+  //   datasets: [
+  //     {
+  //       label: "Taxes",
+  //       backgroundColor: "#51cda0",
+  //       data: [],
+  //     },
+  //     {
+  //       label: "Gross Amount",
+  //       backgroundColor: "#f2a571",
+  //       data: [],
+  //     },
+  //     {
+  //       label: "Net Amount",
+  //       backgroundColor: "#df7970",
+  //       data: [],
+  //     },
+
+  //   ],
+  // });
 
   const [stackedSalesInfo, setStackedSalesInfo] = useState({
     labels: [],
-    datasets: [
-      {
-        label: "Taxes",
-        backgroundColor: "#51cda0",
-        data: [],
-      },
-      {
-        label: "Gross Amount",
-        backgroundColor: "#f2a571",
-        data: [],
-      },
-      {
-        label: "Net Amount",
-        backgroundColor: "#df7970",
-        data: [],
-      },
-      // {
-      //   label: "Taxes",
-      //   backgroundColor: "#ffa31a",
-      //   data: [],
-      // },
-      // {
-      //   label: "Gross Amount",
-      //   backgroundColor: "#ffb84d",
-      //   data: [],
-      // },
-      // {
-      //   label: "Net Amount",
-      //   backgroundColor: "#ffcc80",
-      //   data: [],
-      // },
-    ],
+    datasets: [],
   });
 
   const [chartTitleFinancial, setChartTitleFinancial] = useState("Monthly Financial Breakdown");
 
   const router = useRouter();
-  const { dimension, timeWindow } = router.query;
+  console.log(router.query, "router.query");
+  const { dimension, timeWindow, startDate, endDate, isChecked } = router.query;
+
+  const [includePrevYear, setIncludePrevYear] = useState(false);
+
+  useEffect(() => {
+    setIncludePrevYear(isChecked === "true" ? true : false);
+  }, [isChecked]);
+
+  const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+  // for cards
+  const [totalSales, setTotalSales] = useState(0);
+
+  const [cogs, setCogs] = useState(0);
+
+  const [margin, setMargin] = useState(0);
+
+  useEffect(() => {
+    const urls = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+
+    const url = urls; // Replace with your actual URL
+    const defaultCardPayload = {
+      view: "measures-ytd-mtd",
+    };
+
+    const fetchCardData = async () => {
+      try {
+        const response = await axios.post(url, defaultCardPayload);
+        const data = response.data;
+        console.log(response.data, "cc");
+        if (data.YTD && data.YTD.length > 0) {
+          const ytdData = data.YTD[0]; // Assuming YTD data is at index 0
+
+          // Extract values
+          setTotalSales(ytdData.Total_Sales);
+          setCogs(ytdData.Cogs);
+          setMargin(ytdData.Margin);
+        }
+      } catch (error) {
+        console.error("Error fetching card data:", error);
+      }
+    };
+
+    fetchCardData();
+  }, []);
 
   const timeWindowMap = {
-    M: "Month",
-    Q: "Quarter",
-    Y: "Year",
-    W: "Week",
+    M: "Monthly",
+    Q: "Quarterly",
+    Y: "Yearly",
+    W: "Weekly",
   };
 
   // Default payload for the API request
+  // const defaultPayload = useMemo(
+  //   () => ({
+  //     dimension: dimension || "none",
+  //     view: "All",
+  //     time_window: timeWindow || "M", // Default to "M" if no time window is provided
+  //   }),
+  //   [dimension, timeWindow]
+  // );
+
+  // const [chartData, setChartData] = useState({
+  //   labels: [],
+  //   datasets: [
+  //     {
+  //       label: "Total Sales",
+  //       data: [],
+  //       backgroundColor: "#197fc0",
+  //     },
+  //   ],
+  // });
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+
+  const [responseData, setResponseData] = useState([]);
+  console.log(responseData, "responseData");
+
   const defaultPayload = useMemo(
     () => ({
       dimension: dimension || "none",
       view: "All",
-      time_window: timeWindow || "M", // Default to "M" if no time window is provided
+      start_date: startDate || "",
+      end_date: endDate || "",
+      include_prev_year: includePrevYear, // Use state value
+      time_window: timeWindow || "M",
     }),
-    [dimension, timeWindow]
+    [dimension, timeWindow, includePrevYear, startDate, endDate]
   );
 
-  // Memoize the payload for fetching yearly data
-  const yearlyPayload = useMemo(
-    () => ({
-      dimension: dimension || "none",
-      view: "All",
-      time_window: "Y", // Set to "Y" for yearly data
-    }),
-    [dimension, timeWindow]
-  );
-
-  const [responseData, setResponseData] = useState([]);
-  const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [
-      {
-        label: "Total Sales",
-        data: [],
-        // backgroundColor: "rgba(73, 77, 140)",
-        // backgroundColor: "rgba(73, 77, 140)", // Example color
-        backgroundColor: "#197fc0"
-      },
-    ],
-  });
-
-  const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+  useEffect(() => {
+    // Ensure defaultPayload is updated whenever `isChecked` changes
+    console.log("Updated defaultPayload:", defaultPayload);
+  }, [defaultPayload]); // Dependency on `defaultPayload`
 
   const stableUrl = useMemo(() => url, [url]);
   const stablePayload = useMemo(() => defaultPayload, [defaultPayload]);
-
-  // const fetchData = useCallback(async () => {
-  //   if (!stableUrl || !stablePayload) return;
-
-  //   try {
-  //     const response = await axios.post(stableUrl, stablePayload);
-  //     if (response.data && Array.isArray(response.data)) {
-  //       setResponseData(response.data);
-  //       console.log(response.data,'rrrrrrrrrrrrrrr')
-
-  //     } else {
-  //       console.error("Unexpected data format:", response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // }, [stableUrl, stablePayload]);
-
-  // for cards
 
   const fetchData = useCallback(async () => {
     if (!stableUrl || !stablePayload) return;
 
     try {
-      // Fetch monthly data for graphs
+      console.log("Fetching data with URL:", stableUrl);
+      console.log("Payload:", stablePayload);
+
       const response = await axios.post(stableUrl, stablePayload);
-      if (response.data && Array.isArray(response.data)) {
-        setResponseData(response.data);
-        console.log(response.data, "Monthly Data");
-        const yearData = response.data.find((item) => item.Year);
+      const responseData = response.data;
 
-        if (yearData) {
-          // Set YTD Total Sales if year data is found
-          setYTDTotalSales(parseFloat(yearData.Total_Sales));
+      console.log("Fetched data:", responseData);
 
-          const supplierCost = parseFloat(yearData.Supplies_Cost) || 0;
-          const materialsCost = parseFloat(yearData.Materials_Cost) || 0;
-          const discount = parseFloat(yearData.Discounts) || 0;
-
-          const totalCost = supplierCost + materialsCost + discount;
-          console.log(totalCost);
-
-          setYTDTotalCost(totalCost);
-
-          const margin = parseFloat(yearData.Margin) || 0;
-          setYTDTotalMargin(margin);
-
+      if (responseData) {
+        if (stablePayload.include_prev_year) {
+          // Handle case when include_prev_year is true
+          if (responseData["Current Fiscal Year"] && responseData["Previous Fiscal Year"]) {
+            setResponseData({
+              currentYearData: responseData["Current Fiscal Year"],
+              previousYearData: responseData["Previous Fiscal Year"],
+            });
+          } else {
+            console.error("Expected fields not found in response data.");
+          }
+        } else {
+          // Handle case when include_prev_year is false
+          if (Array.isArray(responseData)) {
+            setResponseData({
+              currentYearData: responseData,
+            });
+          } else {
+            console.error("Unexpected data format:", responseData);
+          }
         }
-        console.log("hiii");
       } else {
-        console.error("Unexpected data format:", response.data);
+        console.error("No data available.");
       }
-
-      // Fetch yearly total sales
-      // const yearlyResponse = await axios.post(stableUrl, yearlyPayload);
-      // if (yearlyResponse.data && Array.isArray(yearlyResponse.data)) {
-      //   const yearData = yearlyResponse.data.find(item => item.time_window === "Y");
-      //   setYTDTotalSales(yearData ? parseFloat(yearData.Total_Sales) : 0);
-      //   console.log(yearData, 'Yearly Data');
-      // } else {
-      //   console.error("Unexpected yearly data format:", yearlyResponse.data);
-      // }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }, [stableUrl, stablePayload, yearlyPayload]);
+  }, [stableUrl, stablePayload]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // total sales   this is for only monthly
-  // useEffect(() => {
-  //   if (responseData) {
-  //     const totalsalesData = getTotalSalesDataByMonth(responseData);
+  const getTotalSalesDataByWeek = ({ currentYearData, previousYearData }) => {
+    console.log("currentYearData:", currentYearData);
+    console.log("previousYearData:", previousYearData);
 
-  //     const labels = totalsalesData.map((item) => item.month);
-  //     const data = totalsalesData.map((item) => item.totalSales);
+    const currentYearDataset = Array.isArray(currentYearData)
+      ? currentYearData.map((item) => ({
+          week: item.Week, // Ensure this field name matches your data
+          totalSales: item.Total_Sales,
+        }))
+      : [];
 
-  //     setMonthWiseSalesChart((prevState) => {
-  //       // Only update if there are actual changes
-  //       if (
-  //         JSON.stringify(prevState.labels) !== JSON.stringify(labels) ||
-  //         JSON.stringify(prevState.datasets[0].data) !== JSON.stringify(data)
-  //       ) {
-  //         return {
-  //           ...prevState,
-  //           labels: labels,
-  //           datasets: [
-  //             {
-  //               ...prevState.datasets[0],
-  //               data: data,
-  //             },
-  //           ],
-  //         };
-  //       }
-  //       return prevState;
-  //     });
+    const previousYearDataset = Array.isArray(previousYearData)
+      ? previousYearData.map((item) => ({
+          week: item.Week, // Ensure this field name matches your data
+          totalSales: item.Total_Sales,
+        }))
+      : [];
 
-  //     updateChartTitle();
-  //   }
-  // }, [responseData]);
+    return { currentYearDataset, previousYearDataset };
+  };
 
-  // based on user time window
+  const getTotalSalesDataByQuarter = ({ currentYearData, previousYearData }) => {
+    console.log("currentYearData:", currentYearData);
+    console.log("previousYearData:", previousYearData);
 
-  // const getTotalSalesDataByMonth = (responseData) => {
-  //   return responseData.map((item) => ({
-  //     month: item.Month,
-  //     totalSales: item.Total_Sales,
-  //   }));
-  // };
+    const currentYearDataset = Array.isArray(currentYearData)
+      ? currentYearData.map((item) => ({
+          quarter: item.Quarter, // Ensure these fields are correct
+          totalSales: item.Total_Sales,
+        }))
+      : [];
 
-  const getTotalSalesDataByMonth = (responseData) => {
-    if (!Array.isArray(responseData)) {
-      console.error("Expected responseData to be an array.");
-      return [];
+    const previousYearDataset = Array.isArray(previousYearData)
+      ? previousYearData.map((item) => ({
+          quarter: item.Quarter, // Ensure these fields are correct
+          totalSales: item.Total_Sales,
+        }))
+      : [];
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getTotalSalesDataByYear = ({ currentYearData, previousYearData }) => {
+    console.log("currentYearData:", currentYearData);
+    console.log("previousYearData:", previousYearData);
+
+    const currentYearDataset = Array.isArray(currentYearData)
+      ? currentYearData.map((item) => ({
+          year: item.Year, // Ensure these fields are correct
+          totalSales: item.Total_Sales,
+        }))
+      : [];
+
+    const previousYearDataset = Array.isArray(previousYearData)
+      ? previousYearData.map((item) => ({
+          year: item.Year, // Ensure these fields are correct
+          totalSales: item.Total_Sales,
+        }))
+      : [];
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getTotalSalesDataByMonth = ({ currentYearData, previousYearData }) => {
+    console.log("currentYearData:", currentYearData);
+    console.log("previousYearData:", previousYearData);
+
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        month: item.Month,
+        totalSales: item.Total_Sales,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
     }
 
-    return responseData.map((item) => ({
-      month: item.Month,
-      totalSales: item.Total_Sales,
-    }));
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        month: item.Month,
+        totalSales: item.Total_Sales,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
   };
 
-  const getTotalSalesDataByWeek = (responseData) => {
-    return responseData.map((item) => ({
-      week: item.Week,
-      totalSales: item.Total_Sales,
-    }));
-  };
-
-  const getTotalSalesDataByQuarter = (responseData) => {
-    return responseData.map((item) => ({
-      quarter: item.Quarter,
-      totalSales: item.Total_Sales,
-    }));
-  };
-
-  const getTotalSalesDataByYear = (responseData) => {
-    return responseData.map((item) => ({
-      year: item.Year,
-      totalSales: item.Total_Sales,
-    }));
-  };
   useEffect(() => {
     if (responseData) {
-      let processedData;
+      console.log("responseData:", responseData);
+      console.log("timeWindow:", timeWindow);
 
+      let currentYearData = [];
+      let previousYearData = [];
+      let processedData = [];
+
+      // Extract data based on the time window
       switch (timeWindow) {
         case "W":
-          processedData = getTotalSalesDataByWeek(responseData);
+          const weekData = getTotalSalesDataByWeek(responseData);
+          currentYearData = weekData.currentYearDataset;
+          previousYearData = weekData.previousYearDataset;
           break;
         case "Q":
-          processedData = getTotalSalesDataByQuarter(responseData);
+          const quarterData = getTotalSalesDataByQuarter(responseData);
+          currentYearData = quarterData.currentYearDataset;
+          previousYearData = quarterData.previousYearDataset;
           break;
         case "Y":
-          processedData = getTotalSalesDataByYear(responseData);
+          const yearData = getTotalSalesDataByYear(responseData);
+          currentYearData = yearData.currentYearDataset;
+          previousYearData = yearData.previousYearDataset;
           break;
         case "M":
         default:
-          processedData = getTotalSalesDataByMonth(responseData);
+          const monthData = getTotalSalesDataByMonth(responseData);
+          currentYearData = monthData.currentYearDataset;
+          previousYearData = monthData.previousYearDataset;
           break;
       }
 
-      const labels = processedData.map((item) => {
-        switch (timeWindow) {
-          case "W":
-            return item.week; // Ensure `item.week` matches your data
-          case "Q":
-            return item.quarter; // Ensure `item.quarter` matches your data
-          case "Y":
-            return item.year; // Ensure `item.year` matches your data
-          case "M":
-          default:
-            return item.month; // Ensure `item.month` matches your data
-        }
+      // Combine current and previous year data
+      processedData = [
+        ...currentYearData.map((item) => ({
+          ...item,
+          year: "Current Year",
+        })),
+        ...previousYearData.map((item) => ({
+          ...item,
+          year: "Previous Year",
+        })),
+      ];
+
+      // Prepare labels and data
+      let labels = [];
+      if (timeWindow === "W") {
+        labels = [...new Set(processedData.map((item) => item.week))];
+      } else if (timeWindow === "Q") {
+        labels = [...new Set(processedData.map((item) => item.quarter))];
+      } else if (timeWindow === "Y") {
+        labels = [...new Set(processedData.map((item) => item.year))];
+      } else {
+        labels = [...new Set(processedData.map((item) => item.month))];
+      }
+      let labelType;
+      if (timeWindow === "W") {
+        labelType = "week";
+      } else if (timeWindow === "Q") {
+        labelType = "quarter";
+      } else if (timeWindow === "Y") {
+        labelType = "year";
+      } else {
+        labelType = "month";
+      }
+      const data = labels.map((label) => {
+        const currentYearDataPoint = processedData.find(
+          (item) => item[labelType] === label && item.year === "Current Year"
+        );
+        const previousYearDataPoint = processedData.find(
+          (item) => item[labelType] === label && item.year === "Previous Year"
+        );
+        return {
+          currentYear: currentYearDataPoint ? currentYearDataPoint.totalSales : 0,
+          previousYear: previousYearDataPoint ? previousYearDataPoint.totalSales : 0,
+        };
       });
 
-      const data = processedData.map((item) => item.totalSales);
-      console.log(labels, "ll");
-      console.log(data, "dad");
+      console.log("Labels:", labels);
+      console.log("Data:", data);
+
       setChartData((prevState) => {
-        if (
-          JSON.stringify(prevState.labels) !== JSON.stringify(labels) ||
-          JSON.stringify(prevState.datasets[0].data) !== JSON.stringify(data)
-        ) {
-          return {
-            ...prevState,
-            labels: labels,
-            datasets: [
-              {
-                ...prevState.datasets[0],
-                data: data,
-              },
-            ],
-          };
-        }
-        return prevState;
+        const currentYearDataset = data.map((d) => d.currentYear);
+        const previousYearDataset = data.map((d) => d.previousYear);
+
+        return {
+          labels: labels,
+          datasets: [
+            {
+              label: "Current Year",
+              data: currentYearDataset.filter((value) => typeof value === "number"), // Ensure only numbers are included
+              backgroundColor: "rgba(25, 127, 192)",
+              borderColor: "rgba(25, 127, 192)",
+              borderWidth: 1,
+            },
+            {
+              label: "Previous Year",
+              data: previousYearDataset.filter((value) => typeof value === "number"), // Ensure only numbers are included
+              backgroundColor: "rgba(25, 127, 192,0.16)",
+              borderColor: "rgba(25, 127, 192,0.16)",
+              borderWidth: 1,
+            },
+          ],
+        };
       });
+    } else {
+      console.error("Response data or timeWindow is missing.");
     }
   }, [responseData, timeWindow]);
 
@@ -378,230 +478,192 @@ const DevDashboard = () => {
     }
   };
 
-  const memoizedChartData = useMemo(() => monthlyWiseSalesChart, [monthlyWiseSalesChart]);
-  const totalsalesData = responseData ? getTotalSalesDataByMonth(responseData) : [];
+  // const memoizedChartData = useMemo(() => monthlyWiseSalesChart, [monthlyWiseSalesChart]);
+  // const totalsalesData = responseData ? getTotalSalesDataByMonth(responseData) : [];
 
   // COGS this is rigth
+  // ++++++++++++++++++++++++++++++
 
-  // useEffect(() => {
-  //   if (responseData) {
-  //     const labels = responseData.map((item) => item.Month);
+  const getProcessedDataByMonth = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
 
-  //     const suppliesCostData = responseData.map((item) => item.Supplies_Cost || 0);
-  //     const materialsCostData = responseData.map((item) => item.Materials_Cost || 0);
-
-  //     const discountsData = responseData.map((item) => item.Discounts || 0);
-
-  //     // Check if chart data needs updating
-  //     setStackedMonthWiseInfo((prevChart) => {
-  //       const needsUpdate = !(
-  //         JSON.stringify(prevChart.labels) === JSON.stringify(labels) &&
-  //         JSON.stringify(prevChart.datasets[0].data) === JSON.stringify(suppliesCostData) &&
-  //         JSON.stringify(prevChart.datasets[1].data) === JSON.stringify(materialsCostData) &&
-  //         JSON.stringify(prevChart.datasets[2].data) === JSON.stringify(discountsData)
-  //       );
-
-  //       if (needsUpdate) {
-  //         return {
-  //           ...prevChart,
-  //           labels: labels,
-  //           datasets: [
-  //             {
-  //               label: "Supplies Cost",
-  //               backgroundColor: "#df7970",
-  //               data: suppliesCostData,
-  //             },
-  //             {
-  //               label: "Materials Cost",
-  //               backgroundColor: "#f7b381",
-  //               data: materialsCostData,
-  //             },
-
-  //             {
-  //               label: "Discounts",
-  //               backgroundColor: "#51cda0",
-  //               data: discountsData,
-  //             },
-  //           ],
-  //         };
-  //       }
-
-  //       return prevChart;
-  //     });
-
-  //     // Update chart title based on conditions
-  //     const isWeekEnable = false; // Replace with actual condition
-  //     const isQuarterEnable = false; // Replace with actual condition
-
-  //     if (isWeekEnable) {
-  //       setChartTitleCostWise("Week Wise Cost Sales");
-  //     } else if (isQuarterEnable) {
-  //       setChartTitleCostWise("Quarter Wise Cost Sales");
-  //     } else {
-  //       setChartTitleCostWise("Monthly Cost Sales");
-  //     }
-  //   }
-  // }, [responseData]);
-
-  const getProcessedDataByMonth = (data) => {
-    return data.map((item) => ({
-      label: item.Month, // Assuming 'Month' exists in your data
-      Supplies_Cost: item.Supplies_Cost,
-      Materials_Cost: item.Materials_Cost,
-      Discounts: item.Discounts,
-    }));
-  };
-
-  const getProcessedDataByQuarter = (data) => {
-    return data.map((item) => ({
-      label: item.Quarter, // Assuming 'Quarter' exists in your data
-      Supplies_Cost: item.Supplies_Cost,
-      Materials_Cost: item.Materials_Cost,
-      Discounts: item.Discounts,
-    }));
-  };
-
-  const getProcessedDataByYear = (data) => {
-    return data.map((item) => ({
-      label: item.Year, // Assuming 'Year' exists in your data
-      Supplies_Cost: item.Supplies_Cost,
-      Materials_Cost: item.Materials_Cost,
-      Discounts: item.Discounts,
-    }));
-  };
-
-  const getProcessedDataByWeek = (data) => {
-    return data.map((item) => ({
-      label: item.Week, // Assuming 'Month' exists in your data
-      Supplies_Cost: item.Supplies_Cost,
-      Materials_Cost: item.Materials_Cost,
-      Discounts: item.Discounts,
-    }));
-  };
-
-  useEffect(() => {
-    if (responseData) {
-      let processedData;
-
-      switch (timeWindow) {
-        case "W":
-          processedData = getProcessedDataByWeek(responseData);
-          break;
-        case "Q":
-          processedData = getProcessedDataByQuarter(responseData);
-          break;
-        case "Y":
-          processedData = getProcessedDataByYear(responseData);
-          break;
-        case "M":
-        default:
-          processedData = getProcessedDataByMonth(responseData);
-          break;
-      }
-
-      const labels = processedData.map((item) => item.label);
-      const suppliesCostData = processedData.map((item) => item.Supplies_Cost);
-      const materialsCostData = processedData.map((item) => item.Materials_Cost);
-      const discountsData = processedData.map((item) => item.Discounts);
-
-      setStackedMonthWiseInfo((prevChart) => {
-        const needsUpdate = !(
-          JSON.stringify(prevChart.labels) === JSON.stringify(labels) &&
-          JSON.stringify(prevChart.datasets?.[0]?.data) === JSON.stringify(suppliesCostData) &&
-          JSON.stringify(prevChart.datasets?.[1]?.data) === JSON.stringify(materialsCostData) &&
-          JSON.stringify(prevChart.datasets?.[2]?.data) === JSON.stringify(discountsData)
-        );
-
-        if (needsUpdate) {
-          return {
-            ...prevChart,
-            labels: labels,
-            datasets: [
-              {
-                label: "Supplies Cost",
-                backgroundColor: "#df7970",
-                data: suppliesCostData,
-              },
-              {
-                label: "Materials Cost",
-                backgroundColor: "#f7b381",
-                data: materialsCostData,
-              },
-              {
-                label: "Discounts",
-                backgroundColor: "#51cda0",
-                data: discountsData,
-              },
-            ],
-            legendVisible: 1, // Keeping the legend visible
-          };
-        }
-
-        return prevChart;
-      });
-
-      // const timeWindowLabel = timeWindowMap[timeWindow] || "Month";
-      // const dimensionLabel = dimension || "Cost";
-      // setChartTitleCostWise(`${timeWindowLabel} Wise ${dimensionLabel} Sales`);
-      const timeWindowLabel = timeWindowMap[timeWindow] || "Monthly";
-      setChartTitleCostWise(`${timeWindowLabel} Cost Sales`);
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        month: item.Month,
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
     }
-  }, [responseData, timeWindow, dimension]);
 
-  // const getTaxesDataByMonth = (responseData) => {
-  //   if (!Array.isArray(responseData)) {
-  //     console.error("Expected responseData to be an array.");
-  //     return [];
-  //   }
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        month: item.Month,
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
 
-  //   return responseData.map((item) => ({
-  //     month: item.Month,
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getProcessedDataByQuarter = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        quarter: item.Quarter, // Assuming quarter information is stored in `item.Quarter`
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        quarter: item.Quarter, // Assuming quarter information is stored in `item.Quarter`
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getProcessedDataByYear = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        year: item.Year,
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        year: item.Year,
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getProcessedDataByWeek = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        week: item.Week,
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        week: item.Week,
+        Supplies_Cost: item.Supplies_Cost,
+        Materials_Cost: item.Materials_Cost,
+        Discounts: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  // const getTaxesDataByMonth = (data) => {
+  //   return data.map((item) => ({
+  //     label: item.Month,
   //     taxes: item.Taxes,
+  //     grossAmount: item.Gross_Amount,
+  //     netAmount: item.Net_Amount,
+  //     disount: item.Discounts,
+  //   }));
+  // };
+
+  // const getTaxesDataByWeek = (data) => {
+  //   return data.map((item) => ({
+  //     label: item.Week,
+  //     taxes: item.Taxes,
+  //     grossAmount: item.Gross_Amount,
+  //     netAmount: item.Net_Amount,
+  //     disount: item.Discounts,
+  //   }));
+  // };
+  // const getTaxesDataByQuarter = (data) => {
+  //   return data.map((item) => ({
+  //     label: item.Quarter, // Assuming `Quarter` is a number 1-4
+  //     taxes: item.Taxes,
+  //     grossAmount: item.Gross_Amount,
+  //     netAmount: item.Net_Amount,
+  //     disount: item.Discounts,
+  //   }));
+  // };
+  // const getTaxesDataByYear = (data) => {
+  //   return data.map((item) => ({
+  //     label: item.Year,
+  //     taxes: item.Taxes,
+  //     grossAmount: item.Gross_Amount,
+  //     netAmount: item.Net_Amount,
+  //     disount: item.Discounts,
   //   }));
   // };
 
   // useEffect(() => {
-  //   if (responseData) {
-  //     const taxesData = getTaxesDataByMonth(responseData);
-
-  //     const labels = taxesData.map((item) => item.month);
-  //     const data = taxesData.map((item) => item.taxes);
-
-  //     setTaxesChart((prevState) => {
-  //       // Only update if there are changes
-  //       if (
-  //         JSON.stringify(prevState.labels) !== JSON.stringify(labels) ||
-  //         JSON.stringify(prevState.datasets[0].data) !== JSON.stringify(data)
-  //       ) {
-  //         return {
-  //           ...prevState,
-  //           labels: labels,
-  //           datasets: [
-  //             {
-  //               ...prevState.datasets[0],
-  //               data: data,
-  //             },
-  //           ],
-  //         };
-  //       }
-  //       return prevState;
-  //     });
-
-  //     // Update chart title
-  //     setChartTitleTaxes("Monthly Taxes");
-  //   }
-  // }, [responseData]);
-
-  // const taxesData = responseData ? getTaxesDataByMonth(responseData) : [];
-
-  // 3rd tax
-  // useEffect(() => {
   //   if (responseData && responseData.length > 0) {
-  //     // Extract the data for Taxes, Gross Amount, and Net Amount
-  //     const labels = responseData.map((item) => item.Month);
-  //     const taxesData = responseData.map((item) => item.Taxes);
-  //     const grossAmountData = responseData.map((item) => item.Gross_Amount);
-  //     const netAmountData = responseData.map((item) => item.Net_Amount);
+  //     let processedData;
+
+  //     switch (timeWindow) {
+  //       case "W":
+  //         processedData = getTaxesDataByWeek(responseData);
+  //         break;
+  //       case "Q":
+  //         processedData = getTaxesDataByQuarter(responseData);
+  //         break;
+  //       case "Y":
+  //         processedData = getTaxesDataByYear(responseData);
+  //         break;
+  //       case "M":
+  //       default:
+  //         processedData = getTaxesDataByMonth(responseData);
+  //         break;
+  //     }
+
+  //     // Extract labels and data
+  //     const labels = processedData.map((item) => item.label);
+  //     const grossAmountData = processedData.map((item) => item.grossAmount);
+  //     const taxesData = processedData.map((item) => item.taxes);
+  //     const netAmountData = processedData.map((item) => item.netAmount);
+  //     const discountsData = processedData.map((item) => item.discount);
 
   //     // Only update the state if the data has changed to avoid unnecessary re-renders
   //     setStackedSalesInfo((prevState) => {
@@ -621,579 +683,1072 @@ const DevDashboard = () => {
   //           { ...prevState.datasets[1], data: grossAmountData },
   //           { ...prevState.datasets[2], data: netAmountData },
   //         ],
+  //         // datasets: [
+  //         //   {
+  //         //     label: "Taxes",
+  //         //     backgroundColor: "#ff835c",
+  //         //     data: taxesData,
+  //         //   },
+  //         //   {
+  //         //     label: "Gross Amount",
+  //         //     backgroundColor: "#F5DD61",
+  //         //     data: grossAmountData,
+  //         //   },
+  //         //   {
+  //         //     label: "Net Amount",
+  //         //     backgroundColor: "#4CB9E7",
+  //         //     data: netAmountData,
+  //         //   },
+  //         //   {
+  //         //     label: "Discounts",
+  //         //     backgroundColor: "#9195F6",
+  //         //     data: discountsData,
+  //         //   },
+  //         // ],
   //       };
   //     });
 
-  //     // Update chart title based on your conditions
-  //     const isWeekEnable = false; // Replace with actual condition
-  //     const isQuarterEnable = false; // Replace with actual condition
-
-  //     if (isWeekEnable) {
-  //       setChartTitle("Week Wise Financial Breakdown");
-  //     } else if (isQuarterEnable) {
-  //       setChartTitle("Quarter Wise Financial Breakdown");
-  //     } else {
-  //       setChartTitle("Monthly Financial Breakdown");
-  //     }
+  //     // Update chart title based on the selected time window
+  //     const titles = {
+  //       W: "Cost of Sales (Weekly)",
+  //       Q: "Cost of Sales (Quarterly)",
+  //       Y: "Cost of Sales (Yearly)",
+  //       M: "Cost of Sales (Monthly)",
+  //     };
+  //     setChartTitle(titles[timeWindow] || "Cost of Sales (Monthly )");
   //   }
-  // }, [responseData]);
+  // }, [responseData, timeWindow]);
 
-  const getTaxesDataByMonth = (data) => {
-    return data.map((item) => ({
-      label: item.Month,
-      taxes: item.Taxes,
-      grossAmount: item.Gross_Amount,
-      netAmount: item.Net_Amount,
-      disount: item.Discounts,
-
-    }));
-  };
-
-  const getTaxesDataByWeek = (data) => {
-    return data.map((item) => ({
-      label: item.Week,
-      taxes: item.Taxes,
-      grossAmount: item.Gross_Amount,
-      netAmount: item.Net_Amount,
-      disount: item.Discounts,
-    }));
-  };
-  const getTaxesDataByQuarter = (data) => {
-    return data.map((item) => ({
-      label: item.Quarter, // Assuming `Quarter` is a number 1-4
-      taxes: item.Taxes,
-      grossAmount: item.Gross_Amount,
-      netAmount: item.Net_Amount,
-      disount: item.Discounts,
-    }));
-  };
-  const getTaxesDataByYear = (data) => {
-    return data.map((item) => ({
-      label: item.Year,
-      taxes: item.Taxes,
-      grossAmount: item.Gross_Amount,
-      netAmount: item.Net_Amount,
-      disount: item.Discounts,
-    }));
-  };
-
-
-
-  useEffect(() => {
-    if (responseData && responseData.length > 0) {
-      let processedData;
-
-      switch (timeWindow) {
-        case "W":
-          processedData = getTaxesDataByWeek(responseData);
-          break;
-        case "Q":
-          processedData = getTaxesDataByQuarter(responseData);
-          break;
-        case "Y":
-          processedData = getTaxesDataByYear(responseData);
-          break;
-        case "M":
-        default:
-          processedData = getTaxesDataByMonth(responseData);
-          break;
-      }
-
-      // Extract labels and data
-      const labels = processedData.map((item) => item.label);
-      const grossAmountData = processedData.map((item) => item.grossAmount);
-      const taxesData = processedData.map((item) => item.taxes);
-      const netAmountData = processedData.map((item) => item.netAmount);
-      const discountsData = processedData.map((item) => item.discount);
-
-
-      // Only update the state if the data has changed to avoid unnecessary re-renders
-      setStackedSalesInfo((prevState) => {
-        const isDataSame =
-          JSON.stringify(prevState.labels) === JSON.stringify(labels) &&
-          JSON.stringify(prevState.datasets[0].data) === JSON.stringify(taxesData) &&
-          JSON.stringify(prevState.datasets[1].data) === JSON.stringify(grossAmountData) &&
-          JSON.stringify(prevState.datasets[2].data) === JSON.stringify(netAmountData);
-
-        if (isDataSame) return prevState;
-
-        return {
-          ...prevState,
-          labels: labels,
-          datasets: [
-            { ...prevState.datasets[0], data: taxesData },
-            { ...prevState.datasets[1], data: grossAmountData },
-            { ...prevState.datasets[2], data: netAmountData },
-          ],
-          // datasets: [
-          //   {
-          //     label: "Taxes",
-          //     backgroundColor: "#ff835c",
-          //     data: taxesData,
-          //   },
-          //   {
-          //     label: "Gross Amount",
-          //     backgroundColor: "#F5DD61",
-          //     data: grossAmountData,
-          //   },
-          //   {
-          //     label: "Net Amount",
-          //     backgroundColor: "#4CB9E7",
-          //     data: netAmountData,
-          //   },
-          //   {
-          //     label: "Discounts",
-          //     backgroundColor: "#9195F6",
-          //     data: discountsData,
-          //   },
-          // ],
-        };
-      });
-
-      // Update chart title based on the selected time window
-      const titles = {
-        W: "Weekly Financial Breakdown",
-        Q: "Quarterly Financial Breakdown",
-        Y: "Yearly Financial Breakdown",
-        M: "Monthly Financial Breakdown",
-      };
-      setChartTitle(titles[timeWindow] || "Monthly Financial Breakdown");
-    }
-  }, [responseData, timeWindow]);
-
-  // 4th margin
-
-  // const getWaterfallDataByMonth = (responseData) => {
-  //   let previousPv = 0;
-  //   let previousUv = 0;
-
-  //   return responseData.map((item, index) => {
-  //     let uv, pv, actualuv, actualpv, sales;
-
-  //     // Handle the first item
-  //     if (index === 0) {
-  //       uv = item.Margin || 0;
-  //       pv = 0;
-  //     } else {
-  //       // Calculate the previous and current values
-  //       pv = previousPv + previousUv;
-  //       uv = (item.Margin || 0) - pv;
-  //     }
-
-  //     // Update actual values
-  //     actualuv = uv;
-  //     actualpv = pv;
-
-  //     // Adjust for negative values
-  //     if (uv < 0) {
-  //       uv = Math.abs(uv);
-  //       pv -= uv;
-  //     }
-
-  //     // Update previous values
-  //     previousPv = actualpv;
-  //     previousUv = actualuv;
-  //     sales = actualpv + actualuv;
-
-  //     return { month: item.Month || "Unknown", uv, pv, actualuv, sales };
-  //   });
-  // };
-
-
-//   useEffect(() => {
-//     if (responseData && responseData.length > 0) {
-//       let processedData;
-// let legendVisible = 0
-//       switch (timeWindow) {
-//         case "W":
-//           processedData = getTaxesDataByWeek(responseData);
-//           break;
-//         case "Q":
-//           processedData = getTaxesDataByQuarter(responseData);
-//           break;
-//         case "Y":
-//           processedData = getTaxesDataByYear(responseData);
-//           break;
-//         case "M":
-//         default:
-//           processedData = getTaxesDataByMonth(responseData);
-//           break;
-//       }
-
-//       // Extract labels and data
-//       const labels = processedData.map((item) => item.label);
-//       const grossAmountData = processedData.map((item) => item.grossAmount);
-//       const taxesData = processedData.map((item) => item.taxes);
-//       const netAmountData = processedData.map((item) => item.netAmount);
-
-//       // Only update the state if the data has changed to avoid unnecessary re-renders
-//       setStackedSalesInfo((prevState) => {
-//         const isDataSame =
-//           JSON.stringify(prevState.labels) === JSON.stringify(labels) &&
-//           JSON.stringify(prevState.datasets[0].data) === JSON.stringify(taxesData) &&
-//           JSON.stringify(prevState.datasets[1].data) === JSON.stringify(grossAmountData) &&
-//           JSON.stringify(prevState.datasets[2].data) === JSON.stringify(netAmountData);
-
-//         if (isDataSame) return prevState;
-
-//         return {
-//           ...prevState,
-//           labels: labels,
-//           legendVisible: legendVisible, // Ensure this value is appropriately set
-//           datasets: [
-//             { ...prevState.datasets[0], data: taxesData },
-//             { ...prevState.datasets[1], data: grossAmountData },
-//             { ...prevState.datasets[2], data: netAmountData },
-//             {
-//               label: "Taxes",
-//               backgroundColor: "#ff835c",
-//               data: taxesData,
-//             },
-//             {
-//               label: "Gross Amount",
-//               backgroundColor: "#F5DD61",
-//               data: grossAmountData,
-//             },
-//             // {
-//             //   label: "OtherCharge",
-//             //   backgroundColor: "#4CB9E7",
-//             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_otherchargeamount),
-//             // },
-//             // {
-//             //   label: "Rounding",
-//             //   backgroundColor: "#21c2c3",
-//             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_rounding),
-//             // },
-//             // {
-//             //   label: "Tip",
-//             //   backgroundColor: "#f2a571",
-//             //   data: responseData.TotalSalesSplitupInfo.map((item) => item.sales_tip),
-//             // },
-//             {
-//               label: "Net Amount",
-//               backgroundColor: "#9195F6",
-//               data: netAmountData,
-//             },
-//           ],
-//         };
-//       });
-
-//       // Update chart title based on the selected time window
-//       const titles = {
-//         W: "Weekly Financial Breakdown",
-//         Q: "Quarterly Financial Breakdown",
-//         Y: "Yearly Financial Breakdown",
-//         M: "Monthly Financial Breakdown",
-//       };
-//       setChartTitle(titles[timeWindow] || "Monthly Financial Breakdown");
-//     } else {
-//       // If there's no responseData, reset the chart
-//       setStackedSalesInfo((prevChart) => ({
-//         ...prevChart,
-//         legendVisible: 0,
-//         datasets: prevChart.datasets.map((dataset) => ({
-//           ...dataset,
-//           data: Array(dataset.data.length).fill(0),
-//         })),
-//       }));
-//     }
-//   }, [responseData, timeWindow]);
-
-  const [waterfallStackedBar, setWaterfallStackedBar] = useState({
+  const [waterfallBar, setWaterfallBar] = useState({
     labels: [],
 
     datasets: [],
   });
 
-  const [chartTitleMarginAnalysis, setChartTitleMarginAnalysis] = useState("");
-  const prevDataRef = useRef();
+  console.log(waterfallBar,'wwwwwwwwwww')
 
-  // useEffect(() => {
-  //   if (responseData) {
-  //     // Determine the chart title based on conditions
-  //     setChartTitleMarginAnalysis("Margin Trend Analysis");
+  const [chartTitleMarginAnalysis, setChartTitleMarginAnalysis] = useState("Margin Trend Analysis");
+  // const prevDataRef = useRef();
 
-  //     // Get data for the waterfall chart
-  //     const waterfallData = getWaterfallDataByMonth(responseData);
+  
 
-  //     // Prepare labels and data
-  //     const labels = responseData.map((item) => item.Month || "Unknown");
-  //     const uvData = waterfallData.map((entry) => entry.uv);
-  //     const pvData = waterfallData.map((entry) => entry.pv);
-  //     const actualSalesData = waterfallData.map((entry) => entry.sales);
-  //     const actualUV = waterfallData.map((entry) => entry.actualuv);
-
-  //     const newData = {
-  //       labels: labels,
-  //       datasets: [
-  //         {
-  //           label: "hiiii",
-  //           backgroundColor: "transparent",
-  //           stack: "a",
-  //           data: pvData,
-  //         },
-  //         {
-  //           label: "Margin Trend Analysis",
-  //           backgroundColor: waterfallData.map((item) =>
-  //             item.actualuv < 0 ? "#ff4d4d" : "#66d9ff"
-  //           ),
-  //           borderWidth: 1,
-  //           data: uvData,
-  //           stack: "a",
-  //           salesData: actualSalesData,
-  //           actualuv: actualUV,
-  //         },
-  //       ],
-  //     };
-
-  //     // Compare with previous data to avoid unnecessary updates
-  //     if (JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)) {
-  //       setWaterfallStackedBar(newData);
-  //       prevDataRef.current = newData;
-  //     }
-  //   } else {
-  //     setWaterfallStackedBar((prevChart) => ({
-  //       ...prevChart,
-  //       datasets: prevChart.datasets.map((dataset) => ({
-  //         ...dataset,
-  //         data: Array(dataset.data.length).fill(0),
-  //       })),
-  //     }));
-  //     console.log("Sales Margin: No data found or the data is empty");
-  //   }
-  // }, [responseData]);
-
-  const getWaterfallDataByMonth = (responseData) => {
-    let previousPv = 0;
-    let previousUv = 0;
-
-    return responseData.map((item, index) => {
-      let uv, pv, actualuv, actualpv, sales;
-
-      // Handle the first item
-      if (index === 0) {
-        uv = item.Margin || 0;
-        pv = 0;
-      } else {
-        // Calculate the previous and current values
-        pv = previousPv + previousUv;
-        uv = (item.Margin || 0) - pv;
-      }
-
-      // Update actual values
-      actualuv = uv;
-      actualpv = pv;
-
-      // Adjust for negative values
-      if (uv < 0) {
-        uv = Math.abs(uv);
-        pv -= uv;
-      }
-
-      // Update previous values
-      previousPv = actualpv;
-      previousUv = actualuv;
-      sales = actualpv + actualuv;
-
-      return { period: item.Month || "Unknown", uv, pv, actualuv, sales };
-    });
-  };
-
-  const getWaterfallDataByQuarter = (responseData) => {
-    let previousPv = 0;
-    let previousUv = 0;
-
-    return responseData.map((item, index) => {
-      let uv, pv, actualuv, actualpv, sales;
-
-      // Handle the first item
-      if (index === 0) {
-        uv = item.Margin || 0;
-        pv = 0;
-      } else {
-        // Calculate the previous and current values
-        pv = previousPv + previousUv;
-        uv = (item.Margin || 0) - pv;
-      }
-
-      // Update actual values
-      actualuv = uv;
-      actualpv = pv;
-
-      // Adjust for negative values
-      if (uv < 0) {
-        uv = Math.abs(uv);
-        pv -= uv;
-      }
-
-      // Update previous values
-      previousPv = actualpv;
-      previousUv = actualuv;
-      sales = actualpv + actualuv;
-
-      return { period: item.Quarter || "Unknown", uv, pv, actualuv, sales };
-    });
-  };
-
-  const getWaterfallDataByYear = (responseData) => {
-    let previousPv = 0;
-    let previousUv = 0;
-
-    return responseData.map((item, index) => {
-      let uv, pv, actualuv, actualpv, sales;
-
-      // Handle the first item
-      if (index === 0) {
-        uv = item.Margin || 0;
-        pv = 0;
-      } else {
-        // Calculate the previous and current values
-        pv = previousPv + previousUv;
-        uv = (item.Margin || 0) - pv;
-      }
-
-      // Update actual values
-      actualuv = uv;
-      actualpv = pv;
-
-      // Adjust for negative values
-      if (uv < 0) {
-        uv = Math.abs(uv);
-        pv -= uv;
-      }
-
-      // Update previous values
-      previousPv = actualpv;
-      previousUv = actualuv;
-      sales = actualpv + actualuv;
-
-      return { period: item.Year || "Unknown", uv, pv, actualuv, sales };
-    });
-  };
-
-  const getWaterfallDataByWeek = (responseData) => {
-    let previousPv = 0;
-    let previousUv = 0;
-
-    return responseData.map((item, index) => {
-      let uv, pv, actualuv, actualpv, sales;
-
-      // Handle the first item
-      if (index === 0) {
-        uv = item.Margin || 0;
-        pv = 0;
-      } else {
-        // Calculate the previous and current values
-        pv = previousPv + previousUv;
-        uv = (item.Margin || 0) - pv;
-      }
-
-      // Update actual values
-      actualuv = uv;
-      actualpv = pv;
-
-      // Adjust for negative values
-      if (uv < 0) {
-        uv = Math.abs(uv);
-        pv -= uv;
-      }
-
-      // Update previous values
-      previousPv = actualpv;
-      previousUv = actualuv;
-      sales = actualpv + actualuv;
-
-      return { period: item.Week || "Unknown", uv, pv, actualuv, sales };
-    });
-  };
+  // +++++++++++++++++++++++++++++
 
   useEffect(() => {
-    if (responseData && responseData.length > 0) {
-      let waterfallData;
+    if (responseData) {
+      console.log("responseData:", responseData);
+      console.log("timeWindow:", timeWindow);
 
+      let currentYearData = [];
+      let previousYearData = [];
+      let processedData = [];
+
+      // Extract data based on the time window
       switch (timeWindow) {
         case "W":
-          waterfallData = getWaterfallDataByWeek(responseData);
+          const weekData = getProcessedDataByWeek(responseData);
+          currentYearData = weekData.currentYearDataset;
+          previousYearData = weekData.previousYearDataset;
           break;
         case "Q":
-          waterfallData = getWaterfallDataByQuarter(responseData);
+          const quarterData = getProcessedDataByQuarter(responseData);
+          currentYearData = quarterData.currentYearDataset;
+          previousYearData = quarterData.previousYearDataset;
           break;
         case "Y":
-          waterfallData = getWaterfallDataByYear(responseData);
+          const yearData = getProcessedDataByYear(responseData);
+          currentYearData = yearData.currentYearDataset;
+          previousYearData = yearData.previousYearDataset;
           break;
         case "M":
         default:
-          waterfallData = getWaterfallDataByMonth(responseData);
+          const monthData = getProcessedDataByMonth(responseData);
+          currentYearData = monthData.currentYearDataset;
+          previousYearData = monthData.previousYearDataset;
           break;
       }
 
-      // Prepare labels and data
-      const labels = waterfallData.map((entry) => entry.period);
-      const uvData = waterfallData.map((entry) => entry.uv);
-      const pvData = waterfallData.map((entry) => entry.pv);
-      const actualSalesData = waterfallData.map((entry) => entry.sales);
-      const actualUV = waterfallData.map((entry) => entry.actualuv);
+      // Combine current and previous year data
+      processedData = [
+        ...currentYearData.map((item) => ({
+          ...item,
+          year: "Current Year",
+        })),
+        ...previousYearData.map((item) => ({
+          ...item,
+          year: "Previous Year",
+        })),
+      ];
 
+      let labelType;
+      if (timeWindow === "W") {
+        labelType = "week";
+      } else if (timeWindow === "Q") {
+        labelType = "quarter";
+      } else if (timeWindow === "Y") {
+        labelType = "year";
+      } else {
+        labelType = "month";
+      }
+
+      // Prepare labels and data
+      let labels = [];
+      if (timeWindow === "W") {
+        labels = [...new Set(processedData.map((item) => item.week))];
+      } else if (timeWindow === "Q") {
+        labels = [...new Set(processedData.map((item) => item.quarter))];
+      } else if (timeWindow === "Y") {
+        labels = [...new Set(processedData.map((item) => item.year))];
+      } else {
+        labels = [...new Set(processedData.map((item) => item.month))];
+      }
+
+      const data = labels.map((label) => {
+        const currentYearDataPoint = processedData.find(
+          (item) => item[labelType] === label && item.year === "Current Year"
+        );
+        const previousYearDataPoint = processedData.find(
+          (item) => item[labelType] === label && item.year === "Previous Year"
+        );
+        return {
+          Supplies_Cost_CurrentYear: currentYearDataPoint ? currentYearDataPoint.Supplies_Cost : 0,
+          Materials_Cost_CurrentYear: currentYearDataPoint
+            ? currentYearDataPoint.Materials_Cost
+            : 0,
+          Discounts_CurrentYear: currentYearDataPoint ? currentYearDataPoint.Discounts : 0,
+          Supplies_Cost_PreviousYear: previousYearDataPoint
+            ? previousYearDataPoint.Supplies_Cost
+            : 0,
+          Materials_Cost_PreviousYear: previousYearDataPoint
+            ? previousYearDataPoint.Materials_Cost
+            : 0,
+          Discounts_PreviousYear: previousYearDataPoint ? previousYearDataPoint.Discounts : 0,
+        };
+      });
+
+      console.log("Labels:", labels);
+      console.log("Data:", data);
+
+      setStackedMonthWiseInfo({
+        labels: labels,
+        datasets: [
+          {
+            label: "Supplies Cost (Current Year)",
+            data: data.map((d) => d.Supplies_Cost_CurrentYear),
+            backgroundColor: "rgba(223,121,112)",
+            stack: "currentYear",
+          },
+          {
+            label: "Materials Cost (Current Year)",
+            data: data.map((d) => d.Materials_Cost_CurrentYear),
+            backgroundColor: "rgba(247,179,129)",
+            stack: "currentYear",
+          },
+          {
+            label: "Discounts (Current Year)",
+            data: data.map((d) => d.Discounts_CurrentYear),
+            backgroundColor: "rgba(81,205,160)",
+            stack: "currentYear",
+          },
+          {
+            label: "Supplies Cost (Previous Year)",
+            data: data.map((d) => d.Supplies_Cost_PreviousYear),
+            backgroundColor: "rgba(223,121,112,0.3)",
+            stack: "previousYear",
+          },
+          {
+            label: "Materials Cost (Previous Year)",
+            data: data.map((d) => d.Materials_Cost_PreviousYear),
+            backgroundColor: "rgba(247,179,129,0.3)",
+            stack: "previousYear",
+          },
+          {
+            label: "Discounts (Previous Year)",
+            data: data.map((d) => d.Discounts_PreviousYear),
+            backgroundColor: "rgba(81,205,160,0.3)",
+            stack: "previousYear",
+          },
+        ],
+      });
+    } else {
+      console.error("Response data or timeWindow is missing.");
+    }
+  }, [responseData, timeWindow]);
+
+  // 3rd chart
+
+  const getTaxesDataByMonth = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        month: item.Month,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        month: item.Month,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getTaxesDataByQuarter = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        quarter: item.Quarter,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        quarter: item.Quarter,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getTaxesDataByYear = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        year: item.Year,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        year: item.Year,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  const getTaxesDataByWeek = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item) => ({
+        week: item.Week,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected currentYearData to be an array.");
+    }
+
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item) => ({
+        week: item.Week,
+        taxes: item.Taxes,
+        grossAmount: item.Gross_Amount,
+        netAmount: item.Net_Amount,
+        discount: item.Discounts,
+      }));
+    } else {
+      console.error("Expected previousYearData to be an array.");
+    }
+
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  useEffect(() => {
+    if (responseData) {
+      console.log("responseData:", responseData);
+      console.log("timeWindow:", timeWindow);
+
+      let currentYearData = [];
+      let previousYearData = [];
+      let processedData = [];
+
+      // Extract data based on the time window
+      switch (timeWindow) {
+        case "W":
+          const weekData = getTaxesDataByWeek(responseData);
+          currentYearData = weekData.currentYearDataset;
+          previousYearData = weekData.previousYearDataset;
+          break;
+        case "Q":
+          const quarterData = getTaxesDataByQuarter(responseData);
+          currentYearData = quarterData.currentYearDataset;
+          previousYearData = quarterData.previousYearDataset;
+          break;
+        case "Y":
+          const yearData = getTaxesDataByYear(responseData);
+          currentYearData = yearData.currentYearDataset;
+          previousYearData = yearData.previousYearDataset;
+          break;
+        case "M":
+        default:
+          const monthData = getTaxesDataByMonth(responseData);
+          currentYearData = monthData.currentYearDataset;
+          previousYearData = monthData.previousYearDataset;
+          break;
+      }
+
+      // Combine current and previous year data
+      processedData = [
+        ...currentYearData.map((item) => ({
+          ...item,
+          year: "Current Year",
+        })),
+        ...previousYearData.map((item) => ({
+          ...item,
+          year: "Previous Year",
+        })),
+      ];
+
+      console.log("Processed Data:", processedData);
+
+      let labelType;
+      if (timeWindow === "W") {
+        labelType = "week";
+      } else if (timeWindow === "Q") {
+        labelType = "quarter";
+      } else if (timeWindow === "Y") {
+        labelType = "year";
+      } else {
+        labelType = "month";
+      }
+
+      // Prepare labels and data
+      let labels = [];
+      if (timeWindow === "W") {
+        labels = [...new Set(processedData.map((item) => item.week))];
+      } else if (timeWindow === "Q") {
+        labels = [...new Set(processedData.map((item) => item.quarter))];
+      } else if (timeWindow === "Y") {
+        labels = [...new Set(processedData.map((item) => item.year))];
+      } else {
+        labels = [...new Set(processedData.map((item) => item.month))];
+      }
+
+      const data = labels.map((label) => {
+        const currentYearDataPoint =
+          processedData.find((item) => item[labelType] === label && item.year === "Current Year") ||
+          {};
+        const previousYearDataPoint =
+          processedData.find(
+            (item) => item[labelType] === label && item.year === "Previous Year"
+          ) || {};
+
+        return {
+          Taxes_CurrentYear: currentYearDataPoint.taxes || 0,
+          Gross_Amount_CurrentYear: currentYearDataPoint.grossAmount || 0,
+          Net_Amount_CurrentYear: currentYearDataPoint.netAmount || 0,
+          Discounts_CurrentYear: currentYearDataPoint.discount || 0,
+          Taxes_PreviousYear: previousYearDataPoint.taxes || 0,
+          Gross_Amount_PreviousYear: previousYearDataPoint.grossAmount || 0,
+          Net_Amount_PreviousYear: previousYearDataPoint.netAmount || 0,
+          Discounts_PreviousYear: previousYearDataPoint.discount || 0,
+        };
+      });
+
+      console.log("Labels:", labels);
+      console.log("Data:", data);
+
+      setStackedSalesInfo({
+        labels: labels,
+        datasets: [
+          {
+            label: "Taxes (Current Year)",
+            data: data.map((d) => d.Taxes_CurrentYear),
+            backgroundColor: "rgba(223,121,112)",
+            stack: "currentYear",
+          },
+          {
+            label: "Gross Amount (Current Year)",
+            data: data.map((d) => d.Gross_Amount_CurrentYear),
+            backgroundColor: "rgba(247,179,129)",
+            stack: "currentYear",
+          },
+          {
+            label: "Net Amount (Current Year)",
+            data: data.map((d) => d.Net_Amount_CurrentYear),
+            backgroundColor: "rgba(81,205,160)",
+            stack: "currentYear",
+          },
+          {
+            label: "Discounts (Current Year)",
+            data: data.map((d) => d.Discounts_CurrentYear),
+            // backgroundColor: "rgba(81,205,160,0.6)",
+            backgroundColor: "rgba(75,192,192,0.6)",
+            stack: "currentYear",
+          },
+          {
+            label: "Taxes (Previous Year)",
+            data: data.map((d) => d.Taxes_PreviousYear),
+            backgroundColor: "rgba(223,121,112,0.3)",
+            stack: "previousYear",
+          },
+          {
+            label: "Gross Amount (Previous Year)",
+            data: data.map((d) => d.Gross_Amount_PreviousYear),
+            backgroundColor: "rgba(247,179,129,0.3)",
+            stack: "previousYear",
+          },
+          {
+            label: "Net Amount (Previous Year)",
+            data: data.map((d) => d.Net_Amount_PreviousYear),
+            backgroundColor: "rgba(81,205,160,0.3)",
+            stack: "previousYear",
+          },
+          {
+            label: "Discounts (Previous Year)",
+            data: data.map((d) => d.Discounts_PreviousYear),
+            // backgroundColor: "rgba(81,205,160,0.3)",
+            backgroundColor: "rgba(75,192,192,0.3)",
+            stack: "previousYear",
+          },
+        ],
+      });
+    }
+  }, [responseData, timeWindow]);
+
+  // 4th waterfall
+
+
+// Function to process data by month
+const getWaterfallDataByMonth = ({ currentYearData = [], previousYearData = [] }) => {
+  let currentYearDataset = [];
+  let previousYearDataset = [];
+  let previousPvCurrent = 0;
+  let previousUvCurrent = 0;
+  let previousPvPrevious = 0;
+  let previousUvPrevious = 0;
+
+  // Process current year data
+  console.log("Current Yearrrrrrrr Data:", currentYearData); // Log the data being processed
+  if (Array.isArray(currentYearData)) {
+    currentYearData.forEach((item, index) => {
+      let uv, pv, actualuv, actualpv, sales;
+
+      console.log("Processing current year item:", item); // Log each item
+      if (index === 0) {
+        uv = item?.Margin ?? 0; // Default to 0 if undefined
+        pv = 0;
+      } else {
+        pv = previousPvCurrent + previousUvCurrent;
+        uv = (item?.Margin ?? 0) - pv; // Default to 0 if undefined
+      }
+
+      actualuv = uv;
+      actualpv = pv;
+
+      if (uv < 0) {
+        uv = Math.abs(uv);
+        pv -= uv;
+      }
+
+      previousPvCurrent = actualpv;
+      previousUvCurrent = actualuv;
+      sales = actualpv + actualuv;
+
+      currentYearDataset.push({
+        period: item?.Month || "Unknown",
+        uv,
+        pv,
+        actualuv,
+        sales,
+      });
+    });
+  }
+
+  // Process previous year data
+  console.log("Previous Year Data:", previousYearData); // Log the data being processed
+  if (Array.isArray(previousYearData)) {
+    previousYearData.forEach((item, index) => {
+      let uv, pv, actualuv, actualpv, sales;
+
+      console.log("Processing previous year item:", item); // Log each item
+      if (index === 0) {
+        uv = item?.Margin ?? 0; // Default to 0 if undefined
+        pv = 0;
+      } else {
+        pv = previousPvPrevious + previousUvPrevious;
+        uv = (item?.Margin ?? 0) - pv; // Default to 0 if undefined
+      }
+
+      actualuv = uv;
+      actualpv = pv;
+
+      if (uv < 0) {
+        uv = Math.abs(uv);
+        pv -= uv;
+      }
+
+      previousPvPrevious = actualpv;
+      previousUvPrevious = actualuv;
+      sales = actualpv + actualuv;
+
+      previousYearDataset.push({
+        period: item?.Month || "Unknown",
+        uv,
+        pv,
+        actualuv,
+        sales,
+      });
+    });
+  }
+
+  console.log("Current Year Dataset:", currentYearDataset); // Log final datasets
+  console.log("Previous Year Dataset:", previousYearDataset);
+
+  return { currentYearDataset, previousYearDataset };
+};
+
+
+// Function to process data by year
+const getWaterfallDataByYear = ({ currentYearData, previousYearData }) => {
+  let currentYearDataset = [];
+  let previousYearDataset = [];
+  let previousPv = 0;
+  let previousUv = 0;
+
+  // Process current year data
+  if (Array.isArray(currentYearData)) {
+    currentYearDataset = currentYearData.map((item, index) => {
+      let uv, pv, actualuv, actualpv, sales;
+
+      if (index === 0) {
+        uv = item.Margin || 0;
+        pv = 0;
+      } else {
+        pv = previousPv + previousUv;
+        uv = (item.Margin || 0) - pv;
+      }
+
+      actualuv = uv;
+      actualpv = pv;
+
+      if (uv < 0) {
+        uv = Math.abs(uv);
+        pv -= uv;
+      }
+
+      previousPv = actualpv;
+      previousUv = actualuv;
+      sales = actualpv + actualuv;
+
+      return {
+        period: item.Year || "Unknown",
+        uv: uv,
+        pv: pv,
+        actualuv: actualuv,
+        sales: sales,
+        margin: item.Margin || 0,
+      };
+    });
+  }
+
+  // Reset previous values
+  previousPv = 0;
+  previousUv = 0;
+
+  // Process previous year data
+  if (Array.isArray(previousYearData)) {
+    previousYearDataset = previousYearData.map((item, index) => {
+      let uv, pv, actualuv, actualpv, sales;
+
+      if (index === 0) {
+        uv = item.Margin || 0;
+        pv = 0;
+      } else {
+        pv = previousPv + previousUv;
+        uv = (item.Margin || 0) - pv;
+      }
+
+      actualuv = uv;
+      actualpv = pv;
+
+      if (uv < 0) {
+        uv = Math.abs(uv);
+        pv -= uv;
+      }
+
+      previousPv = actualpv;
+      previousUv = actualuv;
+      sales = actualpv + actualuv;
+
+      return {
+        period: item.Year || "Unknown",
+        uv: uv,
+        pv: pv,
+        actualuv: actualuv,
+        sales: sales,
+        margin: item.Margin || 0,
+      };
+    });
+  }
+
+  return { currentYearDataset, previousYearDataset };
+};
+
+ 
+  const getWaterfallDataByQuarter = ({ currentYearData, previousYearData }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+    let previousPv = 0;
+    let previousUv = 0;
+  
+    // Process current year data
+    if (Array.isArray(currentYearData)) {
+      currentYearDataset = currentYearData.map((item, index) => {
+        let uv, pv, actualuv, actualpv, sales;
+  
+        if (index === 0) {
+          uv = item.Margin || 0;
+          pv = 0;
+        } else {
+          pv = previousPv + previousUv;
+          uv = (item.Margin || 0) - pv;
+        }
+  
+        actualuv = uv;
+        actualpv = pv;
+  
+        if (uv < 0) {
+          uv = Math.abs(uv);
+          pv -= uv;
+        }
+  
+        previousPv = actualpv;
+        previousUv = actualuv;
+        sales = actualpv + actualuv;
+  
+        return {
+          period: item.Quarter || "Unknown",
+          uv: uv,
+          pv: pv,
+          actualuv: actualuv,
+          sales: sales,
+          margin: item.Margin || 0,
+        };
+      });
+    }
+  
+    // Reset previous values
+    previousPv = 0;
+    previousUv = 0;
+  
+    // Process previous year data
+    if (Array.isArray(previousYearData)) {
+      previousYearDataset = previousYearData.map((item, index) => {
+        let uv, pv, actualuv, actualpv, sales;
+  
+        if (index === 0) {
+          uv = item.Margin || 0;
+          pv = 0;
+        } else {
+          pv = previousPv + previousUv;
+          uv = (item.Margin || 0) - pv;
+        }
+  
+        actualuv = uv;
+        actualpv = pv;
+  
+        if (uv < 0) {
+          uv = Math.abs(uv);
+          pv -= uv;
+        }
+  
+        previousPv = actualpv;
+        previousUv = actualuv;
+        sales = actualpv + actualuv;
+  
+        return {
+          period: item.Quarter || "Unknown",
+          uv: uv,
+          pv: pv,
+          actualuv: actualuv,
+          sales: sales,
+          margin: item.Margin || 0,
+        };
+      });
+    }
+  
+    return { currentYearDataset, previousYearDataset };
+  };
+
+  
+
+  // const getWaterfallDataByWeek = ({ currentYearData, previousYearData }) => {
+  //   let currentYearDataset = [];
+  //   let previousYearDataset = [];
+  //   let previousPv = 0;
+  //   let previousUv = 0;
+  
+  //   // Process current year data
+  //   if (Array.isArray(currentYearData)) {
+  //     currentYearDataset = currentYearData.map((item, index) => {
+  //       let uv, pv, actualuv, actualpv, sales;
+  
+  //       if (index === 0) {
+  //         uv = item.Margin || 0;
+  //         pv = 0;
+  //       } else {
+  //         pv = previousPv + previousUv;
+  //         uv = (item.Margin || 0) - pv;
+  //       }
+  
+  //       actualuv = uv;
+  //       actualpv = pv;
+  
+  //       if (uv < 0) {
+  //         uv = Math.abs(uv);
+  //         pv -= uv;
+  //       }
+  
+  //       previousPv = actualpv;
+  //       previousUv = actualuv;
+  //       sales = actualpv + actualuv;
+  
+  //       return {
+  //         period: item.Week || "Unknown",
+  //         uv: uv,
+  //         pv: pv,
+  //         actualuv: actualuv,
+  //         sales: sales,
+  //         margin: item.Margin || 0,
+  //       };
+  //     });
+  //   }
+  
+  //   // Reset previous values
+  //   previousPv = 0;
+  //   previousUv = 0;
+  
+  //   // Process previous year data
+  //   if (Array.isArray(previousYearData)) {
+  //     previousYearDataset = previousYearData.map((item, index) => {
+  //       let uv, pv, actualuv, actualpv, sales;
+  
+  //       if (index === 0) {
+  //         uv = item.Margin || 0;
+  //         pv = 0;
+  //       } else {
+  //         pv = previousPv + previousUv;
+  //         uv = (item.Margin || 0) - pv;
+  //       }
+  
+  //       actualuv = uv;
+  //       actualpv = pv;
+  
+  //       if (uv < 0) {
+  //         uv = Math.abs(uv);
+  //         pv -= uv;
+  //       }
+  
+  //       previousPv = actualpv;
+  //       previousUv = actualuv;
+  //       sales = actualpv + actualuv;
+  
+  //       return {
+  //         period: item.Weelk || "Unknown",
+  //         uv: uv,
+  //         pv: pv,
+  //         actualuv: actualuv,
+  //         sales: sales,
+  //         margin: item.Margin || 0,
+  //       };
+  //     });
+  //   }
+  
+  //   return { currentYearDataset, previousYearDataset };
+  // };
+
+
+  const getWaterfallDataByWeek = ({ currentYearData = [], previousYearData = [] }) => {
+    let currentYearDataset = [];
+    let previousYearDataset = [];
+    let previousPvCurrent = 0;
+    let previousUvCurrent = 0;
+    let previousPvPrevious = 0;
+    let previousUvPrevious = 0;
+  
+    // Process current year data
+    console.log("Current Yearrrrrrrr Data:", currentYearData); // Log the data being processed
+    if (Array.isArray(currentYearData)) {
+      currentYearData.forEach((item, index) => {
+        let uv, pv, actualuv, actualpv, sales;
+  
+        console.log("Processing current year item:", item); // Log each item
+        if (index === 0) {
+          uv = item?.Margin ?? 0; // Default to 0 if undefined
+          pv = 0;
+        } else {
+          pv = previousPvCurrent + previousUvCurrent;
+          uv = (item?.Margin ?? 0) - pv; // Default to 0 if undefined
+        }
+  
+        actualuv = uv;
+        actualpv = pv;
+  
+        if (uv < 0) {
+          uv = Math.abs(uv);
+          pv -= uv;
+        }
+  
+        previousPvCurrent = actualpv;
+        previousUvCurrent = actualuv;
+        sales = actualpv + actualuv;
+  
+        currentYearDataset.push({
+          period: item?.Week || "Unknown",
+          uv,
+          pv,
+          actualuv,
+          sales,
+        });
+      });
+    }
+  
+    // Process previous year data
+    console.log("Previous Year Data:", previousYearData); // Log the data being processed
+    if (Array.isArray(previousYearData)) {
+      previousYearData.forEach((item, index) => {
+        let uv, pv, actualuv, actualpv, sales;
+  
+        console.log("Processing previous year item:", item); // Log each item
+        if (index === 0) {
+          uv = item?.Margin ?? 0; // Default to 0 if undefined
+          pv = 0;
+        } else {
+          pv = previousPvPrevious + previousUvPrevious;
+          uv = (item?.Margin ?? 0) - pv; // Default to 0 if undefined
+        }
+  
+        actualuv = uv;
+        actualpv = pv;
+  
+        if (uv < 0) {
+          uv = Math.abs(uv);
+          pv -= uv;
+        }
+  
+        previousPvPrevious = actualpv;
+        previousUvPrevious = actualuv;
+        sales = actualpv + actualuv;
+  
+        previousYearDataset.push({
+          period: item?.Week || "Unknown",
+          uv,
+          pv,
+          actualuv,
+          sales,
+        });
+      });
+    }
+  
+    console.log("Current Year Dataset:", currentYearDataset); // Log final datasets
+    console.log("Previous Year Dataset:", previousYearDataset);
+  
+    return { currentYearDataset, previousYearDataset };
+  };
+  useEffect(() => {
+    if (responseData) {
+      console.log("responseData:", responseData);
+      console.log("timeWindow:", timeWindow);
+  
+      let currentYearData = [];
+      let previousYearData = [];
+      let processedData = [];
+  
+      // Extract data based on the time window
+      switch (timeWindow) {
+        case "W":
+          const weekData = getWaterfallDataByWeek(responseData);
+          currentYearData = weekData.currentYearDataset;
+          previousYearData = weekData.previousYearDataset;
+          break;
+        case "Q":
+          const quarterData = getWaterfallDataByQuarter(responseData);
+          currentYearData = quarterData.currentYearDataset;
+          previousYearData = quarterData.previousYearDataset;
+          break;
+        case "Y":
+          const yearData = getWaterfallDataByYear(responseData);
+          currentYearData = yearData.currentYearDataset;
+          previousYearData = yearData.previousYearDataset;
+          break;
+        case "M":
+        default:
+          const monthData = getWaterfallDataByMonth(responseData);
+          currentYearData = monthData.currentYearDataset;
+          previousYearData = monthData.previousYearDataset;
+          break;
+      }
+  
+      console.log("Current Year Data:", currentYearData);
+      console.log("Previous Year Data:", previousYearData);
+  
+      // Prepare labels (periods) from both datasets
+      const currentYearLabels = [...new Set(currentYearData.map((item) => item.period))];
+      const previousYearLabels = [...new Set(previousYearData.map((item) => item.period))];
+      const labels = [...new Set([...currentYearLabels, ...previousYearLabels])];
+      console.log("Labels:", labels);
+  
+      // Prepare data for chart
+      const pvData = labels.map((label) => {
+        const currentYearPoint = currentYearData.find((item) => item.period === label);
+        const previousYearPoint = previousYearData.find((item) => item.period === label);
+        return {
+          currentYear: currentYearPoint ? currentYearPoint.pv : 0,
+          previousYear: previousYearPoint ? previousYearPoint.pv : 0,
+        };
+      });
+  
+      const uvData = labels.map((label) => {
+        const currentYearPoint = currentYearData.find((item) => item.period === label);
+        const previousYearPoint = previousYearData.find((item) => item.period === label);
+        return {
+          currentYear: currentYearPoint ? currentYearPoint.uv : 0,
+          previousYear: previousYearPoint ? previousYearPoint.uv : 0,
+        };
+      });
+  
+      const actualSalesData = labels.map((label) => {
+        const currentYearPoint = currentYearData.find((item) => item.period === label);
+        const previousYearPoint = previousYearData.find((item) => item.period === label);
+        return {
+          currentYear: currentYearPoint ? currentYearPoint.sales : 0,
+          previousYear: previousYearPoint ? previousYearPoint.sales : 0,
+        };
+      });
+  
+      const actualUV = labels.map((label) => {
+        const currentYearPoint = currentYearData.find((item) => item.period === label);
+        const previousYearPoint = previousYearData.find((item) => item.period === label);
+        return {
+          currentYear: currentYearPoint ? currentYearPoint.actualuv : 0,
+          previousYear: previousYearPoint ? previousYearPoint.actualuv : 0,
+        };
+      });
+  
+      // Map colors based on actualUV values (positive = blue, negative = red)
+      const backgroundColorCurrentYear = actualUV.map((uv) =>
+        uv.currentYear >= 0 ? "rgb(102, 217, 255)" : "rgb(255, 77, 77)"
+      );
+      const backgroundColorPreviousYear = actualUV.map((uv) =>
+        uv.previousYear >= 0 ? "rgb(102, 217, 255,0.18)" : "rgb(255, 77, 77, 0.18)"
+      );
+  
+      // Create new data object
       const newData = {
         labels: labels,
         datasets: [
           {
-            label: "Previous Value",
+            label: "Current Year PV",
+            data: pvData.map((data) => data.currentYear),
+            // backgroundColor: "#66d9ff",
             backgroundColor: "transparent",
+
+            // borderWidth: 1,
             stack: "a",
-            data: pvData,
           },
           {
-            label: "Margin Trend Analysis",
-            backgroundColor: labels.map((key) =>
-              waterfallData.find((item) => item.period === key).actualuv < 0 ? "#ff4d4d" : "#66d9ff"
-            ),
-            borderWidth: 1,
-            data: uvData,
-            stack: "a",
-            salesData: actualSalesData,
-            actualuv: actualUV,
+            label: "Previous Year PV",
+            data: pvData.map((data) => data.previousYear),
+            backgroundColor: "transparent",
+            // borderWidth: 1,
+            stack: "b",
           },
+          {
+            label: "Current Year UV",
+            data: uvData.map((data) => data.currentYear),
+            backgroundColor: backgroundColorCurrentYear,
+            // borderWidth: 1,
+            stack: "a",
+          },
+          {
+            label: "Previous Year UV",
+            data: uvData.map((data) => data.previousYear),
+            backgroundColor: backgroundColorPreviousYear,
+            // borderWidth: 1,
+            stack: "b",
+          },
+          // {
+          //   label: "Current Year Sales",
+          //   data: actualSalesData.map((data) => data.currentYear),
+          //   backgroundColor: "rgba(102, 217, 255, 0.2)",
+          //   borderColor: "#66d9ff",
+          //   borderWidth: 1,
+          //   // type: "line", // Change type to 'line' if needed
+          // },
+          // {
+          //   label: "Previous Year Sales",
+          //   data: actualSalesData.map((data) => data.previousYear),
+          //   backgroundColor: "rgba(179, 179, 179, 0.2)",
+          //   borderColor: "#b3b3b3",
+          //   borderWidth: 1,
+          //   // type: "line", // Change type to 'line' if needed
+          // }
         ],
       };
-
-      setWaterfallStackedBar((prevData) => {
+  
+      // Update the chart data only if it has changed
+      setWaterfallBar((prevData) => {
         if (JSON.stringify(prevData) !== JSON.stringify(newData)) {
           return newData;
         }
         return prevData;
       });
-
-      const titles = {
-        W: "Weekly Margin Trend Analysis",
-        Q: "Quarterly Margin Trend Analysis",
-        Y: "Yearly Margin Trend Analysis",
-        M: "Monthly Margin Trend Analysis",
-      };
-      // setChartTitleMarginAnalysis("Margin Trend Analysis");
-      setChartTitleMarginAnalysis(titles[timeWindow] || "Monthly Margin Trend Analysis");
-
-      // setChartTitleMarginAnalysis(`Margin Trend Analysis (${timeWindowMap[timeWindow] || "Monthly"})`);
     } else {
-      setWaterfallStackedBar({
-        labels: [],
-        datasets: [
-          { label: "Previous Value", backgroundColor: "transparent", stack: "a", data: [] },
-          {
-            label: "Margin Trend Analysis",
-            backgroundColor: [],
-            borderWidth: 1,
-            data: [],
-            stack: "a",
-            salesData: [],
-            actualuv: [],
-          },
-        ],
-      });
-      console.log("No data found or data is empty.");
+      console.error("Response data or timeWindow is missing.");
     }
   }, [responseData, timeWindow]);
-
+  
+ 
+  
   const [isPanelOpen, setPanelOpen] = useState(false);
 
   const handleCreateClick = () => {
@@ -1209,6 +1764,280 @@ const DevDashboard = () => {
   const handleSubmit = () => {
     console.log("helooo");
   };
+
+  // ===================================code for line chartttt
+
+  // const baseURL = () =>
+  //   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/salesdata/v1/";
+
+  const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refresh-token-auth";
+  const checkTokenExpired = () => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expTime = GetTokenExpiredTime();
+    const remainingTime = expTime - currentTime;
+    if (remainingTime <= 300) {
+      var refreshTokenUrl = token;
+      const config = {
+        headers: {
+          "x-api-key": "xyz-abcd",
+          "Content-Type": "application/json",
+        },
+      };
+      const body = {
+        refresh_token: GetRefreshToken(),
+      };
+      axios
+        .post(refreshTokenUrl, body, config)
+        .then((response) => {
+          sessionStorage.setItem("IdToken", response.data.AuthenticationResult.IdToken);
+        })
+        .catch((error) => {
+          console.log("RefreshToken:", error);
+        });
+    } else {
+    }
+  };
+  const dimensionSetALL = () => {
+    // if (selectedBranch == "All") {
+    //   selectedBranch = "";
+    // }
+    // if (selectedBrand == "All") {
+    //   selectedBrand = "";
+    // }
+    // if (selectedBranchLabel == "All") {
+    //   selectedBranchLabel = "";
+    // }
+    // if (selectedChannel == "All") {
+    //   selectedChannel = "";
+    // }
+    // if (selectedOrderSource == "All") {
+    //   selectedOrderSource = "";
+    // }
+    // if (selectedMonth == "All") {
+    //   selectedMonth = "";
+    // }
+    // if (selectedQuarter == "All") {
+    //   selectedQuarter = "";
+    // }
+    // if (selectedWeek == "All") {
+    //   selectedWeek = "";
+    // }
+  };
+
+  const getConditions = () => {
+    const conditions = {};
+
+    // if (selectedBranch) {
+    //   conditions.branchkey = selectedBranch;
+    // }
+    // if (selectedBrand) {
+    //   conditions.BrandKey = selectedBrand;
+    // }
+    // if (selectedBranchLabel) {
+    //   conditions.FranchiseTypeKey = selectedBranchLabel;
+    // }
+    // if (selectedChannel) {
+    //   conditions.ChannelKey = selectedChannel;
+    // }
+    // if (selectedOrderSource) {
+    //   conditions.OrderSourceKey = selectedOrderSource;
+    // }
+    // if (selectedMonth) {
+    //   conditions.month = selectedMonth;
+    // }
+    // if (selectedQuarter) {
+    //   conditions.quarter = selectedQuarter;
+    // }
+    // if (selectedWeek) {
+    //   conditions.week = selectedWeek;
+    // }
+    // if (selectedYear) {
+    //   conditions.year = selectedYear;
+    // }
+
+    return conditions;
+  };
+  const WeekWiseSalesData = async () => {
+    try {
+      dimensionSetALL();
+      const conditions = getConditions();
+
+      let isWeekEnable = false;
+      let isQuarterEnable = false;
+      if (selectedFilter === 4) {
+        isWeekEnable = true;
+      }
+      if (selectedFilter === 3) {
+        isQuarterEnable = true;
+      }
+
+      const whereClause = conditions;
+
+      checkTokenExpired();
+
+      var baseUrl = baseURL + "get-cost-sales-info";
+      const config = {
+        headers: {
+          "x-api-key": "xyz-abcd",
+          Authorization: GetAuthToken(),
+          "Content-Type": "application/json",
+        },
+      };
+      const body = {
+        operation: "READ",
+        schema: GetSchema(),
+        function: "WeeklySalesMargin",
+        filter_criteria: {
+          where_clause: whereClause,
+        },
+      };
+
+      axios
+        .post(baseUrl, body, config)
+        .then((response) => {
+          if (response?.data?.WeeklySalesMarginInfo?.length > 0) {
+            const { WeeklySalesMarginInfo } = response.data;
+            const backgroundColorsWeekly = [
+              "#19b091",
+              "#f2a571",
+              "#21c2c3",
+              "#197fc0",
+              "#e75361",
+              "#758b98",
+              "#ff835c",
+            ];
+
+            const weeks = [...new Set(WeeklySalesMarginInfo.map((item) => item.weeknumber))];
+            const salPerday = {
+              Monday: [],
+              Tuesday: [],
+              Wednesday: [],
+              Thursday: [],
+              Friday: [],
+              Saturday: [],
+              Sunday: [],
+            };
+
+            const totalSalesByWeek = WeeklySalesMarginInfo.reduce((acc, curr) => {
+              if (!acc[curr.weeknumber]) {
+                acc[curr.weeknumber] = 0;
+              }
+              acc[curr.weeknumber] += curr.salesperday;
+              return acc;
+            }, {});
+
+            WeeklySalesMarginInfo.forEach((item) => {
+              const dayOfWeek = item.dayofweek.trim();
+              if (salPerday.hasOwnProperty(dayOfWeek)) {
+                const weekIndex = weeks.indexOf(item.weeknumber); // Find the index of the week
+                if (weekIndex !== -1) {
+                  salPerday[dayOfWeek][weekIndex] = item.salesperday || 0; // Fill in salesperday for the respective week
+                }
+              }
+            });
+
+            Object.keys(salPerday).forEach((dayOfWeek) => {
+              if (salPerday[dayOfWeek].length === 0) {
+                // If sales data is not available for this weekday, fill it with zeros
+                salPerday[dayOfWeek] = new Array(WeeklySalesMarginInfo.length).fill(0);
+              }
+            });
+
+            const datasets = [
+              {
+                label: "Total Sales per Week",
+                type: "line",
+                // backgroundColor: "rgba(217, 88, 88,0.4)",
+                borderColor: "#4E78A6",
+                // pointBackgroundColor: "#000000",
+
+                fill: false,
+                data: Object.values(totalSalesByWeek),
+                categoryPercentage: 1.0,
+                barPercentage: 0.2,
+                order: 2,
+                ticks: false,
+                pointStyle: "line",
+                pointBorderWidth: 5,
+                Legend: {
+                  shape: "line",
+                },
+              },
+              ...Object.keys(salPerday).map((dayOfWeek, index) => ({
+                type: "bar",
+                label: dayOfWeek,
+                backgroundColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
+                data: salPerday[dayOfWeek],
+                barPercentage: 1.0,
+                categoryPercentage: 0.5,
+                pointStyle: "rect",
+              })),
+            ];
+
+            setWeeklyChartData({
+              labels: weeks.map((weeknumber) => `Week ${weeknumber}`),
+              datasets: datasets,
+            });
+          } else {
+            setWeeklyChartData((prevChart) => ({
+              ...prevChart,
+              datasets: prevChart.datasets.map((dataset) => ({
+                ...dataset,
+                data: Array(dataset.data.length).fill(0),
+                type: undefined,
+              })),
+            }));
+            console.log("Weekly sales: No data found or the data is empty");
+          }
+        })
+        .catch((error) => {
+          console.error("Weekly sales Error:", error);
+        });
+    } catch (error) {
+      console.error("Error fetching data or updating Weekly sales:", error);
+    }
+  };
+  useEffect(() => {
+    const authToken = GetAuthToken();
+
+    if (!authToken || authToken.trim() === "") {
+      router.push("/login");
+    } else {
+      WeekWiseSalesData();
+    }
+  }, []);
+
+  const [WeeklyChartdata, setWeeklyChartData] = useState({
+    labels: [],
+    datasets: [],
+    categoryPercentage: 0,
+    plugins: [
+      {
+        datalabels: {
+          anchor: "end",
+          align: "top",
+          formatter: (value, context) => {
+            if (context.dataset.label === "Total Sales per Week") {
+              return value;
+            } else {
+              return "";
+            }
+          },
+          color: "#000",
+          font: {
+            weight: "bold",
+          },
+        },
+      },
+    ],
+  });
+
+  const chartTitleWeeklywise = "Weekly Total Sales";
+  const handleChartDoubleClick = () => {
+    setShowPopupChart(true);
+  };
+
+  // ======================================================
 
   return (
     <>
@@ -1234,6 +2063,8 @@ const DevDashboard = () => {
           </Button>
         </Tooltip>
       </Grid>
+      <p>Start Date: {startDate || "Not selected"}</p>
+      <p>End Date: {endDate || "Not selected"}</p>
       <Grid container spacing={2} style={{ marginTop: "5px" }}>
         <Grid item xs>
           <Card
@@ -1263,7 +2094,7 @@ const DevDashboard = () => {
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                {/* {YTDTotalSales} */}₹{YTDTotalSales.toLocaleString()}
+                {/* {YTDTotalSales} */}₹{totalSales.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1292,7 +2123,7 @@ const DevDashboard = () => {
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                ₹{YTDtotalCost.toLocaleString()}
+                ₹{cogs.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1320,9 +2151,7 @@ const DevDashboard = () => {
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                {/* ₹{totalProfit.toLocaleString()} */}
-                                ₹{YTDtotalMargin.toLocaleString()}
-
+                {/* ₹{totalProfit.toLocaleString()} */}₹{margin.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1350,9 +2179,7 @@ const DevDashboard = () => {
                 component="div"
                 style={{ fontSize: 14, textAlign: "Center" }}
               >
-                {/* ₹{MTDTotalSales.toLocaleString()} */}
-                                ₹{MTDTotalSales.toLocaleString()}
-
+                {/* ₹{MTDTotalSales.toLocaleString()} */}₹{MTDTotalSales.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -1414,7 +2241,16 @@ const DevDashboard = () => {
           </Card>
         </Grid>
       </Grid>
-      <div style={{ marginBottom: "0px", fontWeight: "bold", padding: "0px", fontSize: "15px",marginTop:"10px", fontFamily:"-moz-initial" }}>
+      <div
+        style={{
+          marginBottom: "0px",
+          fontWeight: "bold",
+          padding: "0px",
+          fontSize: "15px",
+          marginTop: "10px",
+          fontFamily: "-moz-initial",
+        }}
+      >
         {dimension}
       </div>
 
@@ -1432,9 +2268,15 @@ const DevDashboard = () => {
             <BarChart
               chartData={chartData}
               // title={chartTitlemonthwise}
-              title={`Total Sales (${timeWindowMap[timeWindow] || "Month"})`}
+              title={`Total Sales (${timeWindowMap[timeWindow] || "Monthly"})`}
               onDoubleClick={() => console.log("Chart clicked")}
             />
+            {/* <DonutChart
+              chartData={chartData}
+              // title={chartTitlemonthwise}
+              title={`Total Sales (${timeWindowMap[timeWindow] || "Month"})`}
+              onDoubleClick={() => console.log("Chart clicked")}
+            /> */}
           </div>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -1479,10 +2321,28 @@ const DevDashboard = () => {
             }}
           >
             <BarChartComp
-              chartData={waterfallStackedBar}
+              chartData={waterfallBar}
               title={chartTitleMarginAnalysis}
               // onDoubleClick={handleChartDoubleClick} // Ensure this function is defined elsewhere
               onDoubleClick={() => console.log("waterfall Chart clicked")}
+            />
+          </div>
+        </Grid>
+      </Grid>
+      <Grid container spacing={2} style={{ marginTop: "1%" }}>
+        <Grid item xs={12}>
+          <div
+            style={{
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+              borderRadius: "5px",
+              overflow: "hidden",
+              height: "100%",
+            }}
+          >
+            <BarChartWeekly
+              chartData={WeeklyChartdata}
+              title={chartTitleWeeklywise}
+              onDoubleClick={handleChartDoubleClick}
             />
           </div>
         </Grid>

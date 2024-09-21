@@ -24,6 +24,7 @@ import text_logo from "src/assets/text_logo_nobg.png";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TableViewIcon from "@mui/icons-material/TableView";
+import { FaFileAlt } from "react-icons/fa";
 
 import ExploreIcon from "@mui/icons-material/Explore";
 
@@ -107,6 +108,18 @@ const items = [
     icon: <ExploreIcon fontSize="small" />,
     title: "Query Analytics",
   },
+
+  {
+    href: "/plstatements",
+    icon: <FaFileAlt fontSize="small" />,
+    title: "P & L Statements",
+  },
+
+  // {
+  //   href: "/PLStatementsDev",
+  //   icon: <FaFileAlt fontSize="small" />,
+  //   title: "P & L Statement",
+  // },
   // {
   //   href: "/graphsdashboard",
   //   icon: <ExploreIcon fontSize="small" />,

@@ -21,6 +21,7 @@ import plugin from "chartjs-plugin-datalabels";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function BarChartWeekly({ chartData, title }) {
+  console.log(chartData, "chartDatalasttttttttttttttt");
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -195,6 +196,7 @@ export default function BarChartWeekly({ chartData, title }) {
                           usePointStyle: true,
                         },
                       },
+                      datalabels: false,
                     },
                     layout: {
                       padding: {

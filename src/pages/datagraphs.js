@@ -20,6 +20,11 @@ import { DashboardLayout } from "src/components/dashboard-layout";
 import { useRouter } from "next/router";
 import { concat } from "lodash";
 
+import GraphsScenario1Chart from "src/components/charts/GraphScenario1Chart";
+import GraphsScenario2Chart from "src/components/charts/GraphScenario1Chart";
+import GraphsScenario3Chart from "src/components/charts/GraphScenario1Chart";
+import GraphsScenario4Chart from "src/components/charts/GraphScenario1Chart";
+
 const App = () => {
   const [chartsData, setChartsData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -55,9 +60,7 @@ const App = () => {
   };
   const handleCloseModal = () => setOpenModal(false);
 
-
   // worlignn
-
 
   // Scenario 1
 
@@ -96,7 +99,6 @@ const App = () => {
       });
     });
 
-
     return {
       labels: topLabels,
       datasets: allItems?.map((i, idx) => ({
@@ -110,7 +112,6 @@ const App = () => {
   function scenario1(data, dimension, measure) {
     let labels = [];
     let values = [];
-
 
     data.forEach((d) => {
       labels.push(d[dimension]);
@@ -140,51 +141,61 @@ const App = () => {
     const result = {
       labels,
       datasets: [
+        // {
+        //   backgroundColor: "#003380",
+        //   borderColor: "#003380",
+        //   hoverBackgroundColor: "#003380",
+        //   hoverBorderColor: "#003380",
+        //   barThickness: 30,
+        //   maxBarThickness: 40,
+        //   barPercentage: 0.1,
+        //   categoryPercentage: 1,
+
+        // },
         {
           backgroundColor: "#003380",
-          borderColor: "#003380",
+          borderColor: "#FFFFFF",
+          borderWidth: 1,
           hoverBackgroundColor: "#003380",
           hoverBorderColor: "#003380",
-
-          barThickness: 50,
-
-          maxBarThickness: 80,
-          barPercentage: 0.1,
-          categoryPercentage: 1,
+          barThickness: 20,
+          maxBarThickness: 30,
+          barPercentage: 1.0,
+          categoryPercentage: 1.0,
           data: values,
         },
       ],
-      chartOptions: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-          title: {
-            display: true,
-            text: title, // Set the dynamic title here
-          },
-        },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: xLabel, // Set the dynamic X-axis label here
-            },
-            grid: {
-              display: false,
-            },
-          },
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: yLabel, // Set the dynamic Y-axis label here
-            },
-          },
-        },
-      },
+      // chartOptions: {
+      //   responsive: true,
+      //   maintainAspectRatio: false,
+      //   plugins: {
+      //     legend: {
+      //       display: false,
+      //     },
+      //     title: {
+      //       display: true,
+      //       text: title, // Set the dynamic title here
+      //     },
+      //   },
+      //   scales: {
+      //     x: {
+      //       title: {
+      //         display: true,
+      //         text: xLabel, // Set the dynamic X-axis label here
+      //       },
+      //       grid: {
+      //         display: false,
+      //       },
+      //     },
+      //     y: {
+      //       beginAtZero: true,
+      //       title: {
+      //         display: true,
+      //         text: yLabel, // Set the dynamic Y-axis label here
+      //       },
+      //     },
+      //   },
+      // },
     };
 
     // console.log(result, "result");
@@ -197,14 +208,12 @@ const App = () => {
     let labels = [];
     let dataSets = [];
 
-
     const colors = [
       "#003380",
       "#0052cc", // Darkest shade
       "#1a75ff", // Base shade
-
     ];
-    console.log(itemsToStack,'itemsToStack')
+    console.log(itemsToStack, "itemsToStack");
 
     // Create a dataset for each stackable item
     itemsToStack.forEach((item, index) => {
@@ -262,15 +271,29 @@ const App = () => {
     };
   }
 
-
-
   function scenario3(data, dimension, measure) {
     const topLabels = Object.keys(data);
     let allItems = [];
     let datasets = [];
 
-
-    const colors = ["#002966","#003380","#003d99","#0047b3",'#0052cc', '#005ce6', '#0066ff', '#1a75ff','#3385ff', '#4d94ff', '#66a3ff', '#80b3ff', '#99c2ff', '#b3d1ff', '#cce0ff', '#e6f0ff']; // Customize as needed
+    const colors = [
+      "#002966",
+      "#003380",
+      "#003d99",
+      "#0047b3",
+      "#0052cc",
+      "#005ce6",
+      "#0066ff",
+      "#1a75ff",
+      "#3385ff",
+      "#4d94ff",
+      "#66a3ff",
+      "#80b3ff",
+      "#99c2ff",
+      "#b3d1ff",
+      "#cce0ff",
+      "#e6f0ff",
+    ]; // Customize as needed
 
     const colorMap = {};
 
@@ -323,9 +346,6 @@ const App = () => {
     };
   }
 
-
-
-
   function scenario4(data, dimension, measure, itemsToStack) {
     const topLabels = Object.keys(data);
 
@@ -334,22 +354,40 @@ const App = () => {
     let values = [];
 
     // Predefined color palette
-    const colors = ["#002966","#003380","#003d99","#0047b3",'#0052cc', '#005ce6', '#0066ff', '#1a75ff','#3385ff', '#4d94ff', '#66a3ff', '#80b3ff', '#99c2ff', '#b3d1ff', '#cce0ff', '#e6f0ff']; // Customize as needed
-
+    const colors = [
+      "#002966",
+      "#003380",
+      "#003d99",
+      "#0047b3",
+      "#0052cc",
+      "#005ce6",
+      "#0066ff",
+      "#1a75ff",
+      "#3385ff",
+      "#4d94ff",
+      "#66a3ff",
+      "#80b3ff",
+      "#99c2ff",
+      "#b3d1ff",
+      "#cce0ff",
+      "#e6f0ff",
+    ]; // Customize as needed
 
     // Helper function to lighten a color
     function lightenColor(color, percent) {
       const num = parseInt(color.replace("#", ""), 16);
       const amt = Math.round(2.55 * percent);
       const R = (num >> 16) + amt;
-      const G = (num >> 8 & 0x00FF) + amt;
-      const B = (num & 0x0000FF) + amt;
+      const G = ((num >> 8) & 0x00ff) + amt;
+      const B = (num & 0x0000ff) + amt;
       return `#${(
         0x1000000 +
         (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
         (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
         (B < 255 ? (B < 1 ? 0 : B) : 255)
-      ).toString(16).slice(1)}`;
+      )
+        .toString(16)
+        .slice(1)}`;
     }
 
     // Process and sort each dimension's data by rank
@@ -392,7 +430,7 @@ const App = () => {
 
         let totalCost = 0;
         itemsToStack.forEach((item, itemIdx) => {
-          totalCost += (datasets[stackIdx]?.[itemIdx]?.[labelIdx] || 0);
+          totalCost += datasets[stackIdx]?.[itemIdx]?.[labelIdx] || 0;
         });
 
         marginValues[labelIdx] = totalSales - totalCost;
@@ -428,8 +466,6 @@ const App = () => {
     };
   }
 
-
-
   const getChartTitle = (dimension, measure, includeCOGS, partition, scenario) => {
     if (scenario === 1) return `Chart based on ${dimension} and ${measure}`;
     if (scenario === 2) return `Chart based on ${dimension} and ${measure}`;
@@ -447,7 +483,6 @@ const App = () => {
     if (scenario === 4) return dimension;
     return "Dimension";
   };
-
 
   // for styling width of dialog scroll
 
@@ -545,7 +580,7 @@ const App = () => {
           generatedChartData.scenario = scenario;
           setChartDataList((prevDataList) => [...prevDataList, generatedChartData]);
         }
-
+        console.log("Generated Chart Data:", generatedChartData); // Debugging
         const labelsLength = generatedChartData.labels.length;
         const styles = getBarDivStyles(scenario, labelsLength);
         setBarDivStyles(styles);
@@ -561,8 +596,6 @@ const App = () => {
   const handleClosePanel = () => {
     setPanelOpen(false);
   };
-
-
 
   const formatValue = (value) => {
     if (typeof value !== "number") {
@@ -586,35 +619,28 @@ const App = () => {
 
     if (maxValue >= 100000) {
       return `${(value / 1000).toFixed(1)}k`; // For millions
-    }
-    //  else if (maxValue >= 1000000) {
-    //   return `${(value / 1000000).toFixed(1)}M`; // For millions
-    // }
-    //  else if (maxValue >= 100000) {
-    //   return `${(value / 1000).toFixed(1)}K`; // For thousands
-    // }
-    else {
+    } else if (maxValue >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`; // For millions
+    } else if (maxValue >= 100000) {
+      return `${(value / 1000).toFixed(1)}K`; // For thousands
+    } else {
       return value.toFixed(2); // For smaller values
     }
   };
-
-
-
 
   const handleCreateClick = () => {
     setPanelOpen(true);
   };
 
-
-
   const handleDeleteChart = (index) => {
     setChartDataList((prevList) => prevList.filter((_, i) => i !== index));
   };
 
+  // In your render method or functional component
+
   return (
     <>
       <Grid item xs={12} md={12} style={{ display: "flex", justifyContent: "flex-end" }}>
-
         <Tooltip title="Create new graph" arrow>
           <Button
             variant="contained"
@@ -634,7 +660,6 @@ const App = () => {
           </Button>
         </Tooltip>
       </Grid>
-
       {/* for delte */}
       <Grid container spacing={2}>
         {chartDataList.length > 0 &&
@@ -644,6 +669,24 @@ const App = () => {
             );
             const labelsLength = chartData.labels.length;
             const minWidth = getBarDivStyles(chartData.scenario, labelsLength).minWidth;
+
+            const renderChartComponent = (chartData) => {
+              const { scenario } = chartData;
+
+              switch (scenario) {
+                case 1:
+                  return <GraphsScenario1Chart chartData={chartData} />;
+                case 2:
+                  return <GraphsScenario2Chart chartData={chartData} />;
+                case 3:
+                  return <GraphsScenario3Chart chartData={chartData} />;
+                case 4:
+                  return <GraphsScenario4Chart chartData={chartData} />;
+                // Handle other scenarios if needed
+                default:
+                  return <DefaultComponent data={chartData} />;
+              }
+            };
             return (
               <Grid item xs={12} sm={6} md={6} key={index}>
                 <Box
@@ -674,13 +717,9 @@ const App = () => {
                       boxShadow: "1px 2px 2px 1px rgba(0, 0, 0, 0.1)",
                     }}
                   >
-
-
-
                     <h2 style={{ textAlign: "center", flex: 1, fontSize: "11px" }}>
                       {chartData.title || "Bar Charts"}
                     </h2>
-
 
                     <div style={{ display: "flex", gap: "10px" }}>
                       <IconButton
@@ -709,16 +748,14 @@ const App = () => {
                   </div>
 
                   <div
-
                     style={{
-
                       minWidth: minWidth,
                       display: "flex",
                       flexDirection: "column",
                       height: "300px",
                     }}
                   >
-                    <Bar
+                    {/* <Bar
                       data={chartData}
                       options={{
                         responsive: true,
@@ -739,7 +776,6 @@ const App = () => {
                           },
                         },
                         scales: {
-
                           x: {
                             offset: true,
                             grid: {
@@ -771,9 +807,9 @@ const App = () => {
                             },
                           },
                         },
-
                       }}
-                    />
+                    /> */}
+                    {renderChartComponent(chartData)}
                   </div>
 
                   <div
@@ -855,74 +891,72 @@ const App = () => {
             <div style={{ width: "100%", height: "100%" }}>
               {currentData && (
                 <>
-              <h3 style={{ marginLeft: "20px" }}>{currentData.title}</h3>
-                <Bar
-                  data={currentData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      title: {
-                        display: true,
-                        // text: getDynamicTitle(currentData),
-                        text: "",
-                      },
-                      legend: {
-                        display: false,
-                      },
-                    },
-                    layout: {
-                      padding: {
-                        left: 0,
-                        right: 10,
-                      },
-                    },
-                    scales: {
-                      x: {
-                        stacked: currentData.datasets.some(
-                          (dataset) => dataset.label === "Total Sales"
-                        ),
+                  <h3 style={{ marginLeft: "20px" }}>{currentData.title}</h3>
+                  <Bar
+                    data={currentData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
                         title: {
                           display: true,
-                          // text: activeScenario.dimension,
+                          // text: getDynamicTitle(currentData),
                           text: "",
-
-                          font: {
-                            size: 14, // Adjust the font size as needed
-                            weight: "bold", // Make the font bold
-                          },
                         },
-                        grid: {
-                          display: true, // Turn off grid lines on the x-axis
+                        legend: {
+                          display: false,
                         },
                       },
-                      y: {
-                        beginAtZero: true,
-                        type: "logarithmic",
-                        ticks: {
-                          callback: formatValue,
+                      layout: {
+                        padding: {
+                          left: 0,
+                          right: 10,
                         },
-                        title: {
-                          display: true,
-                          // text: activeScenario.measure,
-                          text: "",
+                      },
+                      scales: {
+                        x: {
+                          stacked: currentData.datasets.some(
+                            (dataset) => dataset.label === "Total Sales"
+                          ),
+                          title: {
+                            display: true,
+                            // text: activeScenario.dimension,
+                            text: "",
 
-                          font: {
-                            size: 14, // Adjust the font size as needed
-                            weight: "bold", // Make the font bold
+                            font: {
+                              size: 14, // Adjust the font size as needed
+                              weight: "bold", // Make the font bold
+                            },
+                          },
+                          grid: {
+                            display: true, // Turn off grid lines on the x-axis
+                          },
+                        },
+                        y: {
+                          beginAtZero: true,
+                          type: "logarithmic",
+                          ticks: {
+                            callback: formatValue,
+                          },
+                          title: {
+                            display: true,
+                            // text: activeScenario.measure,
+                            text: "",
+
+                            font: {
+                              size: 14, // Adjust the font size as needed
+                              weight: "bold", // Make the font bold
+                            },
                           },
                         },
                       },
-                    },
-                  }}
-                />
-               </>
+                    }}
+                  />
+                </>
               )}
             </div>
           </DialogContent>
         </Dialog>
-
-
       </Grid>
 
       <SlideOutPanel open={isPanelOpen} onClose={handleClosePanel} handleSubmit={handleSubmit} />
@@ -933,5 +967,3 @@ const App = () => {
 App.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default App;
-
-

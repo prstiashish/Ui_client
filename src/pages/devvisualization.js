@@ -19,48 +19,43 @@ import {
   Radio,
   Tooltip,
   CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+// import Checkbox from '@mui/material/Checkbox';
+// import FormControlLabel from '@mui/material/FormControlLabel';
 
 import axios from "axios";
 
 import { DashboardLayout } from "src/components/dashboard-layout";
-// import { DevDashboard } from "./devdashhboard.";
+import { DevDashboard } from "./devdashboard.js";
 
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { pink } from "@mui/material/colors";
+import { format } from "date-fns";
 
 import { useRouter } from "next/router";
+import { faBold } from "@fortawesome/free-solid-svg-icons";
 
 // import { newallData } from "src/components/charts/newalldata";
 
 // console.log(newallData);
 
-const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
+const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const [selectedDimension, setSelectedDimension] = useState("");
   const [selectedValues, setSelectedValues] = useState([]);
-  const [selectedMeasure, setSelectedMeasure] = useState("");
-  const [selectCurrency, setSelectCurrency] = useState("");
+
   const [selectedTimeWindow, setSelectedTimeWindow] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
-  const [radioSelection, setRadioSelection] = useState("top");
-  const [topInputValue, setTopInputValue] = useState("");
-  const [downInputValue, setDownInputValue] = useState("");
+
   const [groupByDimension, setGroupByDimension] = useState("");
   const [groupByValues, setGroupByValues] = useState([]);
-  const [groupByAnchorEl, setGroupByAnchorEl] = useState(null);
-  const [searchValueGroupBy, setSearchValueGroupBy] = useState("");
-  const [topError, setTopError] = useState("");
-  const [downError, setDownError] = useState("");
-  const [openGroupBy, setOpenGroupBy] = useState(false);
-  const [includeCOGS, setIncludeCOGS] = useState(false);
-  const [isGroupByEnabled, setIsGroupByEnabled] = useState(false);
-  const [isNoneSelected, setIsNoneSelected] = useState(false);
 
   const [dimensionError, setDimensionError] = useState("");
   const [measureError, setMeasureError] = useState("");
-
-  const [showDottedBox, setShowDottedBox] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -134,7 +129,8 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+          // "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown.json"
         );
 
         const newallData = response.data;
@@ -150,7 +146,6 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
     fetchData();
   }, []);
 
-
   // get
 
   // https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json
@@ -160,57 +155,7 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
 
   const [error, setError] = useState(null);
 
-  const generateFriendlyName = (key) => {
-    return key
-      .replace(/_/g, " ") // Replace underscores with spaces
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
-  };
-
   // old
-
-  const { dimensionMapping, reverseDimensionMapping } = createDimensionMappings(dimensions);
-  // console.log(dimensionMapping,'dimensionMapping')
-
-  const formatData = () => {
-    // Replace spaces with underscores in the selected dimension
-    const formattedDimension = selectedDimension ? selectedDimension.replace(/\s+/g, "_") : "";
-
-    // Build the dimension string using the formatted dimension
-    const dimension =
-      formattedDimension && selectedValues.length > 0
-        ? `${formattedDimension}:${selectedValues.join(", ")}`
-        : "";
-
-    // Handle partition formatting
-    const partition = isNoneSelected
-      ? "None"
-      : groupByDimension && groupByValues.length > 0
-      ? `${groupByDimension.replace(/\s+/g, "_")}:${groupByValues.join(", ")}`
-      : "";
-
-    // Prepare the measure and time window columns (no transformation needed here)
-    const measure = selectedMeasure;
-    const time_window_col = selectedTimeWindow;
-
-    // Log or return the formatted data as needed
-    // console.log("Formatted Dimension:", dimension);
-    // console.log("Partition:", partition);
-    // console.log("Measure:", measure);
-    // console.log("Time Window Column:", time_window_col);
-
-    return {
-      dimension,
-      time_window_col,
-      // partition,
-      // measure,
-
-      // includeCOGS,
-      // topRank: topInputValue || 0, // Send 0 if no value is provided
-      // bottomRank: downInputValue || 0, // Send 0 if no value is provided
-    };
-  };
-
-
 
   const [dimension, setDimension] = useState("");
 
@@ -218,7 +163,26 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
 
   const router = useRouter();
 
+  const [startDate, setStartDate] = useState(null);
+  console.log(startDate, "ssssdddddd");
 
+  const [endDate, setEndDate] = useState(null);
+  console.log(endDate, "eeeedddddd");
+
+  const [isChecked, setIsChecked] = useState(false); // Default value should be false
+  console.log(isChecked, "isCheckedeeeeee");
+
+
+
+  const formattedStartDate =
+    startDate instanceof Date && !isNaN(startDate)
+      ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+      : "";
+
+  const formattedEndDate =
+    endDate instanceof Date && !isNaN(endDate)
+      ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+      : "";
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -228,24 +192,47 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
       formattedDimension && selectedValues.length > 0
         ? `${formattedDimension}:${selectedValues.join(", ")}`
         : "";
+
     const timeWindow = selectedTimeWindow;
 
-    console.log(dimension, "selectedDimension");
-    console.log(timeWindow, "selectedTimeWindow");
+    const formattedStartDate =
+      startDate instanceof Date && !isNaN(startDate)
+        ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+        : "";
+
+    const formattedEndDate =
+      endDate instanceof Date && !isNaN(endDate)
+        ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+        : "";
 
     // Redirect to a new route with query parameters
-    router.push(`/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(timeWindow)}`);
+    // router.push(
+    //   `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
+    //     timeWindow
+    //   )}`
+    // );
+    // router.push(
+    //   `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
+    //     timeWindow
+    //   )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`
+    // );
+
+    router.push(
+      `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
+        timeWindow
+      )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&isChecked=${isChecked}`
+    );
+
+    console.log("isChecked value:", isChecked);
+
+    const includePrevYear = isChecked ? 'true' : 'false';
+
+
     setDimension(dimension);
     setTimeWindow(timeWindow);
 
     setLoading(false);
     onClose();
-  };
-
-  const handleNewClick = () => {
-    console.log("New button clicked");
-    // Your logic here
-    onNewClick();
   };
 
   const handleSearchChange = (event) => {
@@ -266,144 +253,6 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
     }
   }, [groupByDimension]);
 
-  const getValuesByDimension = (dimensionKey) => {
-    const dimension = newallData.dimension[dimensionKey];
-    if (dimension && dimension.length > 0) {
-      return dimension[0].values;
-    }
-    return [];
-  };
-
-  const handleGroupByChange = (event) => {
-    if (isNoneSelected) return; // Ignore if "None" is selected
-
-    if (!selectedDimension) {
-      // Show hint or alert if no dimension is selected
-      alert("Please select a dimension first.");
-      return;
-    }
-    const newGroupByDimension = event.target.value;
-    setGroupByDimension(newGroupByDimension);
-    setGroupByValues([]); // Clear values when dimension changes
-    setSearchValueGroupBy("");
-  };
-
-  const handleGroupByValueSelect = (value) => {
-    if (isNoneSelected) return;
-    if (value === "All") {
-      setGroupByValues(["All"]);
-    } else {
-      if (groupByValues.includes("All")) {
-        setGroupByValues([value]);
-      } else {
-        setGroupByValues((prev) =>
-          prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
-        );
-      }
-    }
-  };
-
-  const getGroupByOptions = () => {
-    const re = dimensions[groupByDimension]?.[0]?.values || [];
-    // console.log(re, "gggeee");
-    return re;
-  };
-
-  const handleGroupByClick = (event) => {
-    if (isNoneSelected) return; // Ignore if "None" is selected
-
-    setGroupByAnchorEl(event.currentTarget);
-    setOpenGroupBy(true);
-  };
-
-  const handleGroupByClose = () => {
-    setOpenGroupBy(false);
-    setGroupByAnchorEl(null);
-  };
-
-  // const openGroupBy = Boolean(groupByAnchorEl);
-  const idGroupBy = openGroupBy ? "group-by-popover" : undefined;
-
-  const handleSearchChangeGroupBy = (event) => {
-    const newValue = event.target.value;
-    setSearchValueGroupBy(newValue);
-    console.log(newValue, "Search Value");
-  };
-
-  const handleMeasureChange = (event) => {
-    const value = event.target.value;
-    console.log(typeof value, "typeeeeee");
-    setSelectedMeasure(value);
-
-    // Show checkbox only if "Total Sales" is selected, otherwise hide it and reset checkbox state
-    if (value === "Total_Sales") {
-      setIncludeCOGS(false); // Ensure checkbox is unchecked by default when "Total Sales" is selected
-    } else {
-      setIncludeCOGS(false); // Reset checkbox state if another measure is selected
-    }
-  };
-
-  const handleIncludeCOGSChange = (event) => {
-    setIncludeCOGS(event.target.checked);
-  };
-
-  const selectedMeasureDisplay = measures.find(
-    (measure) => measure.value === selectedMeasure
-  )?.values;
-
-  const filteredMeasures = measures.filter((measure) =>
-    measure.value.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  // Handle currency selection
-  const handleCurrencyChange = (event) => {
-    setSelectCurrency(event.target.value);
-  };
-
-  const filteredCurrency = currency.filter((currency) =>
-    currency.value.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  // Handle window selection
-
-  const filteredTimeWindow = timeWindows.filter((timewindow) =>
-    timewindow.value.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  const handleRadioChange = (event) => {
-    const selectedValue = event.target.value;
-    setRadioSelection(selectedValue);
-    // Reset the other input value
-    if (selectedValue === "top") {
-      setDownInputValue("");
-    } else {
-      setTopInputValue("");
-    }
-  };
-
-  const handleTopInputChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-
-    // console.log(typeof value, 'typeeeee')
-    setTopInputValue(value);
-    if (parseInt(value, 10) <= 0 && value !== "") {
-      setTopError("Please enter a value greater than 0");
-    } else {
-      setTopError("");
-    }
-  };
-
-  const handleDownInputChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-
-    setDownInputValue(value);
-    if (parseInt(value, 10) <= 0 && value !== "") {
-      setDownError("Please enter a value greater than 0");
-    } else {
-      setDownError("");
-    }
-  };
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -412,27 +261,8 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
     setAnchorEl(null);
   };
 
-  const handleNoneCheckboxChange = (event) => {
-    setIsNoneSelected(event.target.checked);
-  };
-
-  const handleGroupByCheckboxChange = (event) => {
-    const checked = event.target.checked;
-    setIsNoneSelected(checked);
-
-    if (checked) {
-      // Clear dimension and values when "None" is selected
-      setGroupByDimension("");
-      setGroupByValues([]);
-    }
-  };
-
   const open = Boolean(anchorEl);
   const id = open ? "dimension-popover" : undefined;
-
-  // const handleTimeWindowChange = (event) => {
-  //   setSelectedTimeWindow(event.target.value);
-  // };
 
   const [timeWindowError, setTimeWindowError] = useState("");
 
@@ -448,19 +278,39 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
     }
   };
 
-  // In your parent component
-  const [payload, setPayload] = useState({});
+  // for date picker
 
-  // Handle form submission
-  const handleSubmitForm = () => {
-    const newPayload = formatData(); // This function should generate your payload
-    console.log("Submitting payload:", newPayload);
-
-    // setPayload(newPayload); // Update the payload state
-    onClose(); // Close the drawer or modal after submission
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    // Optionally validate dates
+    if (endDate && date > endDate) {
+      setError("Start date cannot be later than end date.");
+    } else {
+      setError("");
+    }
   };
 
-  // Render the DevVisualization component with the payload
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+    // Optionally validate dates
+    if (startDate && date < startDate) {
+      setError("End date cannot be earlier than start date.");
+    } else {
+      setError("");
+    }
+  };
+
+  const formatDate = (date) => {
+    return date ? format(date, "yyyy-MM-dd") : "";
+  };
+
+  // Function to handle the checkbox toggle
+  const handleCheckboxChange = (event) => {
+    const checked = event.target.checked;
+    console.log(checked, "event.target.checked"); // Check if this prints the expected value
+    setIsChecked(checked); // Update the state with the checkbox value
+  };
+
 
   return (
     // <Grid container spacing={2} style={{ marginTop: "1%" }}>
@@ -685,6 +535,113 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
                     Select Time Window
                   </Typography>
 
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                      <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
+                        Start Date
+                      </InputLabel>
+
+                      <DatePicker
+                        id="start-date-picker"
+                        value={startDate}
+                        onChange={handleStartDateChange}
+                        views={["year", "month", "day"]}
+                        inputFormat="YYYY/MM/DD"
+                        renderInput={(params) => <TextField {...params} />}
+                        sx={{ marginTop: "10px" }}
+                        // sx={{
+                        //   '& .MuiInputBase-root': {
+                        //     backgroundColor: pink[50], // Background color for date picker
+                        //   },
+                        //   '& .MuiInputLabel-root': {
+                        //     color: pink[500], // Label color
+                        //   },
+                        //   '& .MuiOutlinedInput-root': {
+                        //     '& fieldset': {
+                        //       borderColor: pink[500], // Border color
+                        //     },
+                        //     '&:hover fieldset': {
+                        //       borderColor: pink[700], // Border color on hover
+                        //     },
+                        //     '&.Mui-focused fieldset': {
+                        //       borderColor: pink[900], // Border color when focused
+                        //     },
+                        //   },
+                        // }}
+                      />
+                      {error && <FormHelperText>{error}</FormHelperText>}
+                    </FormControl>
+
+                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                      <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
+                        End Date
+                      </InputLabel>
+                      <DatePicker
+                        id="end-date-picker"
+                        value={endDate}
+                        views={["year", "month", "day"]}
+                        inputFormat="yyyy/MM/dd"
+                        onChange={handleEndDateChange}
+                        renderInput={(params) => <TextField {...params} />}
+                        sx={{ marginTop: "10px" }}
+                      />
+                      {error && <FormHelperText>{error}</FormHelperText>}
+                    </FormControl>
+                  </LocalizationProvider>
+
+                  {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                      <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
+                        Start Date
+                      </InputLabel>
+
+                      <DatePicker
+                        id="start-date-picker"
+                        value={startDate ? new Date(startDate) : null}
+                        onChange={handleStartDateChange}
+                        views={["year", "month", "day"]}
+                        inputFormat="yyyy/MM/dd" // Ensure the correct input format here
+                        slots={{ textField: (params) => <TextField {...params} /> }} // Updated slot usage
+                        sx={{ marginTop: "10px" }}
+                      />
+                      {error && <FormHelperText>{error}</FormHelperText>}
+                    </FormControl>
+
+                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                      <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
+                        End Date
+                      </InputLabel>
+                      <DatePicker
+                        id="end-date-picker"
+                        value={endDate ? new Date(endDate) : null}
+                        onChange={handleEndDateChange}
+                        views={["year", "month", "day"]}
+                        inputFormat="yyyy/MM/dd" // Ensure the correct input format here
+                        slots={{ textField: (params) => <TextField {...params} /> }} // Updated slot usage
+                        sx={{ marginTop: "10px" }}
+                      />
+                      {error && <FormHelperText>{error}</FormHelperText>}
+                    </FormControl>
+                  </LocalizationProvider> */}
+
+                  <div>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={isChecked}
+                          onChange={handleCheckboxChange}
+                          color="primary"
+                        />
+                      }
+                      label={isChecked ? "Checked" : "Previous Data Comparison"}
+                      sx={{
+                        "& .MuiFormControlLabel-label": {
+                          fontWeight: "bold", // Bold label
+                        },
+                      }}
+                    />
+                  </div>
+
                   <FormControl fullWidth variant="outlined" margin="normal">
                     <InputLabel id="time-window-select-label">Time Window</InputLabel>
                     <Select
@@ -736,8 +693,10 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick  }) => {
         </Box>
       </Grid>
       {/* <DevDashboard dimension={dimension} timeWindow={timeWindow} /> */}
-
-
+      {/* <DevDashboard
+        formattedStartDate={formattedStartDate}
+        formattedEndDate={formattedEndDate}
+      /> */}
     </>
     //  </Grid>
   );

@@ -244,7 +244,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     if (hasError) return;
 
     const payload = formatData();
-    // console.log(data, "dataaaaaaaa");
+    console.log(payload, "payload");
 
     const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
     setLoading(true);

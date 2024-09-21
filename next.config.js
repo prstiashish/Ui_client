@@ -1,4 +1,4 @@
 module.exports = {
   trailingSlash: true,
-  ssr: false
+  // ssr: false
 };

@@ -25,8 +25,10 @@ const Login = () => {
     }),
     onSubmit: () => {
       const poolData = {
-        UserPoolId: "ap-south-1_J5ZthLaH3",
-        ClientId: "7s7cl2l71f9gvm754cofuoden7",
+        UserPoolId: "ap-south-1_BcdMGSPra",
+        ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
+        // UserPoolId: "ap-south-1_J5ZthLaH3",
+        // ClientId: "7s7cl2l71f9gvm754cofuoden7",
       };
 
       const authenticationData = {
@@ -36,8 +38,15 @@ const Login = () => {
       debugger;
       const encoded = btoa(`${formik.values.email}:${formik.values.password}`);
       const baseAwsURL = baseAwsAuthenticateURL();
+      console.log("baseAwsURL", baseAwsURL);
+            // const baseAwsURL = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/";
+
       const authToken = encoded; //"dmluZWV0aEBnbWFpbC5jb206V2VsY29tZUAyMDI0";
+      console.log("authToken", authToken);
       const ClientIds = awsClientID();
+      console.log("ClientIds", ClientIds);
+      // const ClientIds = "7s7cl2l71f9gvm754cofuoden7";
+
       const config = {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -57,7 +66,9 @@ const Login = () => {
           sessionStorage.setItem("TokenExpiredTime", decodedIdToken.exp);
           const session = new SessionStorageService();
           session.setItem("currentUser", formik.values.email);
+          // router.push("/tssalesvisualization");
           router.push("devdashboard/");
+
         })
         .catch((error) => {
           console.error("Error:", error);

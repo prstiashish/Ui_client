@@ -26,7 +26,9 @@ const Login = () => {
     onSubmit: () => {
       const poolData = {
         UserPoolId: "ap-south-1_BcdMGSPra",
-        ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
+        // ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
+        ClientId: "5psbh9r0qv6hi9i5b9s7lk1bmr",
+        
         // UserPoolId: "ap-south-1_J5ZthLaH3",
         // ClientId: "7s7cl2l71f9gvm754cofuoden7",
       };

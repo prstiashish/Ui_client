@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -18,11 +17,8 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
-
-
 const getPLUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/P%26L-Dropdown.json";
 const postPLUrl = "https://upt2oqihzc5nw7urbslfops6qe0dvftz.lambda-url.ap-south-1.on.aws/";
-
 
 const ProfitLossTable = () => {
   const [data, setData] = useState({ Branch: [], "Year/Month": [] });
@@ -131,13 +127,33 @@ const ProfitLossTable = () => {
     yearMonthOptions.find(([key]) => key === selectedYearMonth)?.[1] || "";
 
   return (
-    <TableContainer component={Paper} sx={{ width: "90%", margin: "auto", mt: 4 }}>
-      <Typography variant="h5" sx={{ padding: 2, textAlign: "left", color: "rgba(25, 127, 192)", fontSize: "25px" }}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        width: "90%",
+        margin: "auto",
+        mt: 4,
+        boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)", // Custom shadow
+      }}
+    >
+      <Typography
+        variant="h5"
+        sx={{ padding: 2, textAlign: "left", color: "rgba(25, 127, 192)", fontSize: "25px" }}
+      >
         PROFIT AND LOSS STATEMENT
       </Typography>
 
       <div style={{ padding: 2 }}>
-        <Typography variant="h6" sx={{ textAlign: "left", paddingLeft: 2,  fontWeight: "bold",fontSize: "17px", color: "black" }}>
+        <Typography
+          variant="h6"
+          sx={{
+            textAlign: "left",
+            paddingLeft: 2,
+            fontWeight: "bold",
+            fontSize: "17px",
+            color: "black",
+          }}
+        >
           THE THICKSHAKE FACTORY
         </Typography>
 
@@ -222,8 +238,16 @@ const ProfitLossTable = () => {
               sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
             ></TableCell>
             {/* <TableCell align="right"></TableCell> */}
-            <TableCell align="right"> {`100%`}</TableCell>
-
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                fontSize: "12px",
+              }}
+              align="right"
+            >
+              {" "}
+              {`100%`}
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell></TableCell>
@@ -246,7 +270,7 @@ const ProfitLossTable = () => {
             <TableCell></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
             >
               {responseData.Net_Sales}
             </TableCell>
@@ -280,12 +304,17 @@ const ProfitLossTable = () => {
 
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
             >
               {responseData.Cogs}
             </TableCell>
-            <TableCell align="right">{`${responseData.Cogs_Percentage}%`}</TableCell>
-
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                fontSize: "12px",
+              }}
+              align="right"
+            >{`${responseData.Cogs_Percentage}%`}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell
@@ -298,12 +327,11 @@ const ProfitLossTable = () => {
             <TableCell></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
             >
               {responseData.Gross_Profit}
             </TableCell>
           </TableRow>
-
 
           <TableRow>
             <TableCell
@@ -387,15 +415,20 @@ const ProfitLossTable = () => {
             <TableCell></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
             >
               {responseData.Total_Expenses}
             </TableCell>
 
-            <TableCell align="right"> {`${responseData.Expense_Percentage}%`}</TableCell>
-
-
-
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                fontSize: "12px",
+              }}
+              align="right"
+            >
+              {`${responseData.Expense_Percentage}%`}
+            </TableCell>
           </TableRow>
 
           <TableRow>
@@ -440,12 +473,19 @@ const ProfitLossTable = () => {
             <TableCell></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
             >
               {responseData.Net_Profit}
             </TableCell>
-            <TableCell align="right"> {`${responseData.Net_Profit_Percentage}%`}</TableCell>
-
+            <TableCell
+              sx={{
+                fontWeight: "bold",
+                fontSize: "12px",
+              }}
+              align="right"
+            >
+              {`${responseData.Net_Profit_Percentage}%`}
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -464,4 +504,3 @@ const PLTemplate = () => {
 PLTemplate.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default PLTemplate;
-

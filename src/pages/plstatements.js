@@ -224,53 +224,70 @@ const ProfitLossTable = () => {
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 backgroundColor: "rgba(25, 127, 192,0.18)",
+                padding: "5px",
+                paddingLeft: "14px",
+                fontSize: "13px",
               }}
             >
               Revenue
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell></TableCell>
-
-            <TableCell>Gross Amount</TableCell>
-            <TableCell align="right">{responseData.Gross_Amount}</TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }}></TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }}>Gross Amount</TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }} align="right">
+              {responseData.Gross_Amount}
+            </TableCell>
             <TableCell
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
-            {/* <TableCell align="right"></TableCell> */}
             <TableCell
               sx={{
                 fontWeight: "bold",
-                fontSize: "12px",
+                fontSize: "14px",
+                padding: "4px 8px",
               }}
               align="right"
             >
-              {" "}
               {`100%`}
             </TableCell>
           </TableRow>
+
           <TableRow>
-            <TableCell></TableCell>
-            <TableCell>Discounts</TableCell>
-            <TableCell align="right">{responseData.Discounts}</TableCell>
+            <TableCell sx={{ padding: "4px 8px" }}></TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }}>Discounts</TableCell>
+            <TableCell align="right" sx={{ padding: "4px 8px", fontSize: "14px" }}>
+              {responseData.Discounts}
+            </TableCell>
             <TableCell
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{
+                backgroundColor: "rgba(25, 127, 192, 0.6)",
+                color: "white",
+                padding: "4px 8px", // Consistent reduced padding
+              }}
             ></TableCell>
           </TableRow>
 
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell sx={{ padding: "4px 8px" }}></TableCell>
             <TableCell
               sx={{
                 fontWeight: "bold",
+                padding: "4px 8px",
+                fontSize: "14px",
               }}
             >
               Net Sales
             </TableCell>
-            <TableCell></TableCell>
+            <TableCell sx={{ padding: "4px 8px" }}></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
+              sx={{
+                backgroundColor: "rgba(25, 127, 192,0.6)",
+                color: "white",
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
             >
               {responseData.Net_Sales}
             </TableCell>
@@ -285,33 +302,47 @@ const ProfitLossTable = () => {
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 backgroundColor: "rgba(25, 127, 192,0.18)",
+                padding: "5px 0 5px 14px",
+                fontSize: "13px",
               }}
             >
               COGS
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell rowSpan={3}></TableCell> {/* COGS Category Header */}
-            <TableCell>Material Consumption</TableCell>
-            <TableCell align="right">{responseData.Material_Consumption}</TableCell>
+            <TableCell rowSpan={3} sx={{ padding: "4px 8px", fontSize: "14px" }}></TableCell>{" "}
+            {/* COGS Category Header */}
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }}>
+              Material Consumption
+            </TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }} align="right">
+              {responseData.Material_Consumption}
+            </TableCell>
             <TableCell
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
+
           <TableRow>
-            <TableCell>Cost of Goods Sold</TableCell>
-            <TableCell></TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }}>Cost of Goods Sold</TableCell>
+            <TableCell sx={{ padding: "4px 8px", fontSize: "14px" }}></TableCell>
 
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
+              sx={{
+                backgroundColor: "rgba(25, 127, 192,0.6)",
+                color: "white",
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
             >
               {responseData.Cogs}
             </TableCell>
             <TableCell
               sx={{
                 fontWeight: "bold",
-                fontSize: "12px",
+                fontSize: "14px",
+                padding: "4px 8px",
               }}
               align="right"
             >{`${responseData.Cogs_Percentage}%`}</TableCell>
@@ -320,14 +351,26 @@ const ProfitLossTable = () => {
             <TableCell
               sx={{
                 fontWeight: "bold",
+                fontSize: "14px",
+                padding: "4px 8px",
               }}
             >
               Gross Profit
             </TableCell>
-            <TableCell></TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            ></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
+              sx={{
+                backgroundColor: "rgba(25, 127, 192,0.6)",
+                color: "white",
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
             >
               {responseData.Gross_Profit}
             </TableCell>
@@ -340,67 +383,163 @@ const ProfitLossTable = () => {
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 backgroundColor: "rgba(25, 127, 192,0.18)",
+                padding: "5px 0 5px 14px",
+                fontSize: "13px",
               }}
             >
               Expenses
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell rowSpan={7}></TableCell> {/* COGS Category Header */}
-            <TableCell>Online Expenses</TableCell>
-            <TableCell align="right">{responseData.Online_Expenses}</TableCell>
+            <TableCell
+              rowSpan={7}
+              sx={{
+                padding: "4px 8px",
+              }}
+            ></TableCell>{" "}
+            {/* COGS Category Header */}
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Online Expenses
+            </TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Online_Expenses}
+            </TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Revenue Share</TableCell>
-            {/* <TableCell></TableCell> */}
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Revenue Share
+            </TableCell>
 
-            <TableCell align="right">{responseData.Revenue_Share}</TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Revenue_Share}
+            </TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
-            ></TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Power</TableCell>
-            {/* <TableCell></TableCell> */}
-            <TableCell align="right">{responseData.Power}</TableCell>
-            <TableCell
-              align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
-            ></TableCell>
-          </TableRow>
-
-          <TableRow>
-            <TableCell>Rent</TableCell>
-            {/* <TableCell></TableCell> */}
-            <TableCell align="right">{responseData.Rent}</TableCell>
-            <TableCell
-              align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
 
           <TableRow>
-            <TableCell>Salaries</TableCell>
-            {/* <TableCell></TableCell> */}
-            <TableCell align="right">{responseData.Salaries}</TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Power
+            </TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Power}
+            </TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
 
           <TableRow>
-            <TableCell>Outlet</TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Rent
+            </TableCell>
             {/* <TableCell></TableCell> */}
-            <TableCell align="right">{responseData.Outlet}</TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Rent}
+            </TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
+            ></TableCell>
+          </TableRow>
+
+          <TableRow>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Salaries
+            </TableCell>
+            {/* <TableCell></TableCell> */}
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Salaries}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
+            ></TableCell>
+          </TableRow>
+
+          <TableRow>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Outlet
+            </TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Outlet}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
 
@@ -408,14 +547,25 @@ const ProfitLossTable = () => {
             <TableCell
               sx={{
                 fontWeight: "bold",
+                fontSize: "14px",
+                padding: "4px 8px",
               }}
             >
               Total Expenses
             </TableCell>
-            <TableCell></TableCell>
+            <TableCell
+              sx={{
+                padding: "4px 8px",
+              }}
+            ></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
+              sx={{
+                backgroundColor: "rgba(25, 127, 192,0.6)",
+                color: "white",
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
             >
               {responseData.Total_Expenses}
             </TableCell>
@@ -423,7 +573,8 @@ const ProfitLossTable = () => {
             <TableCell
               sx={{
                 fontWeight: "bold",
-                fontSize: "12px",
+                fontSize: "14px",
+                padding: "4px 8px",
               }}
               align="right"
             >
@@ -438,34 +589,74 @@ const ProfitLossTable = () => {
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 backgroundColor: "rgba(25, 127, 192,0.18)",
+                padding: "5px 0 5px 14px",
+                fontSize: "13px",
               }}
             >
               Net Profit
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell rowSpan={4}></TableCell> {/* COGS Category Header */}
-            <TableCell>Gross Profit</TableCell>
-            <TableCell align="right">{responseData.Gross_Profit}</TableCell>
+            <TableCell
+              rowSpan={4}
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            ></TableCell>{" "}
+            {/* COGS Category Header */}
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Gross Profit
+            </TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Gross_Profit}
+            </TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Total Expenses</TableCell>
-            {/* <TableCell></TableCell> */}
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+            >
+              Total Expenses
+            </TableCell>
 
-            <TableCell align="right">{responseData.Total_Expenses}</TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                padding: "4px 8px",
+              }}
+              align="right"
+            >
+              {responseData.Total_Expenses}
+            </TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white" }}
+              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", padding: "4px 8px" }}
             ></TableCell>
           </TableRow>
           <TableRow>
             <TableCell
               sx={{
                 fontWeight: "bold",
+                padding: "4px 8px",
+                fontSize: "14px",
               }}
             >
               Net Profit/Loss
@@ -473,14 +664,20 @@ const ProfitLossTable = () => {
             <TableCell></TableCell>
             <TableCell
               align="right"
-              sx={{ backgroundColor: "rgba(25, 127, 192,0.6)", color: "white", fontSize: "12px" }}
+              sx={{
+                backgroundColor: "rgba(25, 127, 192,0.6)",
+                color: "white",
+                padding: "4px 8px",
+                fontSize: "14px",
+              }}
             >
               {responseData.Net_Profit}
             </TableCell>
             <TableCell
               sx={{
                 fontWeight: "bold",
-                fontSize: "12px",
+                fontSize: "14px",
+                padding: "4px 8px",
               }}
               align="right"
             >

@@ -30,6 +30,8 @@ import axios from "axios";
 
 import { DashboardLayout } from "src/components/dashboard-layout";
 import { DevDashboard } from "./devdashboard.js";
+import { AIDashboard } from "./ai.dashboard.js";
+
 
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -217,8 +219,15 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
     //   )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`
     // );
 
+
+    // router.push(
+    //   `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
+    //     timeWindow
+    //   )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&isChecked=${isChecked}`
+    // );
+
     router.push(
-      `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
+      `/ai.dashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
         timeWindow
       )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&isChecked=${isChecked}`
     );

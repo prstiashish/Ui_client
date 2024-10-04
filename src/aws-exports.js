@@ -3,7 +3,7 @@ const awsconfig = {
   Auth: {
     region: "Mumbai",
     userPoolId: "ap-south-1_BcdMGSPra",
-    userPoolWebClientId: "5psbh9r0qv6hi9i5b9s7lk1bmr",
+    userPoolWebClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
     mandatorySignIn: true,
   },
 };

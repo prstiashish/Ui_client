@@ -271,7 +271,6 @@ export default function StackedBarChart2({ chartData, title }) {
   const [showStackedPopupChart, setStackedShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  console.log(chartData, "chartDatastac3333333333");
 
   const handleChartDoubleClick = () => {
     setStackedShowPopupChart(true);
@@ -452,6 +451,12 @@ export default function StackedBarChart2({ chartData, title }) {
                         ticks: {
                           callback: formatValue,
                         },
+
+                      },
+                    },
+                    elements: {
+                      bar: {
+                        // borderRadius: 3, // Optional: rounded corners
 
                       },
                     },
@@ -652,7 +657,7 @@ function PopupChart({ chartData, title, onClose }) {
         offset: 120,
         padding: 2,
         font: {
-          size: 8, // Increased for better visibility
+          size: 12, // Increased for better visibility
         },
       };
 
@@ -699,6 +704,12 @@ function PopupChart({ chartData, title, onClose }) {
                 }
               },
             },
+          },
+        },
+        elements: {
+          bar: {
+            // borderRadius: 3, // Optional: rounded corners
+
           },
         },
       },

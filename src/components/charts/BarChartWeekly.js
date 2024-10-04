@@ -16,6 +16,7 @@ import { Dialog, Grid, DialogTitle, DialogContent } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import { BsArrowsFullscreen } from "react-icons/bs";
 import plugin from "chartjs-plugin-datalabels";
+// import zoomPlugin from "chartjs-plugin-zoom";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -83,6 +84,34 @@ export default function BarChartWeekly({ chartData, title }) {
       }
     },
   };
+
+  // const doubleGroup = {
+  //   id: "doubleGroup",
+  //   beforeDatasetsDraw(chart, args, pluginOptions) {
+  //     const {
+  //       ctx,
+  //       data,
+  //       chartArea: { top, bottom, left, right, width, height },
+  //     } = chart;
+  //
+  //     const segment = width / data.labels.length;
+  //     const quarter = segment / 5;
+  //     let VisibleCount = chart.getVisibleDatasetCount();
+
+  //     if (data.datasets.length > 0) {
+  //       const coorX = chart.getDatasetMeta(0).data.map((datapoint, index) => {
+  //         return datapoint.x;
+  //       });
+
+  //       chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+  //
+  //         // datapoint.x = segment * index + left + quarter + 20;
+  //         datapoint.x = segment + 20;
+  //         // console.log(segment * index + left + quarter + 20);
+  //       });
+  //     }
+  //   },
+  // };
 
   let titleText = title;
   let formatValue;

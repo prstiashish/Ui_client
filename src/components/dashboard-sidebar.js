@@ -67,8 +67,13 @@ const items = [
   //   title: "Sales Data Visualization",
   // },
 
+  // {
+  //   href: "/devdashboard",
+  //   icon: <EqualizerIcon fontSize="small" />,
+  //   title: "Enterprise Dashboard",
+  // },
   {
-    href: "/devdashboard",
+    href: "/ai.dashboard",
     icon: <EqualizerIcon fontSize="small" />,
     title: "Enterprise Dashboard",
   },
@@ -104,7 +109,7 @@ const items = [
   // },
 
   {
-    href: "/datagraphs",
+    href: "/query-analytics",
     icon: <ExploreIcon fontSize="small" />,
     title: "Query Analytics",
   },
@@ -200,7 +205,7 @@ export const DashboardSidebar = (props) => {
       >
         <div>
           <Box sx={{ p: 2 }}>
-            <NextLink href="/" passHref>
+            <NextLink href="" passHref>
               <a
                 style={{
                   display: "flex",

@@ -11,7 +11,17 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { awsClientID, baseAwsAuthenticateURL } from "src/components/charts/AuthDetails";
 import { DeblurOutlined } from "@mui/icons-material";
+import FacebookIcon from '@mui/icons-material/Facebook';
+import GoogleIcon from '@mui/icons-material/Google'; //
+import TwitterIcon from '@mui/icons-material/Twitter';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
+const poolData = {
+  UserPoolId: "ap-south-1_BcdMGSPra",
+  ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
+  // UserPoolId: "ap-south-1_J5ZthLaH3",
+  // ClientId: "7s7cl2l71f9gvm754cofuoden7",
+};
 const Login = () => {
   const router = useRouter();
   const formik = useFormik({
@@ -24,14 +34,7 @@ const Login = () => {
       password: Yup.string().max(255).required("Password is required"),
     }),
     onSubmit: () => {
-      const poolData = {
-        UserPoolId: "ap-south-1_BcdMGSPra",
-        // ClientId: "6sv3ru6lpuljiuea0sdmshlvh8",
-        ClientId: "5psbh9r0qv6hi9i5b9s7lk1bmr",
-        
-        // UserPoolId: "ap-south-1_J5ZthLaH3",
-        // ClientId: "7s7cl2l71f9gvm754cofuoden7",
-      };
+
 
       const authenticationData = {
         Username: formik.values.email, //formik.values.email,
@@ -41,7 +44,7 @@ const Login = () => {
       const encoded = btoa(`${formik.values.email}:${formik.values.password}`);
       const baseAwsURL = baseAwsAuthenticateURL();
       console.log("baseAwsURL", baseAwsURL);
-            // const baseAwsURL = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/";
+      // const baseAwsURL = "https://bgtt3g5zttpiymvskanaq7fipq0abrgr.lambda-url.ap-south-1.on.aws/";
 
       const authToken = encoded; //"dmluZWV0aEBnbWFpbC5jb206V2VsY29tZUAyMDI0";
       console.log("authToken", authToken);
@@ -61,6 +64,14 @@ const Login = () => {
         .post(baseAwsURL, null, config)
         .then((response) => {
           console.log("Response:", response.data);
+
+          // -----
+          const accessToken = response.data.AuthenticationResult.AccessToken;
+          console.log("AccessToken:", accessToken);
+          console.log("response.data.AuthenticationResult.IdToken", response.data.AuthenticationResult.IdToken);
+          console.log('response.data.schema_name',response.data.schema_name)
+          // --------
+
           sessionStorage.setItem("IdToken", response.data.AuthenticationResult.IdToken);
           sessionStorage.setItem("Schema_name", response.data.schema_name);
           sessionStorage.setItem("Refresh_Token", response.data.AuthenticationResult.RefreshToken);
@@ -69,14 +80,31 @@ const Login = () => {
           const session = new SessionStorageService();
           session.setItem("currentUser", formik.values.email);
           // router.push("/tssalesvisualization");
-          router.push("devdashboard/");
+          // router.push("devdashboard/");
+          router.push("ai.dashboard/");
 
         })
+        // .catch((error) => {
+        //   console.error("Error:", error);
+        //   window.location.href = "/login";
+        //   // Handle error
+        // });
         .catch((error) => {
-          console.error("Error:", error);
-          window.location.href = "/login";
-          // Handle error
+          if (error.response) {
+            // Server responded with a status other than 2xx
+            console.error("Error response from server:");
+            console.error("Status:", error.response.status); // HTTP status code
+            console.error("Headers:", error.response.headers); // Response headers
+            console.error("Data:", error.response.data); // Server's response payload
+          } else if (error.request) {
+            // No response received from server
+            console.error("No response received from server:", error.request);
+          } else {
+            // Error setting up the request
+            console.error("Error setting up request:", error.message);
+          }
         });
+
 
       //
 
@@ -135,8 +163,8 @@ const Login = () => {
               <Typography color="textSecondary" gutterBottom variant="body2">
                 Sign in on the internal platform
               </Typography>
-            </Box>
-            <Grid container spacing={3}>
+            </Box> */}
+            {/* <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <Button
                   color="info"

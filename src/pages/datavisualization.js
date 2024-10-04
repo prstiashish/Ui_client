@@ -128,14 +128,18 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     .filter((option) => option && option.toLowerCase().includes(searchValue.toLowerCase()))
     .filter((option) => option !== "All");
 
+  const queryAnalGetUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown.json"
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+          // "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
+          queryAnalGetUrl
         );
 
         const newallData = response.data;
+        console.log(newallData, "newallData");
         setDimensions(newallData.dimension);
         setMeasures(newallData.measure);
         setCurrency(newallData.currency);
@@ -246,10 +250,11 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     const payload = formatData();
     console.log(payload, "payload");
 
-    const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+    // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+    const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/"
     setLoading(true);
     try {
-      const response = await fetch(url, {
+      const response = await fetch(postQueryAnlUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -271,7 +276,10 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
 
       const router = useRouter();
       router.push({
-        pathname: "/datagraphs", // Replace with your target page
+        // pathname: "/datagraphs", // Replace with your target page
+        pathname: "/query-analytics", // Replace with your target page
+
+        
         query: {
           ...result, // Pass the response
           payload: JSON.stringify(data), // Pass the payload as part of query
@@ -380,7 +388,12 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     setSelectedMeasure(value);
 
     // Show checkbox only if "Total Sales" is selected, otherwise hide it and reset checkbox state
-    if (value === "Total_Sales") {
+    // if (value === "Total_Sales") {
+    //   setIncludeCOGS(false); // Ensure checkbox is unchecked by default when "Total Sales" is selected
+    // } else {
+    //   setIncludeCOGS(false); // Reset checkbox state if another measure is selected
+    // }
+    if (value === "Gross_Amount") {
       setIncludeCOGS(false); // Ensure checkbox is unchecked by default when "Total Sales" is selected
     } else {
       setIncludeCOGS(false); // Reset checkbox state if another measure is selected
@@ -927,7 +940,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
                         </div>
                       )}
 
-                    {selectedMeasure === "Total_Sales" && (
+                    {selectedMeasure === "Gross_Amount" && (
                       <FormControlLabel
                         control={
                           <Checkbox

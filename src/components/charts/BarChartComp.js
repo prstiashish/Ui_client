@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { Dialog, Grid, DialogTitle, DialogContent } from "@mui/material";
+import { Dialog, Grid, DialogTitle, DialogContent,Typography } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import { BsArrowsFullscreen } from "react-icons/bs";
 import { Chart } from "chart.js/auto";
@@ -20,7 +20,7 @@ import { Chart } from "chart.js/auto";
 // Registering the required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function BarChartComp({ chartData, title }) {
+export default function BarChartComp({ chartData, title,startDate, endDate  }) {
   const [loading, setLoading] = useState(false);
   const [showStackedPopupChart, setStackedShowPopupChart] = useState(false);
 
@@ -357,6 +357,13 @@ export default function BarChartComp({ chartData, title }) {
               }}
             >
               <DialogContent>
+              <Typography
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
+                  </Typography>
                 <PopupChart
                   chartData={chartData}
                   title={titleText}
@@ -521,14 +528,30 @@ function PopupChart({ chartData, title }) {
             display: true,
             text: title,
           },
+          // tooltip: {
+          //   callbacks: {
+          //     label: function (context) {
+          //       const dataset = context.dataset;
+          //       const dataIndex = context.dataIndex;
+          //       return dataset && dataset.data && dataset.data[dataIndex] !== undefined
+          //         ? `Margin: ${dataset.data[dataIndex]}`
+          //         : "Margin: N/A";
+          //     },
+          //   },
+          // },
           tooltip: {
             callbacks: {
               label: function (context) {
                 const dataset = context.dataset;
                 const dataIndex = context.dataIndex;
-                return dataset && dataset.data && dataset.data[dataIndex] !== undefined
-                  ? `Margin: ${dataset.data[dataIndex]}`
-                  : "Margin: N/A";
+
+                if (dataset && dataset.data && dataset.data[dataIndex] !== undefined) {
+                  // Format the number to 2 decimal places
+                  const value = dataset.data[dataIndex].toFixed(2);
+                  return `Margin: ${value}`;
+                } else {
+                  return "Margin: N/A";
+                }
               },
             },
           },

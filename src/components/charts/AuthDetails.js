@@ -25,9 +25,21 @@ export const awsClientID = () => "3b41g664mjtaghfbtorjnf7639";
 // export const awsClientID = () => "5psbh9r0qv6hi9i5b9s7lk1bmr";
 
 
+
+
 export const baseAwsAuthenticateURL = () =>
   // "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/authenticate";
+
+
+
   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/authenticate/";
+
+  // new
+  // "https://e5nreiwxb9.execute-api.ap-south-1.amazonaws.com/dev/authenticate"
+
+
+
+
 
 // export const baseURLs = () => {
 //   debugger;

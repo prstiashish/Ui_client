@@ -32,7 +32,6 @@ import { DashboardLayout } from "src/components/dashboard-layout";
 import { DevDashboard } from "./devdashboard.js";
 import { AIDashboard } from "./ai.dashboard.js";
 
-
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { pink } from "@mui/material/colors";
@@ -174,8 +173,6 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const [isChecked, setIsChecked] = useState(false); // Default value should be false
   console.log(isChecked, "isCheckedeeeeee");
 
-
-
   const formattedStartDate =
     startDate instanceof Date && !isNaN(startDate)
       ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
@@ -186,14 +183,55 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
       ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
       : "";
 
+
+
+  // const handleSubmit = async () => {
+  //   setLoading(true);
+
+  //   const formattedDimension = selectedDimension ? selectedDimension.replace(/\s+/g, "_") : "";
+  //   const dimension =
+  //     formattedDimension && selectedValues.length > 0
+  //       ? `${formattedDimension}:${selectedValues.join(", ")}`
+  //       : "";
+
+  //   const timeWindow = selectedTimeWindow;
+
+  //   const formattedStartDate =
+  //     startDate instanceof Date && !isNaN(startDate)
+  //       ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+  //       : "";
+
+  //   const formattedEndDate =
+  //     endDate instanceof Date && !isNaN(endDate)
+  //       ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+  //       : "";
+
+  //   router.push(
+  //     `/ai.dashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
+  //       timeWindow
+  //     )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&isChecked=${isChecked}`
+  //   );
+
+  //   console.log("isChecked value:", isChecked);
+
+  //   const includePrevYear = isChecked ? "true" : "false";
+
+  //   setDimension(dimension);
+  //   setTimeWindow(timeWindow);
+
+  //   setLoading(false);
+  //   onClose();
+  // };
+
+
+
   const handleSubmit = async () => {
     setLoading(true);
 
     const formattedDimension = selectedDimension ? selectedDimension.replace(/\s+/g, "_") : "";
-    const dimension =
-      formattedDimension && selectedValues.length > 0
-        ? `${formattedDimension}:${selectedValues.join(", ")}`
-        : "";
+    const dimension = formattedDimension && selectedValues.length > 0
+      ? `${formattedDimension}:${selectedValues.join(", ")}`
+      : "";
 
     const timeWindow = selectedTimeWindow;
 
@@ -207,43 +245,21 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
         ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
         : "";
 
-    // Redirect to a new route with query parameters
-    // router.push(
-    //   `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
-    //     timeWindow
-    //   )}`
-    // );
-    // router.push(
-    //   `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
-    //     timeWindow
-    //   )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`
-    // );
-
-
-    // router.push(
-    //   `/devdashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
-    //     timeWindow
-    //   )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&isChecked=${isChecked}`
-    // );
-
-    router.push(
-      `/ai.dashboard?dimension=${encodeURIComponent(dimension)}&timeWindow=${encodeURIComponent(
-        timeWindow
-      )}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&isChecked=${isChecked}`
-    );
-
-    console.log("isChecked value:", isChecked);
-
-    const includePrevYear = isChecked ? 'true' : 'false';
-
-
-    setDimension(dimension);
-    setTimeWindow(timeWindow);
+    // Instead of routing with params, you can navigate with state
+    router.push({
+      pathname: '/ai.dashboard',
+      query: {
+        dimension,
+        timeWindow,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        isChecked,
+      }
+    });
 
     setLoading(false);
     onClose();
   };
-
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
   };
@@ -320,6 +336,7 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
     setIsChecked(checked); // Update the state with the checkbox value
   };
 
+  const currentYear = new Date().getFullYear();
 
   return (
     // <Grid container spacing={2} style={{ marginTop: "1%" }}>
@@ -545,6 +562,7 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
                   </Typography>
 
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    {/* Start Date Picker */}
                     <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
                       <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
                         Start Date
@@ -555,83 +573,57 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
                         value={startDate}
                         onChange={handleStartDateChange}
                         views={["year", "month", "day"]}
-                        inputFormat="YYYY/MM/DD"
-                        renderInput={(params) => <TextField {...params} />}
+                        inputFormat="yyyy/MM/dd"
+                        // renderInput={(params) => <TextField  {...params} />}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            sx={{
+                              width: "100px", // Set width of the input field
+                              "& .MuiInputBase-input": {
+                                height: "100px", // Adjust the height of the input field
+                              },
+                            }}
+                          />
+                        )}
+                        minDate={new Date(1900, 0, 1)} // January 1 of current year
+                        maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
                         sx={{ marginTop: "10px" }}
-                        // sx={{
-                        //   '& .MuiInputBase-root': {
-                        //     backgroundColor: pink[50], // Background color for date picker
-                        //   },
-                        //   '& .MuiInputLabel-root': {
-                        //     color: pink[500], // Label color
-                        //   },
-                        //   '& .MuiOutlinedInput-root': {
-                        //     '& fieldset': {
-                        //       borderColor: pink[500], // Border color
-                        //     },
-                        //     '&:hover fieldset': {
-                        //       borderColor: pink[700], // Border color on hover
-                        //     },
-                        //     '&.Mui-focused fieldset': {
-                        //       borderColor: pink[900], // Border color when focused
-                        //     },
-                        //   },
-                        // }}
                       />
                       {error && <FormHelperText>{error}</FormHelperText>}
                     </FormControl>
 
+                    {/* End Date Picker */}
                     <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
                       <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
                         End Date
                       </InputLabel>
+
                       <DatePicker
                         id="end-date-picker"
                         value={endDate}
+                        onChange={handleEndDateChange}
                         views={["year", "month", "day"]}
                         inputFormat="yyyy/MM/dd"
-                        onChange={handleEndDateChange}
-                        renderInput={(params) => <TextField {...params} />}
+                        // renderInput={(params) => <TextField {...params} />}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            sx={{
+                              width: "100px", // Set width of the input field
+                              "& .MuiInputBase-input": {
+                                height: "20px", // Adjust the height of the input field
+                              },
+                            }}
+                          />
+                        )}
+                        minDate={new Date(1900, 0, 1)} // January 1 of current year
+                        maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
                         sx={{ marginTop: "10px" }}
                       />
                       {error && <FormHelperText>{error}</FormHelperText>}
                     </FormControl>
                   </LocalizationProvider>
-
-                  {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
-                      <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
-                        Start Date
-                      </InputLabel>
-
-                      <DatePicker
-                        id="start-date-picker"
-                        value={startDate ? new Date(startDate) : null}
-                        onChange={handleStartDateChange}
-                        views={["year", "month", "day"]}
-                        inputFormat="yyyy/MM/dd" // Ensure the correct input format here
-                        slots={{ textField: (params) => <TextField {...params} /> }} // Updated slot usage
-                        sx={{ marginTop: "10px" }}
-                      />
-                      {error && <FormHelperText>{error}</FormHelperText>}
-                    </FormControl>
-
-                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
-                      <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
-                        End Date
-                      </InputLabel>
-                      <DatePicker
-                        id="end-date-picker"
-                        value={endDate ? new Date(endDate) : null}
-                        onChange={handleEndDateChange}
-                        views={["year", "month", "day"]}
-                        inputFormat="yyyy/MM/dd" // Ensure the correct input format here
-                        slots={{ textField: (params) => <TextField {...params} /> }} // Updated slot usage
-                        sx={{ marginTop: "10px" }}
-                      />
-                      {error && <FormHelperText>{error}</FormHelperText>}
-                    </FormControl>
-                  </LocalizationProvider> */}
 
                   <div>
                     <FormControlLabel
@@ -700,13 +692,11 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
           </Grid>
           <div></div>
         </Box>
+
       </Grid>
-      {/* <DevDashboard dimension={dimension} timeWindow={timeWindow} /> */}
-      {/* <DevDashboard
-        formattedStartDate={formattedStartDate}
-        formattedEndDate={formattedEndDate}
-      /> */}
+
     </>
+
     //  </Grid>
   );
 };

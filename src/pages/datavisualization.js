@@ -28,6 +28,8 @@ import axios from "axios";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
 import { useRouter } from "next/router";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 // import { newallData } from "src/components/charts/newalldata";
 
@@ -68,6 +70,16 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const [measures, setMeasures] = useState([]);
   const [currency, setCurrency] = useState([]);
   const [timeWindows, setTimeWindows] = useState([]);
+
+  const [startDate, setStartDate] = useState(null);
+  console.log(startDate, "ssssdddddd");
+
+  const [endDate, setEndDate] = useState(null);
+  console.log(endDate, "eeeedddddd");
+
+  const currentYear = new Date().getFullYear();
+  const [timeWindowError, setTimeWindowError] = useState("");
+
 
   const dimensionKeys = Object.keys(dimensions);
 
@@ -123,6 +135,27 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
       }
     }
   };
+
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    // Optionally validate dates
+    if (endDate && date > endDate) {
+      setError("Start date cannot be later than end date.");
+    } else {
+      setError("");
+    }
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+    // Optionally validate dates
+    if (startDate && date < startDate) {
+      setError("End date cannot be earlier than start date.");
+    } else {
+      setError("");
+    }
+  };
+
 
   const filteredOptions = getOptions(selectedDimension)
     .filter((option) => option && option.toLowerCase().includes(searchValue.toLowerCase()))
@@ -190,6 +223,122 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const { dimensionMapping, reverseDimensionMapping } = createDimensionMappings(dimensions);
   // console.log(dimensionMapping,'dimensionMapping')
 
+  // const formatData = () => {
+  //   // Replace spaces with underscores in the selected dimension
+  //   const formattedDimension = selectedDimension ? selectedDimension.replace(/\s+/g, "_") : "";
+
+  //   // Build the dimension string using the formatted dimension
+  //   const dimension =
+  //     formattedDimension && selectedValues.length > 0
+  //       ? `${formattedDimension}:${selectedValues.join(", ")}`
+  //       : "";
+
+  //   // Handle partition formatting
+  //   const partition = isNoneSelected
+  //     ? "None"
+  //     : groupByDimension && groupByValues.length > 0
+  //     ? `${groupByDimension.replace(/\s+/g, "_")}:${groupByValues.join(", ")}`
+  //     : "";
+
+  //   // Prepare the measure and time window columns (no transformation needed here)
+  //   const measure = selectedMeasure;
+  //   const time_window_col = selectedTimeWindow;
+
+  //   // Log or return the formatted data as needed
+  //   // console.log("Formatted Dimension:", dimension);
+  //   // console.log("Partition:", partition);
+  //   // console.log("Measure:", measure);
+  //   // console.log("Time Window Column:", time_window_col);
+  //   const formattedStartDate =
+  //   startDate instanceof Date && !isNaN(startDate)
+  //     ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+  //     : "";
+
+  // const formattedEndDate =
+  //   endDate instanceof Date && !isNaN(endDate)
+  //     ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+  //     : "";
+
+  //   return {
+  //     dimension,
+  //     partition,
+  //     measure,
+
+  //     includeCOGS,
+  //     topRank: topInputValue || 0, // Send 0 if no value is provided
+  //     bottomRank: downInputValue || 0, // Send 0 if no value is provided
+  //     startDate: formattedStartDate,
+  //     endDate: formattedEndDate,
+
+  //   };
+  // };
+
+  // const handleSubmit = async () => {
+  //   let hasError = false;
+
+  //   if (!selectedDimension) {
+  //     setDimensionError("Please select a dimension.");
+  //     hasError = true;
+  //   } else {
+  //     setDimensionError("");
+  //   }
+
+  //   if (!selectedMeasure) {
+  //     setMeasureError("Please select a measure.");
+  //     hasError = true;
+  //   } else {
+  //     setMeasureError("");
+  //   }
+
+  //   if (hasError) return;
+
+  //   const payload = formatData();
+  //   console.log(payload, "payload");
+
+  //   // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
+  //   const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/"
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch(postQueryAnlUrl, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+
+  //       body: JSON.stringify(payload),
+  //       // body: jsondata
+  //     });
+
+  //     if (!response.ok) {
+  //       const errorText = await response.text();
+  //       throw new Error(`Network response was not ok: ${errorText}`);
+  //     }
+
+  //     const result = await response.json();
+  //     onSubmit(result, payload);
+  //     console.log("Success Response:", result);
+  //     console.log(payload, "payload");
+
+  //     const router = useRouter();
+  //     router.push({
+  //       // pathname: "/datagraphs", // Replace with your target page
+  //       pathname: "/query-analytics", // Replace with your target page
+
+
+  //       query: {
+  //         ...result, // Pass the response
+  //         payload: JSON.stringify(data), // Pass the payload as part of query
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error.message);
+  //     // Handle error response
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  //   onClose();
+  // };
+
   const formatData = () => {
     // Replace spaces with underscores in the selected dimension
     const formattedDimension = selectedDimension ? selectedDimension.replace(/\s+/g, "_") : "";
@@ -211,20 +360,47 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     const measure = selectedMeasure;
     const time_window_col = selectedTimeWindow;
 
-    // Log or return the formatted data as needed
-    // console.log("Formatted Dimension:", dimension);
-    // console.log("Partition:", partition);
-    // console.log("Measure:", measure);
-    // console.log("Time Window Column:", time_window_col);
+    // Format start and end dates
+    // const formattedStartDate =
+    //   startDate instanceof Date && !isNaN(startDate)
+    //     ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+    //     : "";
+
+    // const formattedEndDate =
+    //   endDate instanceof Date && !isNaN(endDate)
+    //     ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+    //     : "";
+
+    const defaultStartDate = "2024-04-01";
+    const currentDate = new Date().toLocaleDateString("en-CA"); // Current date in 'YYYY-MM-DD' format
+
+    // Format start and end dates, falling back to default values if not provided
+    const formattedStartDate =
+        startDate instanceof Date && !isNaN(startDate)
+            ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+            : defaultStartDate;
+
+    const formattedEndDate =
+        endDate instanceof Date && !isNaN(endDate)
+            ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+            : currentDate;
+
+    console.log("Formatted Dimension:", dimension);
+    console.log("Partition:", partition);
+    console.log("Measure:", measure);
+    console.log("Time Window Column:", time_window_col);
+    console.log("Formatted Start Date:", formattedStartDate);
+    console.log("Formatted End Date:", formattedEndDate);
 
     return {
       dimension,
       partition,
       measure,
-
       includeCOGS,
       topRank: topInputValue || 0, // Send 0 if no value is provided
       bottomRank: downInputValue || 0, // Send 0 if no value is provided
+      start_date: formattedStartDate,
+      end_date: formattedEndDate,
     };
   };
 
@@ -248,10 +424,9 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     if (hasError) return;
 
     const payload = formatData();
-    console.log(payload, "payload");
+    console.log(payload, "payload"); // Log the payload before submission
 
-    // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
-    const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/"
+    const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
     setLoading(true);
     try {
       const response = await fetch(postQueryAnlUrl, {
@@ -259,9 +434,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify(payload),
-        // body: jsondata
       });
 
       if (!response.ok) {
@@ -272,27 +445,23 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
       const result = await response.json();
       onSubmit(result, payload);
       console.log("Success Response:", result);
-      console.log(payload, "payload");
 
       const router = useRouter();
       router.push({
-        // pathname: "/datagraphs", // Replace with your target page
         pathname: "/query-analytics", // Replace with your target page
-
-        
         query: {
           ...result, // Pass the response
-          payload: JSON.stringify(data), // Pass the payload as part of query
+          payload: JSON.stringify(payload), // Pass the payload as part of query
         },
       });
     } catch (error) {
-      console.error("Error submitting data:", error.message);
-      // Handle error response
+      console.error("Error submitting data:", error.message); // Log the error message
     } finally {
       setLoading(false);
     }
     onClose();
   };
+
 
   const handleNewClick = () => {
     console.log("New button clicked");
@@ -789,71 +958,114 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
                     </Box>
                   </Grid>
 
-                  {/* <Grid item xs={12}>
-                    <Box
-                      sx={{
-                        padding: "8px",
-                        borderRadius: "5px",
-                        border: "1px solid #dcdcdc",
-                        backgroundColor: "#f9f9f9",
-                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      {selectedTimeWindow && (
-                        <Grid item xs={12}>
-                          <Box
+                  {/* time window */}
+                  <Grid item xs={12}>
+                <Box
+                  sx={{
+                    padding: "8px",
+                    // width: "180px",
+                    borderRadius: "5px",
+                    border: "1px solid #dcdcdc",
+                    backgroundColor: "#f9f9f9",
+                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                    marginTop: "30px",
+                    marginBottom: "30px",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ marginBottom: "8px" }}>
+                    Select Time Window
+                  </Typography>
+
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                      <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
+                        Start Date
+                      </InputLabel>
+
+                      <DatePicker
+                        id="start-date-picker"
+                        value={startDate}
+                        onChange={handleStartDateChange}
+                        views={["year", "month", "day"]}
+                        inputFormat="yyyy/MM/dd"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
                             sx={{
-                              padding: "8px",
-                              borderRadius: "5px",
-                              border: "1px solid #dcdcdc",
-                              backgroundColor: "#f9f9f9",
-                              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
+                              width: "100px", // Set width of the input field
+                              "& .MuiInputBase-input": {
+                                height: "100px", // Adjust the height of the input field
+                              },
                             }}
-                          >
+                          />
+                        )}
+                        minDate={new Date(1900, 0, 1)} // January 1 of current year
+                        maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
+                        sx={{ marginTop: "10px" }}
+                      />
+                      {error && <FormHelperText>{error}</FormHelperText>}
+                    </FormControl>
 
-                            <Chip
-                              label={selectedTimeWindow}
-                              onDelete={() => setSelectedTimeWindow("")}
-                              deleteIcon={<CancelIcon />}
-                              sx={{
-                                backgroundColor: "#e0e0e0",
-                                color: "#333",
-                                "&:hover": {
-                                  backgroundColor: "#c8c8c8",
-                                },
-                              }}
-                            />
-                          </Box>
-                        </Grid>
-                      )}
+                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                      <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
+                        End Date
+                      </InputLabel>
 
-                      <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                        Select Time Window
-                      </Typography>
-                      <FormControl fullWidth variant="outlined" margin="normal">
-                        <InputLabel id="time-window-select-label">Time Window</InputLabel>
-                        <Select
-                          labelId="time-window-select-label"
-                          id="time-window-select"
-                          value={selectedTimeWindow}
-                          onChange={handleTimeWindowChange}
-                          label="Time Window"
-                        >
-                          <MenuItem value="">
-                            <em>Select Time Window</em>
-                          </MenuItem>
-                          {filteredTimeWindow.map((window) => (
-                            <MenuItem key={window.value} value={window.value}>
-                              {window.value}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Box>
-                  </Grid> */}
+                      <DatePicker
+                        id="end-date-picker"
+                        value={endDate}
+                        onChange={handleEndDateChange}
+                        views={["year", "month", "day"]}
+                        inputFormat="yyyy/MM/dd"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            sx={{
+                              width: "100px", // Set width of the input field
+                              "& .MuiInputBase-input": {
+                                height: "20px", // Adjust the height of the input field
+                              },
+                            }}
+                          />
+                        )}
+                        minDate={new Date(1900, 0, 1)} // January 1 of current year
+                        maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
+                        sx={{ marginTop: "10px" }}
+                      />
+                      {error && <FormHelperText>{error}</FormHelperText>}
+                    </FormControl>
+                  </LocalizationProvider>
+
+
+
+                  {/* <FormControl fullWidth variant="outlined" margin="normal">
+                    <InputLabel id="time-window-select-label">Time Window</InputLabel>
+                    <Select
+                      labelId="time-window-select-label"
+                      id="time-window-select"
+                      value={selectedTimeWindow} // Binds the selected value to the state
+                      onChange={handleTimeWindowChange} // Updates state when selection changes
+                      label="Time Window"
+                    >
+                      <MenuItem value="">
+                        <em>Select Time Window</em>
+                      </MenuItem>
+                      <MenuItem value="Y">Year</MenuItem>
+                      <MenuItem value="M">Month</MenuItem>
+                      <MenuItem value="Q">Quarter</MenuItem>
+                      <MenuItem value="W">Week</MenuItem>
+                    </Select>
+                  </FormControl> */}
+
+                  {timeWindowError && (
+                    <div style={{ color: "#F74617" }} className="error">
+                      {timeWindowError}
+                    </div>
+                  )}
+                </Box>
+              </Grid>
+
+
                 </Grid>
               </Box>
             </Grid>

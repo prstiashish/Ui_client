@@ -26,6 +26,7 @@ import GraphsScenario3Chart from "src/components/charts/GraphScenario1Chart";
 import GraphsScenario4Chart from "src/components/charts/GraphScenario1Chart";
 
 import SessionStorageService from "src/utils/browser-storage/session";
+// import CookiesService from "src/utils/browser-storage/Cookies"; // Adjust the import path as necessary
 
 import Cookies from "js-cookie";
 

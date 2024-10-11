@@ -26,9 +26,9 @@ import GraphScenario2Chart from "src/components/charts/GraphScenario2Chart";
 import GraphScenario3Chart from "src/components/charts/GraphScenario3Chart";
 import GraphScenario4Chart from "src/components/charts/GraphScenario4Chart";
 
+// import DancingDots from 'src/components/charts/DancingDots'; // Import the DancingDots component
 
 import SessionStorageService from "src/utils/browser-storage/session";
-
 
 import Cookies from "js-cookie";
 

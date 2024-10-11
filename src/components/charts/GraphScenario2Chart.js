@@ -122,6 +122,9 @@ const GraphScenario2Chart = ({ chartData }) => {
     },
   };
 
+
+
+
   return <Bar data={chartData} options={options} />;
 };
 

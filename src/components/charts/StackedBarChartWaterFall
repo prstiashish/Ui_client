@@ -1,0 +1,165 @@
+import React, { useState } from "react";
+import { Bar } from "react-chartjs-2";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { Dialog, Grid, DialogTitle, DialogContent } from "@mui/material";
+
+// Registering the required Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+export default function StackedBarChartWaterfall({ chartData, title }) {
+  const [showStackedPopupChart, setStackedShowPopupChart] = useState(false);
+
+  const handleChartDoubleClick = () => {
+    setStackedShowPopupChart(true);
+  };
+
+  const maxValue = Math.max(...chartData.datasets[0].data);
+
+  // Define the formatting function for y-axis ticks
+  const formatValue = (value) => {
+    if (maxValue >= 10000000) {
+      return (value / 10000000).toFixed(2);
+    } else if (maxValue >= 100000) {
+      return (value / 100000).toFixed(2);
+    } else if (maxValue >= 1000) {
+      return (value / 1000).toFixed(2);
+    } else {
+      return value.toFixed(2);
+    }
+  };
+  let titleText = title;
+  if (maxValue >= 10000000) {
+    titleText += " (in Crores)";
+  } else if (maxValue >= 100000) {
+    titleText += " (in Lakhs)";
+  } else if (maxValue >= 1000) {
+    titleText += " (in Thousands)";
+  }
+
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <div>
+          <Bar
+            data={chartData}
+            options={{
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: titleText,
+                },
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                },
+                y: {
+                  stacked: true,
+                  ticks: {
+                    callback: formatValue,
+                  },
+                },
+              },
+            }}
+          />
+        </div>
+      </Grid>
+      <Grid item xs={12}>
+        <Dialog
+          open={showStackedPopupChart}
+          onClose={() => setStackedShowPopupChart(false)}
+          maxWidth="lg"
+          fullWidth={true} // Ensure it takes the full width up to the max
+          sx={{
+            "& .MuiDialog-paper": { maxWidth: "80%", width: "80%" }, // Override maxWidth for larger sizes
+          }}
+        >
+          <DialogContent>
+            <PopupChart
+              chartData={chartData}
+              title={titleText}
+              onClose={() => setStackedShowPopupChart(false)}
+            />
+            <IconButton
+              aria-label="close"
+              onClick={() => setStackedShowPopupChart(false)}
+              sx={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogContent>
+        </Dialog>
+      </Grid>
+    </Grid>
+  );
+}
+
+function Modal({ children }) {
+  return (
+    <div className="modal">
+      <div className="modal-content">{children}</div>
+    </div>
+  );
+}
+
+function PopupChart({ chartData, title, onClose }) {
+  React.useEffect(() => {
+    const ctx = document.getElementById("popup-chart").getContext("2d");
+    new ChartJS(ctx, {
+      type: "bar",
+      data: chartData,
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: title,
+          },
+        },
+        scales: {
+          x: {
+            stacked: true,
+          },
+          y: {
+            stacked: true,
+            ticks: {
+              callback: (value, index, values) => {
+                if (value >= 10000000) {
+                  return (value / 10000000).toFixed(2) + " C";
+                } else if (value >= 100000) {
+                  return (value / 100000).toFixed(2) + " L";
+                } else if (value >= 1000) {
+                  return (value / 1000).toFixed(2) + " K";
+                } else {
+                  return value.toFixed(2);
+                }
+              },
+            },
+          },
+        },
+      },
+    });
+  }, [chartData]);
+
+  return (
+    <div className="popup-chart">
+      <canvas id="popup-chart" height="120"></canvas>
+    </div>
+  );
+}

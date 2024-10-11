@@ -111,7 +111,7 @@ const items = [
   {
     href: "/query-analytics",
     icon: <ExploreIcon fontSize="small" />,
-    title: "Query Analytics",
+    title: "On Demand Reporting",
   },
 
   {

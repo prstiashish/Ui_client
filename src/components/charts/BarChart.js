@@ -294,14 +294,15 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { IconButton, Dialog, Grid, DialogTitle, DialogContent } from "@mui/material";
+import { IconButton, Dialog, Grid, DialogTitle, DialogContent,Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { BeatLoader } from "react-spinners";
 import { BsArrowsFullscreen } from "react-icons/bs";
+import { fontWeight } from "@mui/system";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
-export default function BarChart({ chartData, title }) {
+export default function BarChart({ chartData, title, startDate, endDate }) {
   // console.log("title", title);
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -471,7 +472,7 @@ export default function BarChart({ chartData, title }) {
                 fullWidth={true}
                 maxWidth="lg"
                 sx={{
-                  "& .MuiDialog-paper": { maxWidth: "80%", width: "80%" },
+                  "& .MuiDialog-paper": { maxWidth: "78%", width: "80%", maxheight: "140%" },
                   "& .MuiDialogContent-root": {
                     overflow: "hidden",
                   },
@@ -492,6 +493,14 @@ export default function BarChart({ chartData, title }) {
                   </IconButton>
                 </DialogTitle>
                 <DialogContent>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
+                  </Typography>
+
                   <PopupChart chartData={chartData} title={titleText} />
                 </DialogContent>
               </Dialog>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import BarChart from "src/components/charts/BarChart";
+import TopTrendBarChart from "src/components/charts/TopTrendBarChart";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
 import axios from "axios";
@@ -20,14 +20,16 @@ import {
   Checkbox,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { format } from 'date-fns';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker"; // Importing DatePicker from MUI
+import TextField from "@mui/material/TextField"; // Importing TextField for the date input
 
+import { format } from "date-fns";
 
 const MyComponent = () => {
   const [dimension, setDimension] = useState("Branch");
-  console.log(dimension,'hwwwwwww');
+  console.log(dimension, "hwwwwwww");
   const [toplimit, setTopLimit] = useState(15);
   const [chartData, setChartData] = useState({
     labels: [],
@@ -43,9 +45,17 @@ const MyComponent = () => {
   const [isSlideOpen, setIsSlideOpen] = useState(false);
 
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState(null);
 
-  const [endDate, setEndDate] = useState(null);
+  // const [startDate, setStartDate] = useState(null);
+
+  // const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date("2024-04-01")); // Default start date
+  const [endDate, setEndDate] = useState(new Date()); // Current date
+
+  const [FYStartDate, setFYStartDate] = useState(null);
+  console.log(FYStartDate, "FYStartDate");
+  const [FYEndDate, setFYEndDate] = useState(null);
+  console.log(FYEndDate, "FYEndDate");
 
   const [isChecked, setIsChecked] = useState(false);
 
@@ -59,28 +69,153 @@ const MyComponent = () => {
 
   const dataUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
-
   // Initial fetch of default data on component mount
-  useEffect(() => {
-    const defaultPayload = {
-      dimension: `${dimension}:All`,
-      view: "top-trends",
-      topRank: toplimit,
-    };
-    fetchData(defaultPayload);
-  }, []);
+  // useEffect(() => {
+  //   const defaultPayload = {
+  //     dimension: `${dimension}:All`,
+  //     view: "top-trends",
+  //     topRank: toplimit,
+  //   };
+  //   fetchData(defaultPayload);
+  // }, []);
 
-  // Function to handle data fetching based on user selection
-  console.log(includePrevYear, "outttcheck");
+  // const handleFetchData = () => {
+  //   // const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : "";
+  //   // const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : "";
+  //   const defaultStartDate = "2024-04-01";
+  //   const defaultEndDate = format(new Date(), "yyyy-MM-dd"); // Current date formatted
 
-  const handleFetchData = () => {
+  //   // Format start and end dates or use default values
+  //   const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : defaultStartDate;
+  //   const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : defaultEndDate;
 
-   const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : "";
-const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
+  //   setStartDate(formattedStartDate);
+  //   setEndDate(formattedEndDate);
 
-    console.log(formattedStartDate, "startDate");
-  console.log(formattedEndDate, "endDate");
-    const payload = {
+  //   console.log(formattedStartDate, "startDdddddddddddddate");
+  //   console.log(formattedEndDate, "endDdddddddddddddddate");
+
+  //   const payload = {
+  //     dimension: `${dimension}:All`,
+  //     view: "top-trends",
+  //     topRank: toplimit,
+  //     start_date: formattedStartDate,
+  //     end_date: formattedEndDate,
+  //     include_prev_year: isChecked,
+  //   };
+  //   console.log("Payload inside handleFetchData:", payload);
+
+  //   // console.log("Payload inside handleFetchData:", payload);
+  //   fetchData(payload);
+  // };
+
+  // const fetchData = async (payload) => {
+  //   console.log("Fetching data with payload:", payload);
+  //   try {
+  //     const response = await axios.post(dataUrl, payload);
+  //     const data = response.data;
+
+  //     // Log response data for debugging
+  //     console.log("Response data:", data);
+  //     console.log("Data keys:", Object.keys(data));
+  //     console.log("Data for current fiscal year:", data["Current Fiscal Year"]);
+  //     console.log("Data for previous fiscal year:", data["Previous Fiscal Year"]);
+
+  //     // Check if the response data is an array or contains expected keys
+  //     if (Array.isArray(data)) {
+  //       // Process data if it's an array (for when include_prev_year is false)
+  //       const labels = data.map((item) => item[dimension] || "Unknown"); // Handle missing dimension
+  //       const salesData = data.map((item) => item.Gross_Amount || 0); // Handle missing Gross_Amount
+
+  //       const newChartData = {
+  //         labels: labels,
+  //         datasets: [
+  //           {
+  //             label: `${dimension} Sales`,
+  //             data: salesData,
+  //             // backgroundColor: "#004792",
+  //             backgroundColor: "rgba(25, 127, 192)",
+  //           },
+  //         ],
+  //       };
+
+  //       setChartData(newChartData);
+  //     } else if (data["Current Fiscal Year"] && data["Previous Fiscal Year"]) {
+  //       // Process data if it includes current and previous fiscal years
+  //       const currentYearData = data["Current Fiscal Year"] || [];
+  //       const previousYearData = data["Previous Fiscal Year"] || [];
+
+  //       const currentLabels = currentYearData.map((item) => item[dimension] || "Unknown");
+  //       const currentSalesData = currentYearData.map((item) => item.Gross_Amount || 0);
+
+  //       const previousLabels = previousYearData.map((item) => item[dimension] || "Unknown");
+  //       const previousSalesData = previousYearData.map((item) => item.Gross_Amount || 0);
+
+  //       // Combine labels and sales data
+  //       const labels = [...new Set([...currentLabels, ...previousLabels])];
+  //       const combinedSalesData = labels.map((label) => {
+  //         return {
+  //           current: currentSalesData[currentLabels.indexOf(label)] || 0,
+  //           previous: previousSalesData[previousLabels.indexOf(label)] || 0,
+  //         };
+  //       });
+
+  //       const datasets = [
+  //         {
+  //           label: "Current Fiscal Year Sales",
+  //           data: combinedSalesData.map((item) => item.current),
+  //           // backgroundColor: "rgb(0, 71, 146)",
+  //           backgroundColor: "rgba(25, 127, 192)",
+  //         },
+  //       ];
+
+  //       if (previousYearData.length > 0) {
+  //         datasets.push({
+  //           label: "Previous Fiscal Year Sales",
+  //           data: combinedSalesData.map((item) => item.previous),
+  //           // backgroundColor: "rgb(0, 71, 146,0.3)",
+  //           backgroundColor: "rgba(25, 127, 192, 0.18)",
+  //         });
+  //       }
+
+  //       const newChartData = {
+  //         labels: labels,
+  //         datasets: datasets,
+  //       };
+
+  //       setChartData(newChartData);
+  //     } else {
+  //       console.error("Unexpected data format:", data);
+  //     }
+
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const handleSubmit = () => {
+  //   handleFetchData();
+  //   setIsSlideOpen(false);
+  //   setTopLimit(15);
+  //   // setStartDate(null);
+  //   // setEndDate(null);
+  //   setStartDate("2024-04-01");
+  //   setEndDate(format(new Date(), "yyyy-MM-dd"));
+  //   setIsChecked(false);
+  // };
+
+  const createPayload = () => {
+    const defaultStartDate = new Date("2024-04-01"); // Set default start date
+    const defaultEndDate = format(new Date(), "yyyy-MM-dd"); // Current date
+
+    const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : defaultStartDate;
+    const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : defaultEndDate;
+    setFYStartDate(formattedStartDate);
+    setFYEndDate(formattedEndDate);
+
+    return {
       dimension: `${dimension}:All`,
       view: "top-trends",
       topRank: toplimit,
@@ -88,225 +223,32 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
       end_date: formattedEndDate,
       include_prev_year: isChecked,
     };
+  };
 
+  useEffect(() => {
+    const defaultPayload = createPayload();
+    fetchData(defaultPayload);
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Function to handle data fetching
+  const handleFetchData = () => {
+    const payload = createPayload();
     // console.log("Payload inside handleFetchData:", payload);
+
     fetchData(payload);
   };
 
-
-  // const fetchData = async (payload) => {
-  //   try {
-  //     const response = await axios.post(dataUrl, payload);
-  //     const data = response.data;
-  //     console.log("Response data:", data);
-
-  //     // Process the response to extract labels and sales data
-  //     const labels = data.map((item) => item[dimension]);
-  //     const salesData = data.map((item) => item.Gross_Amount);
-
-  //     // Update the chart data
-  //     const newChartData = {
-  //       labels: labels, // Set labels dynamically
-  //       datasets: [
-  //         {
-  //           label: `${dimension} Sales`, // Update the label dynamically
-  //           data: salesData, // Set data dynamically
-  //           backgroundColor: "#004792", // Example color, you can make this dynamic too
-  //         },
-  //       ],
-  //     };
-
-  //     setChartData(newChartData); // Update the chartData state with the new data
-  //     setLoading(false); // Set loading to false after data is fetched
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //     setLoading(false);
-  //   }
-  // };
-
-  // Function to handle submit button click
-
-  // const fetchData = async (payload) => {
-  //   try {
-  //     const response = await axios.post(dataUrl, payload);
-  //     const data = response.data;
-  //     console.log("Response data:", data);
-
-  //     // Check if include_prev_year is false
-  //     if (!includePrevYear) {
-  //       // Assuming data is an array for the current fiscal year
-  //       const labels = data.map((item) => item[dimension] || "Unknown"); // Handle missing dimension
-  //       const salesData = data.map((item) => item.Gross_Amount || 0); // Handle missing Gross_Amount
-
-  //       const newChartData = {
-  //         labels: labels, // Set labels dynamically
-  //         datasets: [
-  //           {
-  //             label: `${dimension} Sales`, // Update the label dynamically
-  //             data: salesData, // Set data dynamically
-  //             backgroundColor: "#004792", // Example color
-  //           },
-  //         ],
-  //       };
-
-  //       setChartData(newChartData); // Update the chartData state with the new data
-  //       setLoading(false);
-  //       return; // Exit the function if no previous year data is needed
-  //     }
-
-  //     // Check if previous year data is included
-  //     const hasPreviousYearData = data["Previous Fiscal Year"] !== undefined;
-  //     const currentYearData = data["Current Fiscal Year"] || [];
-  //     const previousYearData = hasPreviousYearData ? data["Previous Fiscal Year"] || [] : [];
-
-  //     // Process data for current fiscal year
-  //     const currentLabels = currentYearData.map((item) => item[dimension] || "Unknown");
-  //     const currentSalesData = currentYearData.map((item) => item.Gross_Amount || 0);
-
-  //     // Process data for previous fiscal year
-  //     const previousLabels = previousYearData.map((item) => item[dimension] || "Unknown");
-  //     const previousSalesData = previousYearData.map((item) => item.Gross_Amount || 0);
-
-  //     // Combine labels and sales data
-  //     const labels = [...new Set([...currentLabels, ...previousLabels])];
-  //     const combinedSalesData = labels.map((label) => {
-  //       return {
-  //         current: currentSalesData[currentLabels.indexOf(label)] || 0,
-  //         previous: previousSalesData[previousLabels.indexOf(label)] || 0,
-  //       };
-  //     });
-
-  //     // Prepare datasets
-  //     const datasets = [
-  //       {
-  //         label: "Current Fiscal Year Sales",
-  //         data: combinedSalesData.map((item) => item.current),
-  //         backgroundColor: "#004792", // Example color for current year
-  //       },
-  //     ];
-
-  //     // Add previous year dataset only if data is available
-  //     if (hasPreviousYearData) {
-  //       datasets.push({
-  //         label: "Previous Fiscal Year Sales",
-  //         data: combinedSalesData.map((item) => item.previous),
-  //         backgroundColor: "#007bff", // Example color for previous year
-  //       });
-  //     }
-
-  //     const newChartData = {
-  //       labels: labels,
-  //       datasets: datasets,
-  //     };
-
-  //     setChartData(newChartData);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //     // Reset user selections here
-  //     setDimension("");
-  //     setStartDate(null); // Reset to null
-  //     setEndDate(null); // Reset to null
-  //     setIncludePrevYear(false);
-  //   }
-  // };
-
-  // okok
-  // const fetchData = async (payload) => {
-  //   try {
-  //     const response = await axios.post(dataUrl, payload);
-  //     const data = response.data;
-  //     console.log("Response data:", data);
-
-  //     // If includePrevYear is false
-  //     if (!includePrevYear) {
-  //       // Assume data is an array for the current fiscal year
-  //       const labels = data.map((item) => item[dimension] || "Unknown"); // Handle missing dimension
-  //       const salesData = data.map((item) => item.Gross_Amount || 0); // Handle missing Gross_Amount
-
-  //       const newChartData = {
-  //         labels: labels, // Set labels dynamically
-  //         datasets: [
-  //           {
-  //             label: `${dimension} Sales`, // Update the label dynamically
-  //             data: salesData, // Set data dynamically
-  //             backgroundColor: "#004792", // Example color
-  //           },
-  //         ],
-  //       };
-
-  //       setChartData(newChartData); // Update the chartData state with the new data
-  //       setLoading(false);
-  //       return; // Exit the function if no previous year data is needed
-  //     }
-
-  //     // If includePrevYear is true
-  //     const hasPreviousYearData = data["Previous Fiscal Year"] !== undefined;
-  //     const currentYearData = data["Current Fiscal Year"] || [];
-  //     const previousYearData = hasPreviousYearData ? data["Previous Fiscal Year"] || [] : [];
-
-  //     // Process data for current fiscal year
-  //     const currentLabels = currentYearData.map((item) => item[dimension] || "Unknown");
-  //     const currentSalesData = currentYearData.map((item) => item.Gross_Amount || 0);
-
-  //     // Process data for previous fiscal year
-  //     const previousLabels = previousYearData.map((item) => item[dimension] || "Unknown");
-  //     const previousSalesData = previousYearData.map((item) => item.Gross_Amount || 0);
-
-  //     // Combine labels and sales data
-  //     const labels = [...new Set([...currentLabels, ...previousLabels])];
-  //     const combinedSalesData = labels.map((label) => {
-  //       return {
-  //         current: currentSalesData[currentLabels.indexOf(label)] || 0,
-  //         previous: previousSalesData[previousLabels.indexOf(label)] || 0,
-  //       };
-  //     });
-
-  //     // Prepare datasets
-  //     const datasets = [
-  //       {
-  //         label: "Current Fiscal Year Sales",
-  //         data: combinedSalesData.map((item) => item.current),
-  //         backgroundColor: "#004792", // Example color for current year
-  //       },
-  //       {
-  //         label: "Previous Fiscal Year Sales",
-  //         data: combinedSalesData.map((item) => item.previous),
-  //         backgroundColor: "#007bff", // Example color for previous year
-  //       },
-  //     ];
-
-  //     const newChartData = {
-  //       labels: labels,
-  //       datasets: datasets,
-  //     };
-
-  //     setChartData(newChartData); // Update the chartData state with the new data
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     // Reset user selections here
-  //     setDimension("");
-  //     setStartDate(null); // Reset to null
-  //     setEndDate(null); // Reset to null
-  //     // setIncludePrevYear(false);
-  //   }
-  // };
-
-
   const fetchData = async (payload) => {
+    console.log("Fetching data with payload:", payload);
     try {
       const response = await axios.post(dataUrl, payload);
       const data = response.data;
 
-      // Log response data for debugging
-      console.log("Response data:", data);
-      console.log("Data keys:", Object.keys(data));
-      console.log("Data for current fiscal year:", data["Current Fiscal Year"]);
-      console.log("Data for previous fiscal year:", data["Previous Fiscal Year"]);
-
+      // // Log response data for debugging
+      // console.log("Response data:", data);
+      // console.log("Data keys:", Object.keys(data));
+      // console.log("Data for current fiscal year:", data["Current Fiscal Year"]);
+      // console.log("Data for previous fiscal year:", data["Previous Fiscal Year"]);
 
       // Check if the response data is an array or contains expected keys
       if (Array.isArray(data)) {
@@ -358,7 +300,7 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
 
         if (previousYearData.length > 0) {
           datasets.push({
-            label: "Previous Fiscal Year Sales",
+            label: "Corresponding Previous Fiscal Year Sales",
             data: combinedSalesData.map((item) => item.previous),
             // backgroundColor: "rgb(0, 71, 146,0.3)",
             backgroundColor: "rgba(25, 127, 192, 0.18)",
@@ -382,13 +324,14 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
     }
   };
 
-
   const handleSubmit = () => {
     handleFetchData();
     setIsSlideOpen(false);
     setTopLimit(15);
-    setStartDate(null);
-    setEndDate(null);
+    // setStartDate(null);
+    // setEndDate(null);
+    setStartDate("2024-04-01");
+    setEndDate(format(new Date(), "yyyy-MM-dd"));
     setIsChecked(false);
   };
 
@@ -418,6 +361,8 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
     setIsChecked(checked);
   };
 
+  const currentYear = new Date().getFullYear();
+
   return (
     <div>
       {/* Button to handle the slide-out panel */}
@@ -439,17 +384,22 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
           </Button>
         </Tooltip>
       </Grid>
+      <p style={{ fontSize: "12px", margin: 0, fontWeight: "bold" }}>
+        Start Date: {FYStartDate} &nbsp;&nbsp; End Date: {FYEndDate}
+      </p>
       <div
         style={{
+          display: "flex", // Flexbox layout
+          justifyContent: "space-between", // Spreads out the content
+          alignItems: "center", // Vertically centers the items
           marginBottom: "0px",
           fontWeight: "bold",
           padding: "0px",
           fontSize: "15px",
-          marginTop: "10px",
           fontFamily: "-moz-initial",
         }}
       >
-        {`Sales Performance by ${dimension}`}
+        <div style={{ textAlign: "center", flex: 1 }}>{`Sales Performance by ${dimension}`}</div>
       </div>
 
       {/* Slide-Out Panel */}
@@ -556,7 +506,10 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
                     views={["year", "month", "day"]}
                     onChange={(date) => handleStartDateChange(date)}
                     renderInput={(params) => <TextField {...params} />}
+                    minDate={new Date(1900, 0, 1)} // January 1 of current year
+                    maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
                     sx={{ marginTop: "10px" }}
+
                   />
                   {error && <FormHelperText>{error}</FormHelperText>}
                 </FormControl>
@@ -571,6 +524,8 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
                     views={["year", "month", "day"]}
                     onChange={(date) => handleEndDateChange(date)}
                     renderInput={(params) => <TextField {...params} />}
+                    minDate={new Date(1900, 0, 1)} // January 1 of current year
+                    maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
                     sx={{ marginTop: "10px" }}
                   />
                   {error && <FormHelperText>{error}</FormHelperText>}
@@ -590,8 +545,6 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
                   }}
                 />
               </div>
-
-
             </Box>
           </Grid>
 
@@ -633,7 +586,12 @@ const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : "";
             {/* {loading ? (
               <CircularProgress />
             ) : ( */}
-            <BarChart chartData={chartData} title="Top Trend Visualization" />
+            <TopTrendBarChart
+              chartData={chartData}
+              startDate={FYStartDate} // Pass the start date
+              endDate={FYEndDate}
+              title="Top Trend Visualization"
+            />
             {/* )} */}
           </div>
         </Grid>

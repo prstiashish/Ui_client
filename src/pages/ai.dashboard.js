@@ -36,6 +36,7 @@ import DevVisualization from "./devvisualization";
 const AIDashboard = () => {
   // const [responseData, setResponseData] = useState(null);
 
+
   const [MTDTotalSales, setMTDTotalSales] = useState(0);
   const [MTDtotalCost, setMTDTotalCost] = useState(0);
   const [MTDTotalMargin, setMTDTotalMargin] = useState(0);
@@ -59,7 +60,7 @@ const AIDashboard = () => {
   });
 
   const router = useRouter();
-  // console.log(router.query, "router.query");
+
   const { dimension, timeWindow, startDate, endDate, isChecked } = router.query;
 
   const [includePrevYear, setIncludePrevYear] = useState(false);
@@ -563,7 +564,6 @@ const AIDashboard = () => {
         // week: `${item.Fiscal_Year} ${item.Week}`,
         Supplies_Cost: item.Supplies_Cost,
 
-
         Materials_Cost: item.Materials_Cost,
         Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
         Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
@@ -688,26 +688,30 @@ const AIDashboard = () => {
             data: data.map((d) => d.Supplies_Cost_CurrentYear),
             backgroundColor: "rgba(223,121,112)",
             stack: "currentYear",
+            hidden: false,
           },
           {
             label: "Materials Cost (Current Year)",
             data: data.map((d) => d.Materials_Cost_CurrentYear),
             backgroundColor: "rgba(247,179,129)",
             stack: "currentYear",
+            hidden: false,
           },
           {
             label: "Supplies Cost (Previous Year)",
             data: data.map((d) => d.Supplies_Cost_PreviousYear),
             backgroundColor: "rgba(223,121,112,0.3)",
             stack: "previousYear",
+            hidden: false,
           },
           {
             label: "Materials Cost (Previous Year)",
             data: data.map((d) => d.Materials_Cost_PreviousYear),
             backgroundColor: "rgba(247,179,129,0.3)",
             stack: "previousYear",
+            hidden: false,
           },
-          // Adding the `Cogs` for data labels
+          // Adding the `Cogs %` for data labels
           {
             label: "Supplies Cost Cogs (Current Year)",
             data: data.map((d) => d.Supplies_Cost_Cogs_CurrentYear),
@@ -741,6 +745,7 @@ const AIDashboard = () => {
             hidden: true, // Hide this dataset but use it for labels
           },
         ],
+
       });
     } else {
       console.error("Response data or timeWindow is missing.");
@@ -1027,36 +1032,42 @@ const AIDashboard = () => {
             data: data.map((d) => d.Channel_Commission_CurrentYear),
             backgroundColor: "rgba(223,121,112)",
             stack: "currentYear",
+            hidden: false,
           },
           {
             label: "Shipping Cost (Current Year)",
             data: data.map((d) => d.Shipping_Cost_CurrentYear),
             backgroundColor: "rgba(247,179,129)",
             stack: "currentYear",
+            hidden: false,
           },
           {
             label: "Discounts (Current Year)",
             data: data.map((d) => d.Discounts_CurrentYear),
             backgroundColor: "rgba(75,192,192,0.6)",
             stack: "currentYear",
+            hidden: false,
           },
           {
             label: "Channel Commission (Previous Year)",
             data: data.map((d) => d.Channel_Commission_PreviousYear),
             backgroundColor: "rgba(223,121,112,0.3)",
             stack: "previousYear",
+            hidden: false,
           },
           {
             label: "Shipping Cost (Previous Year)",
             data: data.map((d) => d.Shipping_Cost_PreviousYear),
             backgroundColor: "rgba(247,179,129,0.3)",
             stack: "previousYear",
+            hidden: false,
           },
           {
             label: "Discounts (Previous Year)",
             data: data.map((d) => d.Discounts_PreviousYear),
             backgroundColor: "rgba(75,192,192,0.3)",
             stack: "previousYear",
+            hidden: false,
           },
           // Adding the Cos` for data labels
           {
@@ -1624,270 +1635,132 @@ const AIDashboard = () => {
 
   // ===================================code for line chartttt
 
-  // const baseURL = () =>
-  //   "https://sk5bgnkn3c.execute-api.ap-south-1.amazonaws.com/prod/salesdata/v1/";
 
-  const token = "https://wex2emgh50.execute-api.ap-south-1.amazonaws.com/dev/refresh-token-auth";
-  const checkTokenExpired = () => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const expTime = GetTokenExpiredTime();
-    const remainingTime = expTime - currentTime;
-    if (remainingTime <= 300) {
-      var refreshTokenUrl = token;
-      const config = {
-        headers: {
-          "x-api-key": "xyz-abcd",
-          "Content-Type": "application/json",
-        },
-      };
-      const body = {
-        refresh_token: GetRefreshToken(),
-      };
-      axios
-        .post(refreshTokenUrl, body, config)
-        .then((response) => {
-          sessionStorage.setItem("IdToken", response.data.AuthenticationResult.IdToken);
-        })
-        .catch((error) => {
-          console.log("RefreshToken:", error);
-        });
-    } else {
-    }
-  };
-  const dimensionSetALL = () => {
-    // if (selectedBranch == "All") {
-    //   selectedBranch = "";
-    // }
-    // if (selectedBrand == "All") {
-    //   selectedBrand = "";
-    // }
-    // if (selectedBranchLabel == "All") {
-    //   selectedBranchLabel = "";
-    // }
-    // if (selectedChannel == "All") {
-    //   selectedChannel = "";
-    // }
-    // if (selectedOrderSource == "All") {
-    //   selectedOrderSource = "";
-    // }
-    // if (selectedMonth == "All") {
-    //   selectedMonth = "";
-    // }
-    // if (selectedQuarter == "All") {
-    //   selectedQuarter = "";
-    // }
-    // if (selectedWeek == "All") {
-    //   selectedWeek = "";
-    // }
-  };
 
-  const getConditions = () => {
-    const conditions = {};
 
-    // if (selectedBranch) {
-    //   conditions.branchkey = selectedBranch;
-    // }
-    // if (selectedBrand) {
-    //   conditions.BrandKey = selectedBrand;
-    // }
-    // if (selectedBranchLabel) {
-    //   conditions.FranchiseTypeKey = selectedBranchLabel;
-    // }
-    // if (selectedChannel) {
-    //   conditions.ChannelKey = selectedChannel;
-    // }
-    // if (selectedOrderSource) {
-    //   conditions.OrderSourceKey = selectedOrderSource;
-    // }
-    // if (selectedMonth) {
-    //   conditions.month = selectedMonth;
-    // }
-    // if (selectedQuarter) {
-    //   conditions.quarter = selectedQuarter;
-    // }
-    // if (selectedWeek) {
-    //   conditions.week = selectedWeek;
-    // }
-    // if (selectedYear) {
-    //   conditions.year = selectedYear;
-    // }
+  // myyyyyyyyy
 
-    return conditions;
-  };
-  const WeekWiseSalesData = async () => {
-    try {
-      dimensionSetALL();
-      const conditions = getConditions();
+  const urlForDaywise = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
-      let isWeekEnable = false;
-      let isQuarterEnable = false;
-      if (selectedFilter === 4) {
-        isWeekEnable = true;
-      }
-      if (selectedFilter === 3) {
-        isQuarterEnable = true;
-      }
 
-      const whereClause = conditions;
 
-      checkTokenExpired();
 
-      var baseUrl = baseURL + "get-cost-sales-info";
-      const config = {
-        headers: {
-          "x-api-key": "xyz-abcd",
-          Authorization: GetAuthToken(),
-          "Content-Type": "application/json",
-        },
-      };
-      const body = {
-        operation: "READ",
-        schema: GetSchema(),
-        function: "WeeklySalesMargin",
-        filter_criteria: {
-          where_clause: whereClause,
-        },
-      };
 
-      axios
-        .post(baseUrl, body, config)
-        .then((response) => {
-          if (response?.data?.WeeklySalesMarginInfo?.length > 0) {
-            const { WeeklySalesMarginInfo } = response.data;
-            const backgroundColorsWeekly = [
-              "#19b091",
-              "#f2a571",
-              "#21c2c3",
-              "#197fc0",
-              "#e75361",
-              "#758b98",
-              "#ff835c",
-            ];
 
-            const weeks = [...new Set(WeeklySalesMarginInfo.map((item) => item.weeknumber))];
-            const salPerday = {
-              Monday: [],
-              Tuesday: [],
-              Wednesday: [],
-              Thursday: [],
-              Friday: [],
-              Saturday: [],
-              Sunday: [],
-            };
 
-            const totalSalesByWeek = WeeklySalesMarginInfo.reduce((acc, curr) => {
-              if (!acc[curr.weeknumber]) {
-                acc[curr.weeknumber] = 0;
-              }
-              acc[curr.weeknumber] += curr.salesperday;
-              return acc;
-            }, {});
 
-            WeeklySalesMarginInfo.forEach((item) => {
-              const dayOfWeek = item.dayofweek.trim();
-              if (salPerday.hasOwnProperty(dayOfWeek)) {
-                const weekIndex = weeks.indexOf(item.weeknumber); // Find the index of the week
-                if (weekIndex !== -1) {
-                  salPerday[dayOfWeek][weekIndex] = item.salesperday || 0; // Fill in salesperday for the respective week
-                }
-              }
-            });
-
-            Object.keys(salPerday).forEach((dayOfWeek) => {
-              if (salPerday[dayOfWeek].length === 0) {
-                // If sales data is not available for this weekday, fill it with zeros
-                salPerday[dayOfWeek] = new Array(WeeklySalesMarginInfo.length).fill(0);
-              }
-            });
-
-            const datasets = [
-              {
-                label: "Total Sales per Week",
-                type: "line",
-                // backgroundColor: "rgba(217, 88, 88,0.4)",
-                borderColor: "#4E78A6",
-                // pointBackgroundColor: "#000000",
-
-                fill: false,
-                data: Object.values(totalSalesByWeek),
-                categoryPercentage: 1.0,
-                barPercentage: 0.2,
-                order: 2,
-                ticks: false,
-                pointStyle: "line",
-                pointBorderWidth: 5,
-                Legend: {
-                  shape: "line",
-                },
-              },
-              ...Object.keys(salPerday).map((dayOfWeek, index) => ({
-                type: "bar",
-                label: dayOfWeek,
-                backgroundColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
-                data: salPerday[dayOfWeek],
-                barPercentage: 1.0,
-                categoryPercentage: 0.5,
-                pointStyle: "rect",
-              })),
-            ];
-
-            setWeeklyChartData({
-              labels: weeks.map((weeknumber) => `Week ${weeknumber}`),
-              datasets: datasets,
-            });
-          } else {
-            setWeeklyChartData((prevChart) => ({
-              ...prevChart,
-              datasets: prevChart.datasets.map((dataset) => ({
-                ...dataset,
-                data: Array(dataset.data.length).fill(0),
-                type: undefined,
-              })),
-            }));
-            console.log("Weekly sales: No data found or the data is empty");
-          }
-        })
-        .catch((error) => {
-          console.error("Weekly sales Error:", error);
-        });
-    } catch (error) {
-      console.error("Error fetching data or updating Weekly sales:", error);
-    }
-  };
-  useEffect(() => {
-    const authToken = GetAuthToken();
-
-    if (!authToken || authToken.trim() === "") {
-      router.push("/login");
-    } else {
-      WeekWiseSalesData();
-    }
-  }, []);
 
   const [WeeklyChartdata, setWeeklyChartData] = useState({
-    labels: [],
-    datasets: [],
-    categoryPercentage: 0,
+    labels: [], // Week labels will go here (e.g., ['Week 04', 'Week 05', ...])
+    datasets: [], // Data for daily sales and total sales per week will be populated here
     plugins: [
       {
         datalabels: {
           anchor: "end",
           align: "top",
           formatter: (value, context) => {
-            if (context.dataset.label === "Total Sales per Week") {
-              return value;
-            } else {
-              return "";
-            }
+            // Show the value only for the "Total Sales per Week" line
+            return context.dataset.label === "Gross Amount per Week" ? value : "";
           },
-          color: "#000",
+          color: "#000", // Set the label color to black
           font: {
-            weight: "bold",
+            weight: "bold", // Make the labels bold
           },
         },
       },
     ],
   });
+
+  // In your useEffect, you will update this state with new data:
+  useEffect(() => {
+    const url = urlForDaywise; // Replace with your actual URL
+    const defaultCardPayload = {
+      view: "weekly-gmv-measure",
+    };
+
+    const fetchCardData = async () => {
+      try {
+        const response = await axios.post(url, defaultCardPayload);
+        const WeeklySalesMarginInfo = response.data;
+        console.log(WeeklySalesMarginInfo, "dayyyyyyyyyyyyyss");
+        const backgroundColorsWeekly = [
+                      "#19b091",
+                      "#f2a571",
+                      "#21c2c3",
+                      "#197fc0",
+                      "#e75361",
+                      "#758b98",
+                      "#ff835c",
+                    ];
+
+        if (WeeklySalesMarginInfo.length > 0) {
+          const weeks = WeeklySalesMarginInfo.map((item) => Object.keys(item)[0]);
+          const salPerday = {
+            Monday: [],
+            Tuesday: [],
+            Wednesday: [],
+            Thursday: [],
+            Friday: [],
+            Saturday: [],
+            Sunday: [],
+          };
+
+          console.log(salPerday,'salPerdaysalPerday')
+
+          WeeklySalesMarginInfo.forEach((weekData) => {
+            const weekKey = Object.keys(weekData)[0];
+            const weekInfo = weekData[weekKey];
+
+            Object.keys(salPerday).forEach((day) => {
+              salPerday[day].push(weekInfo[day] || 0);
+            });
+          });
+
+          const datasets = [
+            {
+              label: "Gross Amount per Week",
+              type: "line",
+              borderColor: "#4E78A6",
+              fill: false,
+              data: weeks.map((weekKey) =>
+                WeeklySalesMarginInfo.find((weekData) => weekKey in weekData)[weekKey][
+                  "Gross_Amount_Per_Week"
+                ]
+              ),
+              categoryPercentage: 1.0,
+              barPercentage: 0.2,
+            },
+            ...Object.keys(salPerday).map((dayOfWeek, index) => ({
+              type: "bar",
+              label: dayOfWeek,
+              backgroundColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
+              data: salPerday[dayOfWeek],
+              barPercentage: 1.0,
+              categoryPercentage: 0.5,
+            })),
+          ];
+
+
+          console.log(datasets, 'datasettttttttttts')
+
+          setWeeklyChartData({
+            labels: weeks.map((week) => `${week}`),
+            datasets: datasets,
+            plugins: WeeklyChartdata.plugins, // Retain the data labels plugin
+          });
+        } else {
+          console.log("No weekly sales data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching card data:", error);
+      }
+    };
+
+    fetchCardData();
+  }, []);
+
+
+
 
   const chartTitleWeeklywise = "Weekly Total Sales";
   const handleChartDoubleClick = () => {
@@ -1947,6 +1820,7 @@ const AIDashboard = () => {
                   position: "relative",
                   top: "-10px",
                   fontSize: 9,
+                  fontWeight: "bold",
                 }}
               >
                 {/* Total Sales YTD */}
@@ -1977,7 +1851,13 @@ const AIDashboard = () => {
               <Typography
                 variant="h7"
                 component="div"
-                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9 }}
+                style={{
+                  left: "-5px",
+                  position: "relative",
+                  top: "-10px",
+                  fontSize: 9,
+                  fontWeight: "bold",
+                }}
               >
                 Total Cost YTD in ('000)
                 {/* Total COGS YTD */}
@@ -2006,9 +1886,15 @@ const AIDashboard = () => {
               <Typography
                 variant="h7"
                 component="div"
-                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9 }}
+                style={{
+                  left: "-5px",
+                  position: "relative",
+                  top: "-10px",
+                  fontSize: 9,
+                  fontWeight: "bold",
+                }}
               >
-                Total Margin in YTD ('000)
+                Total Margin YTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -2034,9 +1920,15 @@ const AIDashboard = () => {
               <Typography
                 variant="h7"
                 component="div"
-                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9 }}
+                style={{
+                  left: "-5px",
+                  position: "relative",
+                  top: "-10px",
+                  fontSize: 9,
+                  fontWeight: "bold",
+                }}
               >
-                Sales MTD in ('000)
+              Total Sales MTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -2062,9 +1954,15 @@ const AIDashboard = () => {
               <Typography
                 variant="h7"
                 component="div"
-                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9 }}
+                style={{
+                  left: "-5px",
+                  position: "relative",
+                  top: "-10px",
+                  fontSize: 9,
+                  fontWeight: "bold",
+                }}
               >
-                Cost MTD in ('000)
+              Total Cost MTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -2090,9 +1988,10 @@ const AIDashboard = () => {
               <Typography
                 variant="h7"
                 component="div"
-                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9 }}
+                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9,                  fontWeight: "bold",
+                }}
               >
-                Margin MTD in ('000)
+              Total Margin MTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -2134,6 +2033,8 @@ const AIDashboard = () => {
               // title={chartTitlemonthwise}
               title={`Gross Amount (${timeWindowMap[timeWindow] || "Monthly"})`}
               onDoubleClick={() => console.log("Chart clicked")}
+              startDate={startDate || defaultStartDate} // Pass startDate
+              endDate={endDate || currentDate} // Pass endDate
             />
             {/* <DonutChart
               chartData={chartData}
@@ -2156,6 +2057,8 @@ const AIDashboard = () => {
             <StackedBarChart
               chartData={stackedMonthWiseInfo}
               title={`Cost of Goods Sold (${timeWindowMap[timeWindow] || "Monthly"})`}
+              startDate={startDate || defaultStartDate} // Pass startDate
+              endDate={endDate || currentDate} // Pass endDate
             />
           </div>
         </Grid>
@@ -2177,6 +2080,8 @@ const AIDashboard = () => {
               // onDoubleClick={handleChartDoubleClick}
               onDoubleClick={() => console.log("Financial Chart clicked")}
               style={{ height: "100px" }}
+              startDate={startDate || defaultStartDate} // Pass startDate
+              endDate={endDate || currentDate} // Pass endDate
             />
           </div>
         </Grid>
@@ -2195,6 +2100,8 @@ const AIDashboard = () => {
               title={`Margin Trend Analysis (${timeWindowMap[timeWindow] || "Monthly"})`}
               // onDoubleClick={handleChartDoubleClick} // Ensure this function is defined elsewhere
               onDoubleClick={() => console.log("waterfall Chart clicked")}
+              startDate={startDate || defaultStartDate} // Pass startDate
+              endDate={endDate || currentDate} // Pass endDate
             />
           </div>
         </Grid>

@@ -247,14 +247,14 @@ import {
   Legend,
 } from "chart.js";
 import CloseIcon from "@mui/icons-material/Close";
-import { Dialog, Grid, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import { Dialog, Grid, DialogTitle, DialogContent, IconButton,Typography } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import { BsArrowsFullscreen } from "react-icons/bs";
 
 // Registering the required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function StackedBarChart2({ chartData, title }) {
+export default function StackedBarChart2({ chartData, title,  startDate, endDate }) {
 
   const chartRef = useRef(null);
 
@@ -480,6 +480,13 @@ export default function StackedBarChart2({ chartData, title }) {
               }}
             >
               <DialogContent>
+              <Typography
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
+                  </Typography>
                 <PopupChart
                   chartData={chartData}
                   title={titleText}
@@ -513,63 +520,60 @@ function Modal({ children }) {
   );
 }
 
-// function PopupChart({ chartData, title, onClose }) {
 
+// function PopupChart({ chartData, title, onClose }) {
 //   const chartRef = useRef(null);
 
-//   useEffect(() => {
-//     // Cleanup on component unmount or re-render to avoid "canvas already in use" error
-//     return () => {
-//       if (chartRef.current) {
-//         chartRef.current.destroy(); // Destroy the chart instance
-//       }
-//     };
-//   }, [chartData]); // Re-run this effect when chartData changes
-
 //   const getCosValue = (label, index) => {
-//     const cosDataset = chartData.datasets.find((d) => d.label === label);
-//     return cosDataset ? cosDataset.data[index] : 0;
-//   };
-//   const dataLabels = {
-//     display: true,
-//     formatter: (value, context) => {
-//       const index = context.dataIndex;
-//       const datasetLabel = context.dataset.label;
-//       let cosValue = 0;
+//         const cosDataset = chartData.datasets.find((d) => d.label === label);
+//         return cosDataset ? cosDataset.data[index] : 0;
+//       };
+//       const dataLabels = {
+//         display: true,
+//         formatter: (value, context) => {
+//           const index = context.dataIndex;
+//           const datasetLabel = context.dataset.label;
+//           let cosValue = 0;
 
-//       if (datasetLabel.includes("Channel Commission (Current Year)")) {
-//         cosValue = getCosValue("Channel Commission Cos (Current Year)", index);
-//       } else if (datasetLabel.includes("Shipping Cost (Current Year)")) {
-//         cosValue = getCosValue("Shipping Cost Cos (Current Year)", index);
-//       } else if (datasetLabel.includes("Discounts (Current Year)")) {
-//         cosValue = getCosValue("Discounts Cos (Current Year)", index);
+//           // Check datasetLabel and get the corresponding value
+//           if (datasetLabel === "Channel Commission (Current Year)") {
+//             cosValue = getCosValue("Channel Commission Cos (Current Year)", index);
+//           } else if (datasetLabel === "Shipping Cost (Current Year)") {
+//             cosValue = getCosValue("Shipping Cost Cos (Current Year)", index);
+//           } else if (datasetLabel === "Discounts (Current Year)") {
+//             cosValue = getCosValue("Discounts Cos (Current Year)", index);
+//           } else if (datasetLabel === "Channel Commission (Previous Year)") {
+//             cosValue = getCosValue("Channel Commission Cos (Previous Year)", index);
+//           } else if (datasetLabel === "Shipping Cost (Previous Year)") {
+//             cosValue = getCosValue("Shipping Cost Cos (Previous Year)", index);
+//           } else if (datasetLabel === "Discounts (Previous Year)") {
+//             cosValue = getCosValue("Discounts Cos (Previous Year)", index);
+//           }
 
-//       } else if (datasetLabel.includes("Channel Commission (Previous Year)")) {
-//         cosValue = getCosValue("Channel Commission Cos (Previous Year)", index);
-//       }else if (datasetLabel.includes("Shipping Cost (Previous Year)")) {
-//         cosValue = getCosValue("Shipping Cost Cos (Previous Year)", index);
-//       } else if (datasetLabel.includes("Discounts (Previous Year)'")) {
-//         cosValue = getCosValue("Discounts Cos (Previous Year)", index);
+//           console.log(cosValue, "cosValue3333333333");
+//           return cosValue ? `${cosValue}%` : "";
+//         },
+//         color: "#0000cc",
+//         anchor: "center",
+//         align: "center",
+//         rotation: -90,
+//         offset: 120,
+//         padding: 2,
+//         font: {
+//           size: 12, // Increased for better visibility
+//         },
+//       };
 
-//       }
-
-//       // return cogsValue ? `${cogsValue.toFixed(1)}` : "";
-//       return cosValue ? `${cosValue}%` : "";
-
-//     },
-//     color: "#0000cc",
-//     anchor: "center",
-//     align: "center",
-//     rotation: -90,
-//     offset: 120,
-//     padding: 2,
-//     font: {
-//       size: 10,
-//     },
-//   };
-//   React.useEffect(() => {
+//   useEffect(() => {
 //     const ctx = document.getElementById("popup-chart").getContext("2d");
-//     new ChartJS(ctx, {
+
+//     // If there is an existing chart instance, destroy it before creating a new one
+//     if (chartRef.current) {
+//       chartRef.current.destroy();
+//     }
+
+//     // Create a new chart instance and store it in the ref
+//     chartRef.current = new ChartJS(ctx, {
 //       type: "bar",
 //       data: chartData,
 //       options: {
@@ -579,11 +583,8 @@ function Modal({ children }) {
 //             display: true,
 //             text: title,
 //           },
-//           // legend: {
-//           //   display: chartData.legendVisible > 0,
-//           // },
 //           legend: {
-//             display: false, // Set legend to false
+//             display: false, // Hide the legend
 //           },
 //           datalabels: dataLabels,
 //         },
@@ -594,7 +595,7 @@ function Modal({ children }) {
 //           y: {
 //             stacked: true,
 //             ticks: {
-//               callback: (value, index, values) => {
+//               callback: (value) => {
 //                 if (value >= 10000000) {
 //                   return value / 10000000;
 //                 } else if (value >= 100000) {
@@ -608,8 +609,21 @@ function Modal({ children }) {
 //             },
 //           },
 //         },
+//         elements: {
+//           bar: {
+//             // borderRadius: 3, // Optional: rounded corners
+
+//           },
+//         },
 //       },
 //     });
+
+//     // Cleanup function to destroy the chart instance on component unmount or re-render
+//     return () => {
+//       if (chartRef.current) {
+//         chartRef.current.destroy();
+//       }
+//     };
 //   }, [chartData]);
 
 //   return (
@@ -618,48 +632,56 @@ function Modal({ children }) {
 //     </div>
 //   );
 // }
+
+
+
 function PopupChart({ chartData, title, onClose }) {
   const chartRef = useRef(null);
 
   const getCosValue = (label, index) => {
-        const cosDataset = chartData.datasets.find((d) => d.label === label);
-        return cosDataset ? cosDataset.data[index] : 0;
-      };
-      const dataLabels = {
-        display: true,
-        formatter: (value, context) => {
-          const index = context.dataIndex;
-          const datasetLabel = context.dataset.label;
-          let cosValue = 0;
+    const cosDataset = chartData.datasets.find((d) => d.label === label);
+    return cosDataset ? cosDataset.data[index] : 0;
+  };
 
-          // Check datasetLabel and get the corresponding value
-          if (datasetLabel === "Channel Commission (Current Year)") {
-            cosValue = getCosValue("Channel Commission Cos (Current Year)", index);
-          } else if (datasetLabel === "Shipping Cost (Current Year)") {
-            cosValue = getCosValue("Shipping Cost Cos (Current Year)", index);
-          } else if (datasetLabel === "Discounts (Current Year)") {
-            cosValue = getCosValue("Discounts Cos (Current Year)", index);
-          } else if (datasetLabel === "Channel Commission (Previous Year)") {
-            cosValue = getCosValue("Channel Commission Cos (Previous Year)", index);
-          } else if (datasetLabel === "Shipping Cost (Previous Year)") {
-            cosValue = getCosValue("Shipping Cost Cos (Previous Year)", index);
-          } else if (datasetLabel === "Discounts (Previous Year)") {
-            cosValue = getCosValue("Discounts Cos (Previous Year)", index);
-          }
+  const dataLabels = {
+    display: true,
+    formatter: (value, context) => {
+      const index = context.dataIndex;
+      const datasetLabel = context.dataset.label;
+      let cosValue = 0;
 
-          console.log(cosValue, "cosValue3333333333");
-          return cosValue ? `${cosValue}%` : "";
-        },
-        color: "#0000cc",
-        anchor: "center",
-        align: "center",
-        rotation: -90,
-        offset: 120,
-        padding: 2,
-        font: {
-          size: 12, // Increased for better visibility
-        },
-      };
+      // Check datasetLabel and get the corresponding value
+      if (datasetLabel === "Channel Commission (Current Year)") {
+        cosValue = getCosValue("Channel Commission Cos (Current Year)", index);
+      } else if (datasetLabel === "Shipping Cost (Current Year)") {
+        cosValue = getCosValue("Shipping Cost Cos (Current Year)", index);
+      } else if (datasetLabel === "Discounts (Current Year)") {
+        cosValue = getCosValue("Discounts Cos (Current Year)", index);
+      } else if (datasetLabel === "Channel Commission (Previous Year)") {
+        cosValue = getCosValue("Channel Commission Cos (Previous Year)", index);
+      } else if (datasetLabel === "Shipping Cost (Previous Year)") {
+        cosValue = getCosValue("Shipping Cost Cos (Previous Year)", index);
+      } else if (datasetLabel === "Discounts (Previous Year)") {
+        cosValue = getCosValue("Discounts Cos (Previous Year)", index);
+      }
+
+      // Return empty string if the dataset is hidden
+      if (context.dataset.hidden) {
+        return ""; // Don't show label if dataset is hidden
+      }
+
+      return cosValue ? `${cosValue}%` : ""; // Show the label if cosValue exists
+    },
+    color: "#0000cc",
+    anchor: "center",
+    align: "center",
+    rotation: -90,
+    offset: 120,
+    padding: 2,
+    font: {
+      size: 12, // Increased for better visibility
+    },
+  };
 
   useEffect(() => {
     const ctx = document.getElementById("popup-chart").getContext("2d");
@@ -669,10 +691,16 @@ function PopupChart({ chartData, title, onClose }) {
       chartRef.current.destroy();
     }
 
+    // Filter out datasets that are hidden
+    const filteredDatasets = chartData.datasets.filter(dataset => !dataset.hidden);
+
     // Create a new chart instance and store it in the ref
     chartRef.current = new ChartJS(ctx, {
       type: "bar",
-      data: chartData,
+      data: {
+        ...chartData,
+        datasets: filteredDatasets, // Use the filtered datasets
+      },
       options: {
         responsive: true,
         plugins: {
@@ -681,7 +709,7 @@ function PopupChart({ chartData, title, onClose }) {
             text: title,
           },
           legend: {
-            display: false, // Hide the legend
+            display: true, // Hide the legend
           },
           datalabels: dataLabels,
         },
@@ -709,7 +737,6 @@ function PopupChart({ chartData, title, onClose }) {
         elements: {
           bar: {
             // borderRadius: 3, // Optional: rounded corners
-
           },
         },
       },
@@ -729,4 +756,6 @@ function PopupChart({ chartData, title, onClose }) {
     </div>
   );
 }
+
+
 

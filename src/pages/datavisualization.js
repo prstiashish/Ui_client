@@ -72,10 +72,10 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const [timeWindows, setTimeWindows] = useState([]);
 
   const [startDate, setStartDate] = useState(null);
-  console.log(startDate, "ssssdddddd");
+  // console.log(startDate, "ssssdddddd");
 
   const [endDate, setEndDate] = useState(null);
-  console.log(endDate, "eeeedddddd");
+  // console.log(endDate, "eeeedddddd");
 
   const currentYear = new Date().getFullYear();
   const [timeWindowError, setTimeWindowError] = useState("");

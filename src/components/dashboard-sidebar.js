@@ -80,7 +80,7 @@ const items = [
   {
     href: "/datadrilldown",
     icon: <TableViewIcon fontSize="small" />,
-    title: "Data Drill Down",
+    title: "Data Grid",
   },
   // {
   //   href: "/tstopsalesvisualization",

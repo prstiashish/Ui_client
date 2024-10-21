@@ -372,7 +372,7 @@ export default function StackedBarChart({ chartData, title,startDate, endDate })
     offset: 120,
     padding: 2,
     font: {
-      size: 5,
+      size: 8,
     },
   };
 

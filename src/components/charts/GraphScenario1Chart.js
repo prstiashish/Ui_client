@@ -1,240 +1,455 @@
+// import { Margin } from "@mui/icons-material";
+// import { ticks } from "d3";
+// import { Bar } from "react-chartjs-2";
 
-import { Margin } from "@mui/icons-material";
-import { ticks } from "d3";
+// const GraphScenario1Chart = ({ chartData }) => {
+//   // console.log("GraphScenario1Chart :", chartData)
+
+//   let formatValue;
+//   if (chartData && chartData.datasets && chartData.datasets.length > 0) {
+//     const data = chartData.datasets[0].data;
+
+//     if (data && data.length > 0) {
+//       let maxValue = Math.max(...data);
+//       formatValue = (value) => {
+//         if (maxValue >= 10000000) {
+//           return value / 10000000;
+//         } else if (maxValue >= 100000) {
+//           return value / 100000;
+//         } else if (maxValue >= 1000) {
+//           return value / 1000;
+//         } else {
+//           return value;
+//         }
+//       };
+//     } else {
+//       console.log("Data is empty.");
+//     }
+//   } else {
+//     console.log("chartData or its datasets are not properly initialized.");
+//   }
+
+//   const options = {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     plugins: {
+//       title: {
+//         display: true,
+//         // text: getDynamicTitle(currentData),
+//         text: "",
+//       },
+//       legend: {
+//         display: false,
+//         position: "top",
+//         marginTop: 10,
+//       },
+//       datalabels: {
+//         display: false,
+//       },
+//     },
+//     layout: {
+//       padding: {
+//         left: 10, // Adjust left padding
+//         right: 0,
+//         top: 10,
+//         bottom: 10,
+//       },
+//     },
+//     scales: {
+//       x: {
+//         grid: {
+//           display: false,
+//         },
+//         ticks: {
+//           display: false,
+//         },
+//         // ticks: {
+//         //   autoSkip: true,
+//         //   maxRotation: 35, // Rotate labels for better fit
+//         //   minRotation: -10,
+//         //   padding: 0, // Reduced padding
+//         //   font: {
+//         //     size: 10, // Smaller font size
+//         //   },
+//         // callback: function(value, index) {
+//         //   return index % 2 === 0 ? value : ''; // Display every other label
+//         // },
+//         // },
+//       },
+//       y: {
+//         beginAtZero: true,
+//         ticks: {
+//           callback: formatValue,
+//         },
+//       },
+//     },
+//     elements: {
+//       bar: {
+//         // borderRadius: 4, // Optional: rounded corners
+//       },
+//     },
+//   };
+
+//   return <Bar data={chartData} options={options} />;
+// };
+
+// export default GraphScenario1Chart;
+
+// for periodic dis  2nd tryingggg noe
+
+const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+
+
+import React, { useState, useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
+import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
+import "chartjs-plugin-datalabels"; // Ensure the plugin is imported
 
+const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
+  const [selectedBarData, setSelectedBarData] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [fetchedData, setFetchedData] = useState([]);
+  const [timeWindow, setTimeWindow] = useState("M"); // Default time window
 
-const GraphScenario1Chart = ({ chartData }) => {
+  const chartRef = useRef(null);
 
-  console.log("GraphScenario1Chart :", chartData)
-
-  // const formatValue = (value, index, values) => {
-  //   // Get the maximum value from the dataset to decide the formatting
-  //   const maxValue = Math.max(...values.map((v) => v.y));
-
-  //   if (maxValue >= 10000000) {
-  //     return `${(value / 10000000).toFixed(1)}Cr`; // For crores
-  //   } else if (maxValue >= 1000000) {
-  //     return `${(value / 1000000).toFixed(1)}M`; // For millions
-  //   } else if (maxValue >= 100000) {
-  //     return `${(value / 100000).toFixed(1)}L`; // For lakhs
-  //   } else if (maxValue >= 1000) {
-  //     return `${(value / 1000).toFixed(1)}K`; // For thousands
-  //   } else {
-  //     return value.toFixed(1); // For smaller values
-  //   }
-  // };
-
-
-  // Extract scenario specific options if needed
-  // const options = {
-  //   responsive: true,
-  //   maintainAspectRatio: false,
-  //   plugins: {
-  //     legend: {
-  //       display: false,
-  //     },
-  //     datalabels: {
-  //       display: false, // Disable data labels
-  //     },
-  //     title: {
-  //       display: true,
-  //       // text: getDynamicTitle(chartData), // If you have a dynamic title function
-  //     },
-  //   },
-  //   layout: {
-  //     padding: {
-  //       left: -5,
-  //       right: 0,
-  //     },
-  //   },
-  //   scales: {
-  //     x: {
-  //       offset: true,
-  //       grid: {
-  //         display: false,
-  //       },
-  //       ticks: {
-  //         autoSkip: false,
-  //         padding: 10,
-  //       },
-  //       afterFit: (scale) => {
-  //         scale.paddingLeft = 20;
-  //         scale.paddingRight = 20;
-  //       },
-  //     },
-  //     y: {
-  //       beginAtZero: true,
-  //       type: "logarithmic",
-  //       ticks: {
-  //         callback: formatValue, // Apply formatting function
-  //       },
-  //       title: {
-  //         display: true,
-  //         text: "Measure",
-  //         font: {
-  //           size: 14,
-  //           weight: "bold",
-  //         },
-  //       },
-  //     },
-  //   },
-  // };
-
-
-
-  let formatValue;
-  if (chartData && chartData.datasets && chartData.datasets.length > 0) {
-    const data = chartData.datasets[0].data;
-
-    if (data && data.length > 0) {
-      let maxValue = Math.max(...data);
-      formatValue = (value) => {
-        if (maxValue >= 10000000) {
-          return value / 10000000;
-        } else if (maxValue >= 100000) {
-          return value / 100000;
-        } else if (maxValue >= 1000) {
-          return value / 1000;
-        } else {
-          return value;
-        }
-      };
-    } else {
-      console.log("Data is empty.");
-    }
-  } else {
-    console.log("chartData or its datasets are not properly initialized.");
-  }
-  // const options = {
-  //   responsive: true,
-  //   maintainAspectRatio: false,
-  //   plugins: {
-  //     legend: {
-  //       display: false, // Hide the legend
-  //     },
-  //     title: {
-  //       display: true,
-  //       text: 'Bar Chart Title',
-  //       font: {
-  //         size: 16,
-  //         weight: 'bold',
-  //       },
-  //     },
-  //   },
-  //   layout: {
-  //     padding: {
-  //       left: 0,
-  //       right: 0,
-  //       top: 10,
-  //       bottom: 10,
-  //     },
-  //   },
-  //   scales: {
-  //     x: {
-  //       grid: {
-  //         display: false, // Hide grid lines
-  //       },
-  //       ticks: {
-  //         autoSkip: false, // Show all ticks
-  //         padding: 5, // Minimal tick padding
-  //       },
-  //       // categoryPercentage: 1.0, // Full width for each category
-  //       // barPercentage: 0.9, // Bars take up 90% of the category width
-  //     },
-  //     y: {
-  //       beginAtZero: true,
-  //       grid: {
-  //         color: 'rgba(200, 200, 200, 0.3)', // Light grid lines
-  //       },
-  //       // ticks: {
-  //       //   beginAtZero: true,
-  //       // },
-  //       ticks: {
-  //         callback: formatValue,
-  //       },
-  //     },
-  //   },
-  //   elements: {
-  //     bar: {
-  //       borderWidth: 1, // Border thickness to help see small bars
-  //       borderColor: 'black', // Color of the border
-  //       backgroundColor: 'rgba(0, 123, 255, 0.5)', // Background color of the bars
-  //       borderRadius: 0, // Sharp edges for clear separation
-  //     },
-  //   },
-  // };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: {
-        display: true,
-        // text: getDynamicTitle(currentData),
-        text: "",
-      },
-      legend: {
-        display: false,
-        position: 'top',
-        marginTop: 10,
-      },
-      datalabels: {
-        display: false,
-      },
-    },
-    layout: {
-      padding: {
-        left: 10, // Adjust left padding
-        right: 0,
-        top: 10,
-        bottom: 10,
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-         display: false,
-        },
-        // ticks: {
-        //   autoSkip: true,
-        //   maxRotation: 35, // Rotate labels for better fit
-        //   minRotation: -10,
-        //   padding: 0, // Reduced padding
-        //   font: {
-        //     size: 10, // Smaller font size
-        //   },
-          // callback: function(value, index) {
-          //   return index % 2 === 0 ? value : ''; // Display every other label
-          // },
-        // },
-
-
-      },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: formatValue,
-        },
-      },
-
-    },
-    elements: {
-      bar: {
-          // borderRadius: 4, // Optional: rounded corners
-      },
-  },
+  // Format value for y-axis
+  const formatValue = (value) => {
+    const maxValue = Math.max(...(chartData.datasets[0]?.data || [0]));
+    if (maxValue >= 10000000) return value / 10000000;
+    if (maxValue >= 100000) return value / 100000;
+    if (maxValue >= 1000) return value / 1000;
+    return value;
   };
 
+  // Fetch data based on selected payload and time window
+  const fetchPeriodicData = async (requestPayload) => {
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestPayload),
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
+      const data = await response.json();
+      console.log("Fetched Data:", data); // Add logging for fetched data
 
+      setFetchedData(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching periodic data:", error);
+      setFetchedData([]);
+    }
+  };
 
+  // Handle bar click event
+  // const handleBarClick = (event, elements) => {
+  //   if (elements.length === 0) return;
 
-  return <Bar data={chartData} options={options} />;
+  //   const element = elements[0];
+  //   const clickedIndex = element.index;
+  //   const clickedLabel = chartData.labels[clickedIndex];
+  //   const dimensionType = chartData.xLabel;
+
+  //   if (!Array.isArray(receivedPayload)) {
+  //     console.error("Expected receivedPayload to be an array:", receivedPayload);
+  //     return; // Exit if it's not an array
+  //   }
+  
+
+  //   const correspondingPayload = receivedPayload.find(
+  //     (item) => item.dimension === `${dimensionType}:${clickedLabel}`
+  //   );
+
+  //   const finalPayload =
+  //     correspondingPayload ||
+  //     receivedPayload.find((item) => item.dimension.includes(dimensionType));
+
+  //   if (!finalPayload) {
+  //     console.error("No matching payload found for clicked bar.");
+  //     return;
+  //   }
+
+  //   setSelectedBarData({
+  //     clickedIndex,
+  //     clickedLabel,
+  //     measure: finalPayload.measure,
+  //     additionalData: finalPayload,
+  //   });
+
+  //   setIsDialogOpen(true); // Open the dialog
+
+  //   // Fetch initial data right away when the dialog opens
+  //   const hitToUrl = {
+  //     bottomRank: finalPayload.bottomRank,
+  //     topRank: finalPayload.topRank,
+  //     dimension: `${finalPayload.dimension.split(":")[0]}:${clickedLabel}`,
+  //     measure: finalPayload.measure,
+  //     partition: finalPayload.partition,
+  //     includeCOGS: finalPayload.includeCOGS,
+  //     start_date: finalPayload.start_date,
+  //     end_date: finalPayload.end_date,
+  //     time_window: timeWindow, // Using the default time window here
+  //   };
+
+  //   fetchPeriodicData(hitToUrl);
+  // };
+
+  const handleBarClick = (event, elements) => {
+    console.log('chartData', chartData)
+    console.log("Received payload:", receivedPayload);
+    // Check if any element was clicked
+    if (elements.length === 0) return;
+  
+    const element = elements[0];
+    const clickedIndex = element.index;
+    const clickedLabel = chartData.labels[clickedIndex];
+    const dimensionType = chartData.xLabel;
+
+    console.log("Clicked index:", clickedIndex);
+    console.log("Clicked label:", clickedLabel);
+    console.log("Dimension type:", dimensionType);
+  
+    // Ensure receivedPayload is an array
+    let payloadArray = Array.isArray(receivedPayload) ? receivedPayload : [receivedPayload];
+  
+    // Attempt to find the corresponding payload based on the clicked bar
+    // const correspondingPayload = payloadArray.find(
+    //   (item) => item.dimension === `${dimensionType}:${clickedLabel}`
+    // );  
+    payloadArray.forEach((item, index) => {
+      console.log(`Payload item ${index}:`, item);
+    });
+  
+    // Updated matching logic: handle 'Product:All' for a more generic case
+    const correspondingPayload = payloadArray.find((item) => {
+      const dimensionMatches = item.dimension.includes(dimensionType) && item.dimension.includes('All');
+      const partitionMatches = item.partition === 'None';  // Adjust if needed to match actual partition structure
+  
+      return dimensionMatches && partitionMatches;
+    });
+  
+    if (correspondingPayload) {
+      console.log('Corresponding Payload:', correspondingPayload);
+    } else {
+      console.log('No matching payload found for the clicked bar.');
+    }
+
+    // ==========
+  
+    // Fallback to find any payload that includes the dimension type
+    const finalPayload =
+      correspondingPayload ||
+      payloadArray.find((item) => item.dimension.includes(dimensionType));
+
+      console.log("Final payload:", finalPayload);
+  
+    if (!finalPayload) {
+      console.error("No matching payload found for clicked bar.");
+      return; // Exit if no matching payload is found
+    }
+  
+    // Update state with selected bar data
+    setSelectedBarData({
+      clickedIndex,
+      clickedLabel,
+      measure: finalPayload.measure,
+      additionalData: finalPayload,
+    });
+  
+    // Open the dialog
+    setIsDialogOpen(true);
+  
+    // Prepare data for the API call
+    const hitToUrl = {
+      bottomRank: finalPayload.bottomRank,
+      topRank: finalPayload.topRank,
+      dimension: `${finalPayload.dimension.split(":")[0]}:${clickedLabel}`,
+      measure: finalPayload.measure,
+      partition: finalPayload.partition,
+      includeCOGS: finalPayload.includeCOGS,
+      start_date: finalPayload.start_date,
+      end_date: finalPayload.end_date,
+      time_window: timeWindow, // Using the default time window here
+    };
+  
+    // Fetch data based on the constructed URL parameters
+    fetchPeriodicData(hitToUrl);
+  };
+  
+
+  // Handle the time window change and fetch new data immediately
+  const handleTimeWindowChange = (newTimeWindow) => {
+    setTimeWindow(newTimeWindow);
+
+    if (selectedBarData) {
+      const hitToUrl = {
+        bottomRank: selectedBarData.additionalData.bottomRank,
+        topRank: selectedBarData.additionalData.topRank,
+        dimension: `${selectedBarData.additionalData.dimension.split(":")[0]}:${
+          selectedBarData.clickedLabel
+        }`,
+        measure: selectedBarData.additionalData.measure,
+        partition: selectedBarData.additionalData.partition,
+        includeCOGS: selectedBarData.additionalData.includeCOGS,
+        start_date: selectedBarData.additionalData.start_date,
+        end_date: selectedBarData.additionalData.end_date,
+        time_window: newTimeWindow, // New time window is set here
+      };
+
+      fetchPeriodicData(hitToUrl);
+    }
+  };
+
+  // Bar chart options
+  const options = {
+    onClick: (event, elements) => handleBarClick(event, elements),
+    responsive: true,
+    maintainAspectRatio: false,
+
+    plugins: {
+      title: { display: true, text: "" },
+      legend: { display: false },
+      datalabels: { display: false },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { display: false } },
+      y: { beginAtZero: true, ticks: { callback: formatValue } },
+    },
+  };
+
+  // Dialog styles
+  const dialogStyles = {
+    width: "800px",
+    maxWidth: "90%",
+  };
+  // const baseValue = 10000000;
+  const getBaseValue = (data) => {
+    // Check the maximum value in the selected measure
+    const maxValue = Math.max(...data.map((item) => item[selectedBarData?.measure] || 0));
+
+    // Set baseValue based on the maximum value found
+    if (maxValue <= 100000) {
+      return 100000; // Set to 100000 if the max value is less than or equal to 100000
+    } else if (maxValue <= 1000000) {
+      return 1000000; // Set to 1000000 if the max value is less than or equal to 1,000,000
+    } else if (maxValue <= 10000000) {
+      return 10000000; // Set to 10,000,000 if the max value is less than or equal to 10,000,000
+    } else {
+      return 100000000; // Set to 100,000,000 otherwise
+    }
+  };
+
+  const baseValue = getBaseValue(fetchedData);
+
+  return (
+    <>
+      <Bar data={chartData} options={options} ref={chartRef} />
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        fullWidth
+        PaperProps={{ style: dialogStyles }}
+      >
+        <DialogContent>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3>Data for {selectedBarData?.clickedLabel || "Unknown"}</h3>
+            <select
+              onChange={(e) => handleTimeWindowChange(e.target.value)}
+              value={timeWindow}
+              style={{ padding: "8px", fontSize: "14px", width: "120px" }}
+            >
+              <option value="W">Weekly</option>
+              <option value="M">Monthly</option>
+              <option value="Q">Quarterly</option>
+            </select>
+          </div>
+          {fetchedData.length > 0 ? (
+            <Bar
+              data={{
+                labels: fetchedData.map(
+                  (item) => item.Month || item.Quarter || item.Week || "Unknown"
+                ), // Custom x-axis labels
+                datasets: [
+                  {
+                    label: selectedBarData?.measure || "Data",
+                    data: fetchedData.map((item) => item[selectedBarData?.measure] || 0),
+                    // data: fetchedData.map((item) => {
+                    //   const value = item[selectedBarData?.measure] || 0;
+                    //   // Calculate the percentage value based on the base value
+                    //   return ((value / baseValue) * 100).toFixed(0); // Get percentage and round to nearest whole number
+                    // }),
+                    datalabels: {
+                      display: true, // Show data labels
+                      color: "black", // Customize the color
+                      formatter: (value) => {
+                        return ((value / baseValue) * 100).toFixed(0);
+                      },
+                    },
+                    backgroundColor: "rgba(75, 192, 192, 0.6)",
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  title: {
+                    display: true,
+                    // text: `Data for ${selectedBarData?.clickedLabel || "Unknown"}`,
+                  },
+                  legend: { display: false },
+                  //           datalabels: {
+                  //   display: true, // Show data labels
+                  //   color: "black", // Customize the color
+                  //   formatter: (value) => {
+                  //     return value.toFixed(1); // Round to 2 decimal places
+                  //   },
+                  // },
+                  datalabels: {
+                    display: true, // Show data labels
+                    color: "black", // Customize the color
+                    formatter: (value) => {
+                      console.log(value); // Check the value being passed
+                      return Number(value).toFixed(2);
+                    },
+                  },
+                },
+                scales: {
+                  x: {
+                    grid: { display: false },
+                    ticks: {
+                      // Return the labels directly from the data provided
+                      callback: (value, index) => {
+                        return fetchedData[index]
+                          ? fetchedData[index].Month ||
+                              fetchedData[index].Quarter ||
+                              fetchedData[index].Week ||
+                              "Unknown"
+                          : value;
+                      },
+                    },
+                  },
+                  y: {
+                    beginAtZero: true,
+                    ticks: { callback: formatValue }, // Assuming formatValue is defined elsewhere
+                  },
+                },
+              }}
+            />
+          ) : (
+            <p>No data available for the selected time window.</p>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 };
 
 export default GraphScenario1Chart;

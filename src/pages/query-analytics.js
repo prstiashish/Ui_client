@@ -32,9 +32,6 @@ import SessionStorageService from "src/utils/browser-storage/session";
 
 import Cookies from "js-cookie";
 
-
-
-
 const App = () => {
   const [loadingStates, setLoadingStates] = useState([]); // Track loading states for each chart
 
@@ -44,7 +41,7 @@ const App = () => {
 
   const [chartDataSets, setChartDataSets] = useState([]);
   const [currentData, setCurrentData] = useState(null);
-  console.log(currentData, "lllllllllll");
+  // console.log(currentData, "lllllllllll");
   const [payload, setPayload] = useState(null);
 
   const [chartDataList, setChartDataList] = useState([]);
@@ -71,6 +68,10 @@ const App = () => {
     setOpenModal(true);
   };
   const handleCloseModal = () => setOpenModal(false);
+
+  // for periodic tale
+  const [chartPayload, setChartPayload] = useState(null); // State to store the payload
+  console.log(chartPayload, "chartPayload");
 
   // worlignn
 
@@ -183,6 +184,7 @@ const App = () => {
           categoryPercentage: 0.8,
           maxBarThickness: 50,
           data: values,
+          measureName: measure, // Include the measure name here
         },
       ],
       // chartOptions: {
@@ -218,83 +220,102 @@ const App = () => {
       // },
     };
 
-    console.log(result, "resultttt");
+    // console.log(result, "resultttt");
     // return result;
     return { ...result, title, xLabel, yLabel };
   }
 
+  // function scenario2(data, dimension, measure, itemsToStack) {
+
+  //   let labels = [];
+  //   let dataSets = [];
+
+  //   const colors = [
+  //     "#FFA07A", // Light Salmon (Soft orange-pink)
+  //     "#A4D6A8",
+  //     "#87CEFA", // Light Sky Blue (Calm blue)
+  //     "#98FB98", // Pale Green (Soft green)
+
+  //     "#F08080", // Light Coral (Soft red)
+  //     "#FFB6C1", // Light Pink (Soft and delicate)
+  //   ];
+
+  //   console.log(itemsToStack, "itemsToStack");
+
+  //   // Create a dataset for each stackable item
+  //   itemsToStack.forEach((item, index) => {
+  //     dataSets.push({
+  //       label: item.label,
+  //       // measure: item.measure,
+  //       backgroundColor: colors[index % colors.length], // Apply the shades
+  //       borderColor: colors[index % colors.length], // Border color
+  //       hoverBackgroundColor: colors[index % colors.length], // Keep the same color on hover
+  //       hoverBorderColor: colors[index % colors.length], // Keep the same border color on hover
+  //       data: [], // Breakdown data
+  //       stack: "stack1",
+  //     });
+  //   });
+
+  //   // Process each data point
+  //   data.forEach((d) => {
+  //     labels.push(d[dimension]); // Set labels for x-axis
+  //     let cumulativeValue = 0;
+
+  //     // Calculate and store values for each stackable item
+  //     itemsToStack.forEach((item, idx) => {
+  //       const itemValue = d[item.itemKey] || 0;
+  //       dataSets[idx].data.push(itemValue);
+  //       cumulativeValue += itemValue;
+  //     });
+
+  //   });
+
+  //   return {
+  //     labels,
+  //     datasets: dataSets,
+  //   };
+  // }
+
   function scenario2(data, dimension, measure, itemsToStack) {
-    // console.log(measure, "mmm");
-    console.log(data, "datadatadatadata");
     let labels = [];
     let dataSets = [];
 
-    // const colors = [
-    //   "#A4D6A8", // Light Green
-    //   "#F2B2B1", // Light Red
-    //   "#FFE6B5", // Light Purple
-    // ];
     const colors = [
-      "#FFA07A", // Light Salmon (Soft orange-pink)
+      "#FFA07A", // Light Salmon
       "#A4D6A8",
-      "#87CEFA", // Light Sky Blue (Calm blue)
-      "#98FB98", // Pale Green (Soft green)
-
-      "#F08080", // Light Coral (Soft red)
-      "#FFB6C1", // Light Pink (Soft and delicate)
+      "#87CEFA", // Light Sky Blue
+      "#FFB6C1", // Light Pink
+      "#98FB98", // Pale Green
+      "#F08080", // Light Coral
     ];
-
-    console.log(itemsToStack, "itemsToStack");
 
     // Create a dataset for each stackable item
     itemsToStack.forEach((item, index) => {
       dataSets.push({
         label: item.label,
-        // measure: item.measure,
         backgroundColor: colors[index % colors.length], // Apply the shades
         borderColor: colors[index % colors.length], // Border color
         hoverBackgroundColor: colors[index % colors.length], // Keep the same color on hover
         hoverBorderColor: colors[index % colors.length], // Keep the same border color on hover
         data: [], // Breakdown data
+        percentageData: [],
         stack: "stack1",
       });
     });
-
-    // Add the Margin dataset
-    // dataSets.push({
-    //   label: "Margin",
-    //   backgroundColor: "#F2B2B1",
-    //   borderColor: "#F2B2B1",
-    //   hoverBackgroundColor: "#F2B2B1",
-    //   hoverBorderColor: "#F2B2B1",
-    //   data: [], // Margin data
-    //   stack: "stack1",
-    // });
 
     // Process each data point
     data.forEach((d) => {
       labels.push(d[dimension]); // Set labels for x-axis
 
-      // Retrieve total sales for the current data point
-      const totalSales = d[measure] || 0;
-
-      // Calculate cumulative value from breakdown items
-      let cumulativeValue = 0;
-
       // Calculate and store values for each stackable item
       itemsToStack.forEach((item, idx) => {
-        const itemValue = d[item.itemKey] || 0;
-        dataSets[idx].data.push(itemValue);
-        cumulativeValue += itemValue;
+        const itemValue = d[item.itemKey] || 0; // Use value from fetched data
+        const percentageValue = d[item.percentageKey] || 0; // Use percentage from fetched data
+
+        dataSets[idx].data.push(itemValue); // Push the actual values for the bar
+        dataSets[idx].percentageData.push(percentageValue);
       });
-
-      // Calculate the margin for the current data point
-      // const margin = totalSales - cumulativeValue;
-
-      // Update the Margin dataset with the calculated margin
-      // dataSets[dataSets.length - 1].data.push(margin); // Append margin value
     });
-    console.log(dataSets, "dddddddddddd");
 
     return {
       labels,
@@ -302,134 +323,61 @@ const App = () => {
     };
   }
 
-  function scenario3(data, dimension, measure) {
-    console.log("dataaa", data); // Debugging output
-
-    const topLabels = Object.keys(data); // Get all dimension labels
-    const allItems = []; // To hold unique items for the specified dimension
-    const datasets = []; // To hold datasets for the chart
-
-    const colors = [
-      "#A0C6E0", // Light Blue
-      "#FFD2A6", // Light Orange
-      "#A4D6A8", // Light Green
-      "#F2B2B1", // Light Red
-      "#D5C3E8", // Light Purple
-      "#D2BFA2", // Light Brown
-      "#F2A6C8", // Light Pink
-      "#BEBEBE", // Light Gray
-      "#D8D95B", // Light Olive
-      "#A3E6E5", // Light Cyan
-      "#C4D6E9", // Soft Blue
-      "#FFE6B5", // Soft Orange
-      "#B5E1B5", // Soft Green
-      "#FFB3B1", // Soft Red
-      "#D6B9E8", // Soft Lavender
-      "#E1C6B0", // Soft Tan
-      "#F9C3D0", // Soft Blush
-      "#D7D7D7", // Light Gray
-      "#E3E3A5", // Light Olive
-      "#B0E4E3", // Soft Teal
-      "#F2D6C1", // Soft Peach
-    ];
-
-    const colorMap = {}; // To store colors for each unique item
-
-    // Iterate through each dimension label
-    topLabels.forEach((label) => {
-      data[label].forEach((item) => {
-        const itemValue = item[dimension]; // Get the value for the specified dimension
-        const itemMeasure = item[measure]; // Get the measure value
-
-        // Check if the item already exists and find its index
-        const itemIdx = allItems.findIndex((i) => i === itemValue);
-
-        if (itemIdx > -1) {
-          // Item exists, push the measure value into the existing dataset
-          datasets[itemIdx].data.push(itemMeasure);
-        } else {
-          // Item does not exist, create a new entry
-          allItems.push(itemValue); // Add the new item value
-          datasets.push({
-            label: itemValue, // Assign the label for the dataset
-            data: [itemMeasure], // Initialize with the measure value
-            backgroundColor: colors[allItems.length % colors.length], // Assign color
-          });
-        }
-      });
-    });
-
-    // Fill in empty data arrays for missing items across different groups
-    datasets.forEach((dataset) => {
-      dataset.data.length = topLabels.length; // Ensure the dataset length matches the number of labels
-      dataset.data.fill(0); // Fill with zeros initially
-    });
-
-    // Re-populate datasets with the actual measure values
-    topLabels.forEach((label, labelIndex) => {
-      data[label].forEach((item) => {
-        const itemValue = item[dimension];
-        const datasetIndex = allItems.indexOf(itemValue);
-        if (datasetIndex > -1) {
-          datasets[datasetIndex].data[labelIndex] = item[measure]; // Assign the measure value
-        }
-      });
-    });
-
-    return {
-      labels: topLabels, // Labels for each dimension
-      datasets: datasets, // Datasets for the chart
-    };
-  }
-
-  // function scenario3(data, dimension, measure, startDate, endDate) {
-  //   console.log("Data received:", data); // Debugging output
+  // function scenario3(data, dimension, measure) {
+  //   console.log("dataaa", data); // Debugging output
 
   //   const topLabels = Object.keys(data); // Get all dimension labels
   //   const allItems = []; // To hold unique items for the specified dimension
   //   const datasets = []; // To hold datasets for the chart
 
-  //   // Define colors for datasets
   //   const colors = [
-  //     "#A0C6E0", "#FFD2A6", "#A4D6A8", "#F2B2B1",
-  //     "#D5C3E8", "#D2BFA2", "#F2A6C8", "#BEBEBE",
-  //     "#D8D95B", "#A3E6E5", "#C4D6E9", "#FFE6B5",
-  //     "#B5E1B5", "#FFB3B1", "#D6B9E8", "#E1C6B0",
-  //     "#F9C3D0", "#D7D7D7", "#E3E3A5", "#B0E4E3",
-  //     "#F2D6C1",
+  //     "#A0C6E0", // Light Blue
+  //     "#FFD2A6", // Light Orange
+  //     "#A4D6A8", // Light Green
+  //     "#F2B2B1", // Light Red
+  //     "#D5C3E8", // Light Purple
+  //     "#D2BFA2", // Light Brown
+  //     "#F2A6C8", // Light Pink
+  //     "#BEBEBE", // Light Gray
+  //     "#D8D95B", // Light Olive
+  //     "#A3E6E5", // Light Cyan
+  //     "#C4D6E9", // Soft Blue
+  //     "#FFE6B5", // Soft Orange
+  //     "#B5E1B5", // Soft Green
+  //     "#FFB3B1", // Soft Red
+  //     "#D6B9E8", // Soft Lavender
+  //     "#E1C6B0", // Soft Tan
+  //     "#F9C3D0", // Soft Blush
+  //     "#D7D7D7", // Light Gray
+  //     "#E3E3A5", // Light Olive
+  //     "#B0E4E3", // Soft Teal
+  //     "#F2D6C1", // Soft Peach
   //   ];
 
   //   const colorMap = {}; // To store colors for each unique item
 
   //   // Iterate through each dimension label
   //   topLabels.forEach((label) => {
-  //     // Check if data[label] is an array
-  //     if (!Array.isArray(data[label])) {
-  //       console.error(`Expected an array for data[${label}], but got:`, data[label]);
-  //       return; // Skip this iteration or handle it accordingly
-  //     }
-
   //     data[label].forEach((item) => {
-  //       const itemDate = new Date(item.date); // Assuming there's a date property
-  //       if (itemDate >= startDate && itemDate <= endDate) { // Check date range
-  //         const itemValue = item[dimension]; // Get the value for the specified dimension
-  //         const itemMeasure = item[measure]; // Get the measure value
+  //       const itemValue = item[dimension]; // Get the value for the specified dimension
+  //       const itemMeasure = item[measure]; // Get the measure value
 
-  //         // Check if the item already exists and find its index
-  //         const itemIdx = allItems.findIndex((i) => i === itemValue);
+  //       // Check if the item already exists and find its index
+  //       const itemIdx = allItems.findIndex((i) => i === itemValue);
 
-  //         if (itemIdx > -1) {
-  //           // Item exists, push the measure value into the existing dataset
-  //           datasets[itemIdx].data.push(itemMeasure);
-  //         } else {
-  //           // Item does not exist, create a new entry
-  //           allItems.push(itemValue); // Add the new item value
-  //           datasets.push({
-  //             label: itemValue, // Assign the label for the dataset
-  //             data: [itemMeasure], // Initialize with the measure value
-  //             backgroundColor: colors[allItems.length % colors.length], // Assign color
-  //           });
-  //         }
+  //       if (itemIdx > -1) {
+  //         // Item exists, push the measure value into the existing dataset
+  //         datasets[itemIdx].data.push(itemMeasure);
+  //       } else {
+  //         // Item does not exist, create a new entry
+  //         allItems.push(itemValue); // Add the new item value
+  //         datasets.push({
+  //           // `${stack} - ${itemConfig.label}`
+  //           // label: itemValue, // Assign the label for the dataset
+  //           label: `${itemValue} - ${measure}`,
+  //           data: [itemMeasure], // Initialize with the measure value
+  //           backgroundColor: colors[allItems.length % colors.length], // Assign color
+  //         });
   //       }
   //     });
   //   });
@@ -442,19 +390,11 @@ const App = () => {
 
   //   // Re-populate datasets with the actual measure values
   //   topLabels.forEach((label, labelIndex) => {
-  //     if (!Array.isArray(data[label])) {
-  //       console.error(`Expected an array for data[${label}], but got:`, data[label]);
-  //       return; // Skip this iteration or handle it accordingly
-  //     }
-
   //     data[label].forEach((item) => {
-  //       const itemDate = new Date(item.date); // Assuming there's a date property
-  //       if (itemDate >= startDate && itemDate <= endDate) { // Check date range
-  //         const itemValue = item[dimension];
-  //         const datasetIndex = allItems.indexOf(itemValue);
-  //         if (datasetIndex > -1) {
-  //           datasets[datasetIndex].data[labelIndex] = item[measure]; // Assign the measure value
-  //         }
+  //       const itemValue = item[dimension];
+  //       const datasetIndex = allItems.indexOf(itemValue);
+  //       if (datasetIndex > -1) {
+  //         datasets[datasetIndex].data[labelIndex] = item[measure]; // Assign the measure value
   //       }
   //     });
   //   });
@@ -465,28 +405,65 @@ const App = () => {
   //   };
   // }
 
+  function scenario3(data, dimension, measure) {
+    const topLabels = Object.keys(data); // Get all dimension labels
+    const allItems = []; // To hold unique items for the specified dimension
+    const datasets = []; // To hold datasets for the chart
 
+    const colors = [
+      "#A0C6E0",
+      "#FFD2A6",
+      "#A4D6A8",
+      "#F2B2B1",
+      "#D5C3E8",
+      "#D2BFA2",
+      "#F2A6C8",
+      "#BEBEBE",
+      "#D8D95B",
+      "#A3E6E5",
+      "#C4D6E9",
+      "#FFE6B5",
+      "#B5E1B5",
+      "#FFB3B1",
+      "#D6B9E8",
+      "#E1C6B0",
+      "#F9C3D0",
+      "#D7D7D7",
+      "#E3E3A5",
+      "#B0E4E3",
+      "#F2D6C1",
+    ];
 
+    const colorMap = {}; // To store colors for each unique item
 
+    // Iterate through each dimension label
+    topLabels.forEach((label, labelIndex) => {
+      if (Array.isArray(data[label])) {
+        data[label].forEach((item) => {
+          const itemValue = item[dimension]; // Properly define itemValue here
+          const itemMeasure = item[measure]; // Also capture the measure value
+          const datasetIndex = allItems.indexOf(itemValue);
 
-  function shadeColor(color, percent) {
-    const num = parseInt(color.slice(1), 16),
-      amt = Math.round(2.55 * percent),
-      R = (num >> 16) + amt,
-      G = ((num >> 8) & 0x00ff) + amt,
-      B = (num & 0x0000ff) + amt;
-    return (
-      "#" +
-      (
-        0x1000000 +
-        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-        (B < 255 ? (B < 1 ? 0 : B) : 255)
-      )
-        .toString(16)
-        .slice(1)
-        .toUpperCase()
-    );
+          if (datasetIndex > -1) {
+            datasets[datasetIndex].data[labelIndex] = itemMeasure; // Update the existing dataset
+          } else {
+            // Item does not exist, create a new entry
+            allItems.push(itemValue); // Add the new item value
+            datasets.push({
+              label: `${itemValue} - ${measure}`,
+              data: Array(topLabels.length).fill(0), // Initialize the data array with 0s
+              backgroundColor: colors[allItems.length % colors.length], // Assign a color
+            });
+            datasets[datasets.length - 1].data[labelIndex] = itemMeasure; // Add the measure value at the correct position
+          }
+        });
+      }
+    });
+
+    return {
+      labels: topLabels, // Labels for each dimension
+      datasets: datasets, // Datasets for the chart
+    };
   }
 
   // for color 1st
@@ -587,42 +564,44 @@ const App = () => {
   //   };
   // }
 
-  function scenario4(data, dimension, measure, itemsToStack) {
-    console.log("Input Data:", data);
-    console.log("Measure:", measure);
+  // working without percentage
 
+  //
+
+  // geting somtie error
+
+  function scenario4(data, dimension, measure, itemsToStack) {
     const topLabels = Object.keys(data); // Get all dimension labels
     const stacks = []; // To hold unique stacks for the specified dimension
     const datasets = []; // To hold datasets for the chart
     const values = []; // To hold final data values
 
-    // Define a set of distinct colors for each measure
-    // const colorPalette = [
-    //   "#A0C6E0", // Light Blue
-    //   "#FFD2A6", // Light Orange
-    //   "#A4D6A8", // Light Green
-    //   "#F2B2B1", // Light Red
-    //   "#D5C3E8", // Light Purple
-    //   "#D2BFA2", // Light Brown
-    //   "#F2A6C8", // Light Pink
-    //   "#BEBEBE", // Light Gray
-    //   "#D8D95B", // Light Olive
-    //   "#A3E6E5", // Light Cyan
-    // ];
-
     const colorPalette = [
-      "#FFA07A", // Light Salmon (Soft orange-pink)
+      "#FFA07A", // Light Salmon
       "#A4D6A8",
-      "#87CEFA", // Light Sky Blue (Calm blue)
-      "#98FB98", // Pale Green (Soft green)
-
-      "#F08080", // Light Coral (Soft red)
-      "#FFB6C1", // Light Pink (Soft and delicate)
+      "#87CEFA", // Light Sky Blue
+      "#FFB6C1", // Light Pink
+      "#98FB98", // Pale Green
+      "#F08080", // Light Coral
     ];
+
+    // chned this to beloe array
+
+    // Sort each dimension's data by rank
+    // topLabels.forEach((label) => {
+    //   data[label] = (data[label] || []).sort((a, b) => (a.rank || 0) - (b.rank || 0));
+    //   console.log(`Sorted data for ${label}:`, data[label]); // Log sorted data for each label
+    // });
 
     // Sort each dimension's data by rank
     topLabels.forEach((label) => {
-      data[label] = (data[label] || []).sort((a, b) => (a.rank || 0) - (b.rank || 0));
+      // Ensure data[label] is an array
+      if (!Array.isArray(data[label])) {
+        console.warn(`data[${label}] is not an array. Received:`, data[label]);
+        data[label] = []; // Fallback to an empty array if it's not an array
+      }
+      data[label] = data[label].sort((a, b) => (a.rank || 0) - (b.rank || 0));
+      console.log(`Sorted data for ${label}:`, data[label]); // Log sorted data for each label
     });
 
     // Iterate through each label to create stacks
@@ -634,6 +613,10 @@ const App = () => {
           // Update existing stack
           itemsToStack.forEach((itemConfig, iIdx) => {
             datasets[stackIndex][iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
+            // console.log(
+            //   `Updated existing stack: ${item[dimension]}, ${itemConfig.itemKey}:`,
+            //   datasets[stackIndex][iIdx][labelIdx]
+            // );
           });
         } else {
           // Create new stack
@@ -646,6 +629,7 @@ const App = () => {
 
           itemsToStack.forEach((itemConfig, iIdx) => {
             newStackData[iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
+            // console.log(`New stack created for ${item[dimension]}:`, newStackData);
           });
 
           datasets.push(newStackData);
@@ -654,23 +638,53 @@ const App = () => {
     });
 
     // Create dataset for each stack
+    // Create dataset for each stack
     stacks.forEach((stack, stackIdx) => {
       itemsToStack.forEach((itemConfig, itemIdx) => {
         const dataForItem = datasets[stackIdx][itemIdx] || [];
         const hasNonZeroValue = dataForItem.some((value) => value !== 0);
 
+        // console.log(
+        //   `Data for stack: ${stack}, item: ${itemConfig.label}, has non-zero value: ${hasNonZeroValue}`,
+        //   dataForItem
+        // );
+
         if (hasNonZeroValue) {
           const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
 
+          // Calculate percentageData
+          const percentageData = dataForItem.map((_, idx) => {
+            const originalData = data[topLabels[idx]]; // Fetch original data using label index
+            if (!originalData) {
+              console.log(`Original data missing for top label ${topLabels[idx]}`);
+            }
+            const originalItem = originalData ? originalData[stackIdx] : undefined; // Adjust the index to safely access
+            if (!originalItem) {
+              console.log(
+                `Original item missing for ${stack} at index ${idx} and stackIdx ${stackIdx}`
+              );
+            }
+            const percentageValue = originalItem ? originalItem[itemConfig.percentageKey] : 0; // Return the percentage value or 0
+            // console.log(
+            //   `Calculating percentage for ${stack}, topLabel: ${topLabels[idx]}, percentageValue: ${percentageValue}`
+            // );
+            return percentageValue;
+          });
+
+          // console.log(`Final percentage data for ${stack} - ${itemConfig.label}:`, percentageData);
+
           values.push({
-            label: itemConfig.label, // Use the label directly from itemConfig
+            label: `${stack} - ${itemConfig.label}`, // Dimension (stack) and label combined
             backgroundColor: baseColor, // Use the base color for the stack
             data: dataForItem,
-            stack: stack,
+            stack: stack, // This remains the same
+            percentageData: percentageData, // Include percentageData
           });
         }
       });
     });
+
+    // console.log("Final values to return:", values);
 
     return {
       labels: topLabels, // Labels for each dimension
@@ -678,47 +692,27 @@ const App = () => {
     };
   }
 
-
-
-
-  // Helper function to adjust color brightness
-
-  // woking
+  // yes
   // function scenario4(data, dimension, measure, itemsToStack) {
-  //   console.log("scenario444444444dataa", data);
-  //   console.log(measure, "mmmmmmm");
+  //   // console.log("Input Data:", data);
+  //   // console.log("Measure:", measure);
+
   //   const topLabels = Object.keys(data); // Get all dimension labels
+  //   const stacks = []; // To hold unique stacks for the specified dimension
+  //   const datasets = []; // To hold datasets for the chart
+  //   const values = []; // To hold final data values
 
-  //   let stacks = []; // To hold unique stacks for the specified dimension
-  //   let datasets = []; // To hold datasets for the chart
-  //   let values = []; // To hold final data values
+  //   const colorPalette = [
+  //     "#FFA07A", // Light Salmon (Soft orange-pink)
+  //     "#A4D6A8",
+  //     "#87CEFA", // Light Sky Blue (Calm blue)
+  //     "#98FB98", // Pale Green (Soft green)
 
-  //   // Predefined color palette
-  //   const colors = [
-  //     "#A0C6E0", // Light Blue
-  //     "#FFD2A6", // Light Orange
-  //     "#A4D6A8", // Light Green
-  //     "#F2B2B1", // Light Red
-  //     "#D5C3E8", // Light Purple
-  //     "#D2BFA2", // Light Brown
-  //     "#F2A6C8", // Light Pink
-  //     "#BEBEBE", // Light Gray
-  //     "#D8D95B", // Light Olive
-  //     "#A3E6E5", // Light Cyan
-  //     "#C4D6E9", // Soft Blue
-  //     "#FFE6B5", // Soft Orange
-  //     "#B5E1B5", // Soft Green
-  //     "#FFB3B1", // Soft Red
-  //     "#D6B9E8", // Soft Lavender
-  //     "#E1C6B0", // Soft Tan
-  //     "#F9C3D0", // Soft Blush
-  //     "#D7D7D7", // Light Gray
-  //     "#E3E3A5", // Light Olive
-  //     "#B0E4E3", // Soft Teal
-  //     "#F2D6C1", // Soft Peach
+  //     "#F08080", // Light Coral (Soft red)
+  //     "#FFB6C1", // Light Pink (Soft and delicate)
   //   ];
 
-  //   // Process and sort each dimension's data by rank
+  //   // Sort each dimension's data by rank
   //   topLabels.forEach((label) => {
   //     data[label] = (data[label] || []).sort((a, b) => (a.rank || 0) - (b.rank || 0));
   //   });
@@ -726,83 +720,70 @@ const App = () => {
   //   // Iterate through each label to create stacks
   //   topLabels.forEach((label, labelIdx) => {
   //     (data[label] || []).forEach((item) => {
-  //       const stackIdx = stacks.findIndex((i) => i === item[dimension]);
+  //       const stackIndex = stacks.findIndex((i) => i === item[dimension]);
 
-  //       if (stackIdx > -1) {
+  //       if (stackIndex > -1) {
   //         // Update existing stack
-  //         itemsToStack.forEach((i, iIdx) => {
-  //           datasets[stackIdx][iIdx][labelIdx] = item[i] || 0; // Ensure fallback to zero
+  //         itemsToStack.forEach((itemConfig, iIdx) => {
+  //           datasets[stackIndex][iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
   //         });
   //       } else {
   //         // Create new stack
   //         stacks.push(item[dimension]);
 
   //         // Initialize new array for this stack
-  //         let ar = Array(itemsToStack.length)
+  //         const newStackData = Array(itemsToStack.length)
   //           .fill(0)
   //           .map(() => Array(topLabels.length).fill(0));
-  //         itemsToStack.forEach((i, iIdx) => {
-  //           ar[iIdx][labelIdx] = item[i] || 0; // Ensure fallback to zero
+
+  //         itemsToStack.forEach((itemConfig, iIdx) => {
+  //           newStackData[iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
   //         });
-  //         datasets.push(ar);
+
+  //         datasets.push(newStackData);
   //       }
   //     });
   //   });
 
-  //   // Create final dataset for each stack
+  //   // Create dataset for each stack
   //   // stacks.forEach((stack, stackIdx) => {
-  //   //     itemsToStack.forEach((item, itemIdx) => {
-  //   //         const dataForItem = datasets[stackIdx]?.[itemIdx] || [];
-  //   //         const hasNonZeroValue = dataForItem.some((value) => value !== 0);
+  //   //   itemsToStack.forEach((itemConfig, itemIdx) => {
+  //   //     const dataForItem = datasets[stackIdx][itemIdx] || [];
+  //   //     const hasNonZeroValue = dataForItem.some((value) => value !== 0);
 
-  //   //         if (hasNonZeroValue) {
-  //   //             const baseColor = colors[stackIdx % colors.length];
+  //   //     if (hasNonZeroValue) {
+  //   //       const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
 
-  //   //             values.push({
-  //   //                 label: `${stack}: ${item}`,
-  //   //                 backgroundColor: baseColor, // Use the base color for the stack
-  //   //                 data: dataForItem,
-  //   //                 stack: stack,
-  //   //             });
-  //   //         }
-  //   //     });
+  //   //       values.push({
+  //   //         label: itemConfig.label, // Use the label directly from itemConfig
+  //   //         backgroundColor: baseColor, // Use the base color for the stack
+  //   //         data: dataForItem,
+  //   //         stack: stack,
+  //   //       });
+  //   //     }
+  //   //   });
   //   // });
 
   //   stacks.forEach((stack, stackIdx) => {
-  //     let marginValues = Array(topLabels.length).fill(0);
-
-  //     topLabels.forEach((label, labelIdx) => {
-  //       const totalSales = (data[label] || []).find((item) => item[dimension] === stack)?.[measure] || 0;
-  //       let totalCost = 0;
-
-  //       itemsToStack.forEach((item, itemIdx) => {
-  //         totalCost += (datasets[stackIdx]?.[itemIdx] || []).reduce((a, b) => a + (b || 0), 0); // Sum up costs
-  //       });
-
-  //       marginValues[labelIdx] = totalSales - totalCost;
-
-  //     });
-
-  //     // Add margin values to the last dataset
-  //     datasets[stackIdx].push(marginValues);
-
-  //     // Create dataset for each stack
-  //     itemsToStack.concat("Margin").forEach((item, itemIdx) => {
+  //     itemsToStack.forEach((itemConfig, itemIdx) => {
   //       const dataForItem = datasets[stackIdx][itemIdx] || [];
   //       const hasNonZeroValue = dataForItem.some((value) => value !== 0);
 
   //       if (hasNonZeroValue) {
-  //         const baseColor = colors[stackIdx % colors.length];
+  //         const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
 
   //         values.push({
-  //           label: `${stack}: ${item}`,
+  //           // Include both the dimension (stack) and item label in the label property
+  //           label: `${stack} - ${itemConfig.label}`, // Dimension (stack) and label combined
   //           backgroundColor: baseColor, // Use the base color for the stack
   //           data: dataForItem,
-  //           stack: stack,
+  //           stack: stack, // This remains the same
   //         });
   //       }
   //     });
   //   });
+
+  //   // console.log(datasets, "444444444444444");
 
   //   return {
   //     labels: topLabels, // Labels for each dimension
@@ -910,6 +891,7 @@ const App = () => {
   };
 
   const processFetchedData = (fetchedData, receivedPayload) => {
+    // console.log("fetchedData", fetchedData);
     const { dimension, measure, includeCOGS, partition } = receivedPayload;
     let generatedChartData;
     let chartTitle = "";
@@ -927,14 +909,45 @@ const App = () => {
         chartDimension = getChartDimenion(dimensionKey, 1);
         scenario = 1;
       } else if (includeCOGS && partition === "None") {
+        // generatedChartData = scenario2(fetchedData, dimensionKey, measure, [
+        //   { label: "Materials Cost", itemKey: "Materials_Cost" },
+        //   { label: "Channel Commission", itemKey: "Channel_Commission" },
+        //   { label: "Discounts", itemKey: "Discounts" },
+        //   { label: "Supplies Cost", itemKey: "Supplies_Cost" },
+        //   { label: "Margin", itemKey: "Margin" },
+        //   // { label: "Channel Commission", itemKey: "Channel_Commission" },
+
+        // ]);
+
         generatedChartData = scenario2(fetchedData, dimensionKey, measure, [
-          { label: "Materials Cost", itemKey: "Materials_Cost" },
-          { label: "Channel Commission", itemKey: "Channel_Commission" },
-          { label: "Discounts", itemKey: "Discounts" },
-          { label: "Supplies Cost", itemKey: "Supplies_Cost" },
-          { label: "Margin", itemKey: "Margin" },
-          // { label: "Channel Commission", itemKey: "Channel_Commission" },
+          {
+            label: "Materials Cost",
+            itemKey: "Materials_Cost",
+            percentageKey: "MATERIAL_COST_to_Gross_Amount",
+          },
+          {
+            label: "Channel Commission",
+            itemKey: "Channel_Commission",
+            percentageKey: "CHANNEL_COMMISSION_to_Gross_Amount",
+          },
+          {
+            label: "Discounts",
+            itemKey: "Discounts",
+            percentageKey: "DISCOUNT_COST_to_Gross_Amount",
+          },
+          {
+            label: "Supplies Cost",
+            itemKey: "Supplies_Cost",
+            percentageKey: "SUPPLIES_COST_to_Gross_Amount",
+          },
+          {
+            label: "Shipping Cost",
+            itemKey: "Shipping_Cost",
+            percentageKey: "SHIPPING_COST_to_Gross_Amount",
+          },
+          { label: "Margin", itemKey: "Margin", percentageKey: "Margin_to_Gross_Amount" },
         ]);
+
         chartTitle = getChartTitle(dimensionKey, measure, includeCOGS, partition, 2);
         chartDimension = getChartDimenion(dimensionKey, 2);
         scenario = 2;
@@ -944,25 +957,53 @@ const App = () => {
         chartDimension = getChartDimenion(dimensionKey, 3);
         scenario = 3;
       } else if (includeCOGS && partition !== "None") {
-        generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
-          // "Materials_Cost",
-          // "Channel_Commission",
-          // "Discounts",
-          // "Supplies_Cost",
-          // "Margin"
-          { label: "Materials Cost", itemKey: "Materials_Cost" },
-          { label: "Channel Commission", itemKey: "Channel_Commission" },
-          { label: "Discounts", itemKey: "Discounts" },
-          { label: "Supplies Cost", itemKey: "Supplies_Cost" },
-          { label: "Margin", itemKey: "Margin" },
+        // generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
+        //   // "Materials_Cost",
+        //   // "Channel_Commission",
+        //   // "Discounts",
+        //   // "Supplies_Cost",
+        //   // "Margin"
+        //   { label: "Materials Cost", itemKey: "Materials_Cost" },
+        //   { label: "Channel Commission", itemKey: "Channel_Commission" },
+        //   { label: "Discounts", itemKey: "Discounts" },
+        //   { label: "Supplies Cost", itemKey: "Supplies_Cost" },
+        //   { label: "Margin", itemKey: "Margin" },
+        // ]);
 
+        generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
+          {
+            label: "Materials Cost",
+            itemKey: "Materials_Cost",
+            percentageKey: "MATERIAL_COST_to_Gross_Amount",
+          },
+          {
+            label: "Channel Commission",
+            itemKey: "Channel_Commission",
+            percentageKey: "CHANNEL_COMMISSION_to_Gross_Amount",
+          },
+          {
+            label: "Discounts",
+            itemKey: "Discounts",
+            percentageKey: "DISCOUNT_COST_to_Gross_Amount",
+          },
+          {
+            label: "Supplies Cost",
+            itemKey: "Supplies_Cost",
+            percentageKey: "SUPPLIES_COST_to_Gross_Amount",
+          },
+          {
+            label: "Shipping Cost",
+            itemKey: "Shipping_Cost",
+            percentageKey: "SHIPPING_COST_to_Gross_Amount",
+          },
+          { label: "Margin", itemKey: "Margin", percentageKey: "Margin_to_Gross_Amount" },
         ]);
         chartTitle = getChartTitle(dimensionKey, measure, includeCOGS, partition, 4);
         chartDimension = getChartDimenion(dimensionKey, 4);
         scenario = 4;
       }
 
-      console.log("Determined Scenario:", scenario);
+      // console.log("Determined Scenario:", scenario);
 
       // Check for duplicates before adding
       if (generatedChartData) {
@@ -1039,15 +1080,18 @@ const App = () => {
 
   const [endDate, setEndDate] = useState(null);
 
+  // ===========================================
+
+  // kokoko
+
   const handleSubmit = async (data, receivedPayload) => {
     console.log("Data:", data);
-    console.log("Received Payloadddddeeeeeeeeeee:", receivedPayload);
+    console.log("Received Payload:", receivedPayload);
+    setChartPayload(receivedPayload);
     const { start_date, end_date } = receivedPayload;
-    // console.log(start_date, "startDateeeeeeeeeeeee");
-    // console.log(end_date, "endDateeeeeeeeee");
-    // setStartDate(start_date);
-    // setEndDate(end_date);
 
+    setStartDate(start_date);
+    setEndDate(end_date);
     // Create a new chart object
     const newChart = {
       id: Date.now(), // Unique ID for each chart
@@ -1125,7 +1169,6 @@ const App = () => {
 
   useEffect(() => {
     // Start loading
-
     const session = new SessionStorageService();
     const currentUser = session.getItem("currentUser");
 
@@ -1144,6 +1187,7 @@ const App = () => {
         // Parse payload array from cookies
         const payloadArray = JSON.parse(cookiePayload);
         console.log("Received Payload Array from Cookies:", payloadArray);
+        setChartPayload(payloadArray);
         payloadArray.forEach((item, index) => {
           console.log(`Item ${index + 1}:`, item);
 
@@ -1180,6 +1224,8 @@ const App = () => {
       console.error("No payload found in cookies.");
     }
   }, []);
+
+  // ok
 
   const handleDeleteChart = (index) => {
     // Confirm the deletion (optional)
@@ -1239,48 +1285,9 @@ const App = () => {
     }
   };
 
-  // ===========================================
-
   const handleClosePanel = () => {
     setPanelOpen(false);
   };
-
-  // const formatValue = (value) => {
-  //   // Check if the value is a number
-  //   if (typeof value !== "number") {
-  //     console.error("Value is not a number:", value);
-  //     return value; // Return the original value for non-numeric inputs
-  //   }
-
-  //   const currentChartData = chartDataList[0];
-
-  //   // Check if chart data and datasets are defined
-  //   if (!currentChartData || !currentChartData.datasets) {
-  //     console.error("Chart data or datasets are undefined:", currentChartData);
-  //     return value; // Return the original value if datasets are undefined
-  //   }
-
-  //   const datasets = currentChartData.datasets;
-
-  //   // Calculate the maximum value from all datasets
-  //   const maxValue = datasets
-  //     .flatMap((dataset) => dataset.data || [])
-  //     .reduce((max, current) => Math.max(max, current), 0);
-
-  //   console.log("Max Value:", maxValue);
-
-  //   if (value >= 10000000) { // 10 million
-  //     return (value / 10000000).toFixed(1).replace(/\.0$/, "") + 'M'; // For millions
-  //   } else if (value >= 100000) { // 1 lakh
-  //     return (value / 100000).toFixed(1).replace(/\.0$/, "") + 'L'; // For lakhs
-  //   } else if (value >= 1000) { // 1 thousand
-  //     return (value / 1000).toFixed(1).replace(/\.0$/, "") + 'K'; // For thousands
-  //   } else if (value === 0) {
-  //     return "0"; // Explicitly return "0" for zero values
-  //   } else {
-  //     return value.toFixed(1); // For smaller values, show one decimal place
-  //   }
-  // };
 
   const formatValue = (value) => {
     // Check if the value is a number
@@ -1336,89 +1343,199 @@ const App = () => {
     setPanelOpen(true);
   };
 
+  // const chartOptions = (currentData) => ({
+  //   responsive: true,
+  //   maintainAspectRatio: false,
+  //   plugins: {
+  //     title: {
+  //       display: true,
+  //       text: "", // Add dynamic title if needed
+  //     },
+  //     legend: {
+  //       display: false,
+  //     },
+  //     datalabels: {
+  //       display: false, // Disable data labels
+  //     },
+  //   },
+  //   layout: {
+  //     padding: {
+  //       left: 0,
+  //       right: 10,
+  //     },
+  //   },
+  //   scales: {
+  //     x: {
+  //       stacked: currentData.datasets.some((dataset) => dataset.label === "Gross Amount"), // Adjust based on your logic
+  //       title: {
+  //         display: true,
+  //         text: "", // Add dynamic axis title if needed
+  //         font: {
+  //           size: 14,
+  //           weight: "bold",
+  //         },
+  //       },
+  //       ticks: {
+  //         font: {
+  //           weight: 900,
+  //           size: 8,
+  //         },
+  //       },
+  //       grid: {
+  //         display: true, // Turn on grid lines on the x-axis
+  //       },
+  //     },
+  //     y: {
+  //       beginAtZero: false,
+  //       type: "logarithmic", // Use logarithmic scale if necessary
+  //       // type: 'symlog',
+  //       ticks: {
+  //         callback: formatValue, // Ensure this formats your y-axis ticks correctly
+  //       },
+  //       title: {
+  //         display: true,
+  //         text: "", // Add dynamic measure title if needed
+  //         font: {
+  //           size: 24,
+  //           weight: "bold",
+  //         },
+  //       },
+  //       grid: {
+  //                   display: true,
+  //                   color: "#ddd",
+  //                   lineWidth: 1,
+  //                 },
+  //     },
+  //   },
+  //   elements: {
+  //     bar: {
+  //       // borderRadius: 4,
+  //       // barThickness: 40, // Control thickness for clarity
+  //       // maxBarThickness: 50, // Set max thickness
+  //       // borderRadius: 4,
+  //       barThickness: 30, // Adjust thickness as necessary
+  //       maxBarThickness: 50,
+  //       categoryPercentage: 0.8, // Control spacing between stacked bars
+  //       barPercentage: 0.9, // Control the width of the bars
+  //     },
+  //   },
+  // });
 
+  // for big bar workngg
 
+  const chartOptions = (currentData) => {
+    // Determine if the chart is stacked
+    const isStacked = currentData.datasets.some((dataset) => dataset.stack);
 
-  const chartOptions = (currentData) => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: {
-        display: true,
-        text: "", // Add dynamic title if needed
-      },
-      legend: {
-        display: false,
-      },
-      datalabels: {
-        display: false, // Disable data labels
-      },
-    },
-    layout: {
-      padding: {
-        left: 0,
-        right: 10,
-      },
-    },
-    scales: {
-      x: {
-        stacked: currentData.datasets.some((dataset) => dataset.label === "Gross Amount"), // Adjust based on your logic
+    // Calculate the maximum and minimum values dynamically
+    const maxPositive = Math.max(
+      ...currentData.datasets.flatMap((dataset) => dataset.data.filter((value) => value > 0))
+    );
+    const minNegative = Math.min(
+      ...currentData.datasets.flatMap((dataset) => dataset.data.filter((value) => value < 0))
+    );
+
+    const yMin = minNegative < 0 ? minNegative * 2.5 : 0;
+    const yMax = Math.max(maxPositive * 2.5);
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
         title: {
           display: true,
-          text: "", // Add dynamic axis title if needed
+          text: "", // Add dynamic title if needed
+        },
+        legend: {
+          display: false, // Enable legend for clarity
+        },
+        datalabels: {
+          display: function (context) {
+            // Only display labels if the chart is stacked
+            const dataset = context.dataset;
+            return dataset.stack ? true : false;
+          },
+          formatter: (value, context) => {
+            if (isStacked) {
+              const percentage = context.dataset.percentageData[context.dataIndex];
+              return percentage > 0 ? `${percentage.toFixed(1)}%` : null;
+            } else {
+              return formatValue(value, 0); // Fallback to the formatted value
+            }
+          },
+          color: "#0000cc",
+          anchor: "center", // Center the label on the bar
+          align: "center", // Align label to the center of the bar
           font: {
-            size: 14,
-            weight: "bold",
+            weight: "bold", // Make the font bold
+            size: 10, // Set the font size
           },
         },
-        ticks: {
-          font: {
-            weight: 900,
-            size: 8,
+      },
+      layout: {
+        padding: {
+          left: 0,
+          right: 10,
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "", // Add dynamic axis title if needed
+            font: {
+              size: 14,
+              weight: "bold",
+            },
+          },
+          ticks: {
+            font: {
+              weight: 900,
+              size: 10,
+            },
+          },
+          grid: {
+            display: true, // Show grid lines
           },
         },
-        grid: {
-          display: true, // Turn on grid lines on the x-axis
-        },
-      },
-      y: {
-        beginAtZero: false,
-        type: "logarithmic", // Use logarithmic scale if necessary
-        // type: 'symlog',
-        ticks: {
-          callback: formatValue, // Ensure this formats your y-axis ticks correctly
-        },
-        title: {
-          display: true,
-          text: "", // Add dynamic measure title if needed
-          font: {
-            size: 24,
-            weight: "bold",
+        y: {
+          beginAtZero: false,
+          type: "logarithmic", // Use logarithmic scale if necessary
+          min: yMin,
+          max: yMax,
+          ticks: {
+            callback: formatValue, // Use the formatValue function
+            font: {
+              size: 10,
+              weight: 700,
+            },
+          },
+          title: {
+            display: true,
+            text: "", // Add dynamic measure title if needed
+            font: {
+              size: 24,
+              weight: "bold",
+            },
           },
         },
-        grid: {
-                    display: true,
-                    color: "#ddd",
-                    lineWidth: 1,
-                  },
       },
-    },
-    elements: {
-      bar: {
-        // borderRadius: 4,
-        // barThickness: 40, // Control thickness for clarity
-        // maxBarThickness: 50, // Set max thickness
-        // borderRadius: 4,
-        barThickness: 30, // Adjust thickness as necessary
-        maxBarThickness: 50,
-        categoryPercentage: 0.8, // Control spacing between stacked bars
-        barPercentage: 0.9, // Control the width of the bars
+      elements: {
+        bar: {
+          barThickness: 35, // Adjust thickness for clarity
+          maxBarThickness: 50,
+          categoryPercentage: 0.8,
+          barPercentage: 0.9,
+        },
       },
-    },
-  });
+    };
+  };
 
   // const chartOptions = (currentData) => {
   //   // Calculate the maximum value dynamically to adjust y-axis range
+
+  //   console.log("currentData:", currentData);
+
   //   const maxPositive = Math.max(
   //     ...currentData.datasets.flatMap((dataset) => dataset.data.filter((value) => value > 0))
   //   );
@@ -1426,13 +1543,15 @@ const App = () => {
   //     ...currentData.datasets.flatMap((dataset) => dataset.data.filter((value) => value < 0))
   //   );
 
-  //   console.log("minNegative:", minNegative, "maxPositive:", maxPositive);
+  //   // console.log("minNegative:", minNegative, "maxPositive:", maxPositive);
 
   //   // Set y-axis limits based on data
   //   const yMin = minNegative < 0 ? minNegative * 2.5 : 0; // Extend the min for visibility
   //   const yMax = Math.max(maxPositive * 2.5); // Just slightly extend the max
 
-  //   console.log("yMin:", yMin, "yMax:", yMax);
+  //   // console.log("yMin:", yMin, "yMax:", yMax);
+
+  //   const isStacked = currentData.datasets.some((dataset) => dataset.label === "Gross Amount");
 
   //   return {
   //     responsive: true,
@@ -1447,7 +1566,23 @@ const App = () => {
   //       },
   //       datalabels: {
   //         display: true, // Enable data labels
-  //         formatter: (value) => formatValue(value), // Use the formatValue function for data labels
+  //         // formatter: (value) => formatValue(value), // Use the formatValue function for data labels
+  //         formatter: (value, context) => {
+  //           // Safely check if percentageData exists and the current data index is defined
+  //           const percentageData = context.dataset.percentageData;
+  //           const percentage = percentageData && percentageData[context.dataIndex];
+
+  //           // Return percentage data if available, otherwise use the raw value
+  //           return percentage !== undefined ? `${percentage.toFixed(1)}%` : formatValue(value, 0);
+  //         },
+
+  //         color: "black", // Color of the labels
+  //         anchor: "center", // Center the label on the bar
+  //         align: "center", // Align label to the center of the bar
+  //         font: {
+  //           weight: "bold", // Make the font bold
+  //           size: "8", // Set the font size
+  //         },
   //       },
   //     },
   //     layout: {
@@ -1458,7 +1593,8 @@ const App = () => {
   //     },
   //     scales: {
   //       x: {
-  //         stacked: true, // Ensure the bars are stacked
+  //         // stacked: true,
+
   //         title: {
   //           display: true,
   //           text: "", // Add dynamic axis title if needed
@@ -1505,7 +1641,7 @@ const App = () => {
   //     },
   //     elements: {
   //       bar: {
-  //         barThickness: 30, // Adjust thickness for clarity
+  //         barThickness: 35, // Adjust thickness for clarity
   //         maxBarThickness: 50,
   //         categoryPercentage: 0.8,
   //         barPercentage: 0.9,
@@ -1544,35 +1680,14 @@ const App = () => {
         {chartDataList.length > 0 &&
           chartDataList.map((chartData, index) => {
             {
-              /* const isScenario2 = chartData.datasets.some(
-              (dataset) => dataset.label === "Total Sales"
-            ); */
+              /* console.log("Current chartDataList:", chartData); */
+            }
+            {
+              /* console.log("Current index:", index); */
             }
             const labelsLength = chartData.labels.length;
             const minWidth = getBarDivStyles(chartData.scenario, labelsLength).minWidth;
 
-            {
-              /* const renderChartComponent = (chartData) => {
-              const { scenario } = chartData;
-
-              {
-                 switch (scenario) {
-                case 1:
-                  return <GraphScenario1Chart chartData={chartData} />;
-                case 2:
-                  return <GraphScenario2Chart chartData={chartData} />;
-                case 3:
-                  return <GraphScenario3Chart chartData={chartData} />;
-                case 4:
-                  return <GraphScenario4Chart chartData={chartData} />;
-                // Handle other scenarios if needed
-                default:
-                  return <DefaultComponent data={chartData} />;
-              }
-              }
-
-            }; */
-            }
             const renderChartComponent = (chartData, index) => {
               // Using index to access loading state
               if (loadingStates[index]) {
@@ -1592,11 +1707,35 @@ const App = () => {
 
               switch (chartData.scenario) {
                 case 1:
-                  return <GraphScenario1Chart chartData={chartData} />;
+                  return (
+                    <GraphScenario1Chart
+                      chartData={chartData}
+                      receivedPayload={chartPayload}
+                      startDate={startDate}
+                      endDate={endDate}
+                      index={index}
+                    />
+                  );
                 case 2:
-                  return <GraphScenario2Chart chartData={chartData} />;
+                  return (
+                    <GraphScenario2Chart
+                      chartData={chartData}
+                      receivedPayload={chartPayload}
+                      startDate={startDate}
+                      endDate={endDate}
+                      index={index}
+                    />
+                  );
                 case 3:
-                  return <GraphScenario3Chart chartData={chartData} />;
+                  return (
+                    <GraphScenario3Chart
+                      chartData={chartData}
+                      receivedPayload={chartPayload}
+                      startDate={startDate}
+                      endDate={endDate}
+                      index={index}
+                    />
+                  );
                 case 4:
                   return <GraphScenario4Chart chartData={chartData} />;
                 default:
@@ -1630,7 +1769,7 @@ const App = () => {
                       alignItems: "center", // Vertically center items
                       justifyContent: "space-between", // Space out the heading and icons
                       width: "100%",
-                      // borderBottom: "1px solid gray",
+
                       boxShadow: "1px 2px 2px 1px rgba(0, 0, 0, 0.1)",
                     }}
                   >
@@ -1652,6 +1791,7 @@ const App = () => {
                       </IconButton>
                       <IconButton
                         onClick={() => handleDeleteChart(index)}
+                        // onClick={() => handleDeleteChart(chartData.id)}
                         style={{
                           zIndex: 1000,
                           backgroundColor: "white",
@@ -1672,61 +1812,7 @@ const App = () => {
                       height: "300px",
                     }}
                   >
-                    {/* <Bar
-                      data={chartData}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            display: false,
-                          },
-                          title: {
-                            display: true,
-                            // text: getDynamicTitle(chartData),
-                          },
-                        },
-                        layout: {
-                          padding: {
-                            left: -4,
-                            right: 0,
-                          },
-                        },
-                        scales: {
-                          x: {
-                            offset: true,
-                            grid: {
-                              display: false,
-                            },
-                            ticks: {
-                              autoSkip: false,
-                              padding: 10,
-                            },
-                            afterFit: (scale) => {
-                              scale.paddingLeft = 20;
-                              scale.paddingRight = 20;
-                            },
-                          },
-
-                          y: {
-                            beginAtZero: true,
-                            type: "logarithmic",
-                            ticks: {
-                              callback: formatValue,
-                            },
-                            title: {
-                              display: true,
-                              text: "Measure",
-                              font: {
-                                size: 14,
-                                weight: "bold",
-                              },
-                            },
-                          },
-                        },
-                      }}
-                    /> */}
-                    {renderChartComponent(chartData)}
+                    {renderChartComponent(chartData, index)}
                   </div>
 
                   <div
@@ -1809,8 +1895,8 @@ const App = () => {
             // style={dialogStyles}
           >
             {/* <p>
-    Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
-  </p> */}
+              Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
+            </p> */}
             <div style={{ width: "100%", height: "100%" }}>
               {currentData && (
                 <>
@@ -1831,10 +1917,6 @@ const App = () => {
                     <h3 style={{ marginLeft: "20px" }}>{currentData.title}</h3>
                   </div>
 
-                  {/* <Bar
-                    data={currentData}
-                    options={chartOptions(currentData)} // Ensure correct passing
-                  /> */}
                   <div style={{ height: "100%", width: "100%" }}>
                     {" "}
                     {/* Adjust height as needed */}
@@ -1881,7 +1963,7 @@ const formatValue = (value) => {
     .flatMap((dataset) => dataset.data || [])
     .reduce((max, current) => Math.max(max, current), 0);
 
-  console.log("Max Value:", maxValue);
+  // console.log("Max Value:", maxValue);
 
   // Formatting based on the maximum value
   if (maxValue >= 1000000) {

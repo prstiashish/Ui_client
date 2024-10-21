@@ -1,25 +1,24 @@
-import Head from "next/head";
-import NextLink from "next/link";
-import { useRouter } from "next/router";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { Box, Button, Container, Grid, Link, TextField, Typography } from "@mui/material";
-import SessionStorageService from "src/utils/browser-storage/session";
-import UserAuthService from "src/api-service/user-auth";
-import http from "src/utils/http-common";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { awsClientID, baseAwsAuthenticateURL } from "src/components/charts/AuthDetails";
-import { DeblurOutlined } from "@mui/icons-material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GoogleIcon from "@mui/icons-material/Google"; //
-import TwitterIcon from "@mui/icons-material/Twitter";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
+// import Head from "next/head";
+// import NextLink from "next/link";
+// import { useRouter } from "next/router";
+// import { useFormik } from "formik";
+// import * as Yup from "yup";
+// import { Box, Button, Container, Grid, Link, TextField, Typography } from "@mui/material";
+// import SessionStorageService from "src/utils/browser-storage/session";
+// import UserAuthService from "src/api-service/user-auth";
+// import http from "src/utils/http-common";
+// import axios from "axios";
+// import { jwtDecode } from "jwt-decode";
+// import { awsClientID, baseAwsAuthenticateURL } from "src/components/charts/AuthDetails";
+// import { DeblurOutlined } from "@mui/icons-material";
+// import FacebookIcon from "@mui/icons-material/Facebook";
+// import GoogleIcon from "@mui/icons-material/Google"; //
+// import TwitterIcon from "@mui/icons-material/Twitter";
+// import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
-const user_pool_id = "ap-south-1_BcdMGSPra";
+// const user_pool_id = "ap-south-1_BcdMGSPra";
 
-const client_id = "5psbh9r0qv6hi9i5b9s7lk1bmr";
-const api_gateway_url = "https://1ifjijlle1.execute-api.ap-south-1.amazonaws.com/dev/";
+// const client_id = "5psbh9r0qv6hi9i5b9s7lk1bmr";
 
 // const Login = () => {
 //   const router = useRouter();
@@ -308,114 +307,258 @@ const api_gateway_url = "https://1ifjijlle1.execute-api.ap-south-1.amazonaws.com
 //   );
 // };
 
+// works for old
+
+// ==============================================================================
+
+// yess22
+// const Login = () => {
+//   const router = useRouter();
+//   const formik = useFormik({
+//     initialValues: {
+//       email: "",
+//       password: "",
+//     },
+//     validationSchema: Yup.object({
+//       email: Yup.string().email("Must be a valid email").max(255).required("Email is required"),
+//       password: Yup.string().max(255).required("Password is required"),
+//     }),
+//     onSubmit: () => {
+//       debugger;
+//       const encoded = btoa(`${formik.values.email}:${formik.values.password}`);
+//       console.log("encoded", encoded);
+
+//       const baseAwsURL = baseAwsAuthenticateURL();
+
+//       console.log("baseAwsURL", baseAwsURL);
+
+//       const authToken = encoded;
+//       console.log("authToken", authToken);
+
+//       const ClientIds = awsClientID();
+
+//       console.log("ClientIds", ClientIds);
+
+//       const config = {
+//         headers: {
+//           Authorization: `Bearer ${authToken}`,
+//           clientid: ClientIds,
+//         },
+//       };
+
+//       axios
+//         .post(baseAwsURL, null, config)
+//         .then((response) => {
+//           console.log("Response:", response.data);
+
+//           // Safely check for the expected properties
+//           const authenticationResult = response.data.AuthenticationResult;
+//           if (authenticationResult) {
+//             const accessToken = authenticationResult.AccessToken;
+//             const idToken = authenticationResult.IdToken;
+//             const refreshToken = authenticationResult.RefreshToken;
+
+//             console.log("AccessToken:", accessToken);
+//             console.log("IdToken:", idToken);
+//             console.log("Schema name:", response.data.schema_name);
+
+//             sessionStorage.setItem("IdToken", idToken);
+//             sessionStorage.setItem("Schema_name", response.data.schema_name);
+//             sessionStorage.setItem("Refresh_Token", refreshToken);
+
+//             const decodedIdToken = jwtDecode(idToken);
+//             sessionStorage.setItem("TokenExpiredTime", decodedIdToken.exp);
+//             const session = new SessionStorageService();
+//             session.setItem("currentUser", formik.values.email);
+//             router.push("ai.dashboard/");
+//           } else {
+//             console.error("Authentication result is undefined", response.data);
+//           }
+//         })
+//         .catch((error) => {
+//           if (error.response) {
+//             console.error("Error response from server:", error.response);
+//           } else if (error.request) {
+//             console.error("No response received from server:", error.request);
+//           } else {
+//             console.error("Error setting up request:", error.message);
+//           }
+//         });
+//     },
+//   });
+
+//   return (
+//     <>
+//       <Head>
+//         <title>Prsti AI | Login</title>
+//       </Head>
+//       <Box
+//         component="main"
+//         sx={{
+//           alignItems: "center",
+//           display: "flex",
+//           flexGrow: 1,
+//           minHeight: "100%",
+//         }}
+//       >
+//         <Container maxWidth="sm">
+//           <form onSubmit={formik.handleSubmit}>
+//             <Box
+//               sx={{
+//                 pb: 1,
+//                 pt: 3,
+//               }}
+//             >
+//               <Typography
+//                 align="center"
+//                 color="textSecondary"
+//                 variant="h4"
+//                 sx={{ marginBottom: 4 }}
+//               >
+//                 Login with email address
+//               </Typography>
+//             </Box>
+//             <TextField
+//               error={Boolean(formik.touched.email && formik.errors.email)}
+//               fullWidth
+//               helperText={formik.touched.email && formik.errors.email}
+//               label="Email Address"
+//               margin="normal"
+//               name="email"
+//               onBlur={formik.handleBlur}
+//               onChange={formik.handleChange}
+//               type="email"
+//               value={formik.values.email}
+//               variant="outlined"
+//             />
+//             <TextField
+//               error={Boolean(formik.touched.password && formik.errors.password)}
+//               fullWidth
+//               helperText={formik.touched.password && formik.errors.password}
+//               label="Password"
+//               margin="normal"
+//               name="password"
+//               onBlur={formik.handleBlur}
+//               onChange={formik.handleChange}
+//               type="password"
+//               value={formik.values.password}
+//               variant="outlined"
+//             />
+//             <Box sx={{ py: 2 }}>
+//               <Button
+//                 color="primary"
+//                 disabled={formik.isSubmitting}
+//                 fullWidth
+//                 size="large"
+//                 type="submit"
+//                 variant="contained"
+//               >
+//                 Log in
+//               </Button>
+//             </Box>
+//           </form>
+//         </Container>
+//       </Box>
+//     </>
+//   );
+// };
+
+// export default Login;
+
+// for newwww
+
+// const user_pool_id = "ap-south-1_BcdMGSPra";
+
+// const client_id = "5psbh9r0qv6hi9i5b9s7lk1bmr";
+// const api_gateway_url = "https://vkrf2otwj6.execute-api.ap-south-1.amazonaws.com/dev/authenticate";
+
+const Base64Key = "Lqlt/LF7DUmXyog2XKY5ukwHuhulsoNGDHfl/vDYShs=";
+
+const api_gateway_url = "https://vkrf2otwj6.execute-api.ap-south-1.amazonaws.com/dev/authenticate";
+
+import React, { useState } from "react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import CryptoJS from "crypto-js";
+import SessionStorageService from "src/utils/browser-storage/session";
+
 const Login = () => {
   const router = useRouter();
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: Yup.object({
-      email: Yup.string().email("Must be a valid email").max(255).required("Email is required"),
-      password: Yup.string().max(255).required("Password is required"),
-    }),
-    onSubmit: () => {
-      debugger;
-      const encoded = btoa(`${formik.values.email}:${formik.values.password}`);
-      // const baseAwsURL = api_gateway_url;
-      // const baseAwsURL = "https://e5nreiwxb9.execute-api.ap-south-1.amazonaws.com/dev/authenticate"
-      const baseAwsURL = baseAwsAuthenticateURL();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const base64Key = Base64Key; // Your Base64 key
+    console.log("Base64Key:", base64Key);
+    const secretKey = CryptoJS.enc.Base64.parse(base64Key);
 
-      console.log("baseAwsURL", baseAwsURL);
+    const data = `${username}:${password}`;
+    console.log("Data:", data);
+    console.log("username:", username);
+    console.log("password:", password);
+    const iv = CryptoJS.lib.WordArray.random(16); // Random IV
+    const encrypted = CryptoJS.AES.encrypt(data, secretKey, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
 
-      const authToken = encoded;
-      console.log("authToken", authToken);
+    const encryptedData = iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
+    console.log("Encrypted Data:", encryptedData);
+    const baseAwsURL = api_gateway_url;
+    console.log("Base AWS URL:", baseAwsURL);
 
-      // const ClientIds = client_id;
-      // const ClientIds = "5psbh9r0qv6hi9i5b9s7lk1bmr"
-      const ClientIds = awsClientID();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${encryptedData}`,
+      },
+    };
 
-      console.log("ClientIds", ClientIds);
+    console.log("Config:", config);
 
-      // const payload = {
-      //   email: formik.values.email,
-      //   password: formik.values.password,
-      // };
+    // try {
+    //   const response = await axios.post(baseAwsURL, null, config);
 
+    //   console.log("success:");
+    //   console.log("Response:", response.data);
+    //   // console.log("Response:", response.data);
+    //   router.push("ai.dashboard/");
 
-      const config = {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          clientid: ClientIds,
-        },
-      };
+    // } catch (err) {
+    //   console.error("Error during login:", err);
+    //   setError("Login failed. Please check your credentials and try again.");
+    // }
+    axios.post(baseAwsURL, null, config).then((response) => {
+      console.log("Response:", response);
+      // if (response.data.message === 'Authentication successful') {
+      //   console.log("Redirecting to dashboard...");
+      //   router.push("ai.dashboard/");
+      // }
+      if (response.data && response.data.tokens) {
+        const { tokens } = response.data;
+        const { access_token, id_token, refresh_token } = tokens;
 
-      // console.log("Making request to:", baseAwsURL);
-      // console.log("Request headers:", config.headers);
+        // Log tokens for debugging purposes
+        console.log("Tokens:", tokens);
+        console.log("AccessToken:", access_token);
+        console.log("IdToken:", id_token);
+        console.log("RefreshToken:", refresh_token);
 
-
-      axios
-        .post(baseAwsURL, null, config)
-        .then((response) => {
-          console.log("Response:", response.data);
-
-          // Safely check for the expected properties
-          const authenticationResult = response.data.AuthenticationResult;
-          if (authenticationResult) {
-            const accessToken = authenticationResult.AccessToken;
-            const idToken = authenticationResult.IdToken;
-            const refreshToken = authenticationResult.RefreshToken;
-
-            console.log("AccessToken:", accessToken);
-            console.log("IdToken:", idToken);
-            console.log("Schema name:", response.data.schema_name);
-
-            sessionStorage.setItem("IdToken", idToken);
-            sessionStorage.setItem("Schema_name", response.data.schema_name);
-            sessionStorage.setItem("Refresh_Token", refreshToken);
-
-            const decodedIdToken = jwtDecode(idToken);
-            sessionStorage.setItem("TokenExpiredTime", decodedIdToken.exp);
-            const session = new SessionStorageService();
-            session.setItem("currentUser", formik.values.email);
-            router.push("ai.dashboard/");
-          } else {
-            console.error("Authentication result is undefined", response.data);
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            console.error("Error response from server:", error.response);
-          } else if (error.request) {
-            console.error("No response received from server:", error.request);
-          } else {
-            console.error("Error setting up request:", error.message);
-          }
-        });
-
-      // const requestBody = {
-      //   clientid: ClientIds, // Moved clientid to the request body
-      // };
-
-      // axios
-      //   .post(baseAwsURL, requestBody, {
-      //     headers: {
-      //       Authorization: `Bearer ${authToken}`, // Only the Authorization header is sent
-      //     },
-      //   })
-      //   .then((response) => {
-      //     console.log("Response:", response.data);
-      //     // Handle the response
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error:", error);
-      //   });
-
-
-      //
-    },
-  });
+        sessionStorage.setItem("IdToken", id_token);
+        //   sessionStorage.setItem("Schema_name", response.data.schema_name);
+        sessionStorage.setItem("Refresh_Token", refresh_token);
+        const session = new SessionStorageService();
+        session.setItem("currentUser", username);
+        router.push("ai.dashboard/");
+      } else {
+        console.error("Authentication result is undefined", response.data);
+      }
+    });
+  };
 
   return (
     <>
@@ -424,65 +567,44 @@ const Login = () => {
       </Head>
       <Box
         component="main"
-        sx={{
-          alignItems: "center",
-          display: "flex",
-          flexGrow: 1,
-          minHeight: "100%",
-        }}
+        sx={{ alignItems: "center", display: "flex", flexGrow: 1, minHeight: "100%" }}
       >
         <Container maxWidth="sm">
-          <form onSubmit={formik.handleSubmit}>
-            <Box
-              sx={{
-                pb: 1,
-                pt: 3,
-              }}
-            >
+          <form onSubmit={handleLogin}>
+            <Box sx={{ pb: 1, pt: 3 }}>
               <Typography
                 align="center"
                 color="textSecondary"
                 variant="h4"
                 sx={{ marginBottom: 4 }}
               >
-                Login with email address
+                Login with Username
               </Typography>
             </Box>
             <TextField
-              error={Boolean(formik.touched.email && formik.errors.email)}
+              error={Boolean(error)}
               fullWidth
-              helperText={formik.touched.email && formik.errors.email}
-              label="Email Address"
+              helperText={error}
+              label="Username"
               margin="normal"
-              name="email"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              type="email"
-              value={formik.values.email}
+              onChange={(e) => setUsername(e.target.value)}
+              type="text"
+              value={username}
               variant="outlined"
             />
             <TextField
-              error={Boolean(formik.touched.password && formik.errors.password)}
+              error={Boolean(error)}
               fullWidth
-              helperText={formik.touched.password && formik.errors.password}
+              helperText={error}
               label="Password"
               margin="normal"
-              name="password"
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
-              value={formik.values.password}
+              value={password}
               variant="outlined"
             />
             <Box sx={{ py: 2 }}>
-              <Button
-                color="primary"
-                disabled={formik.isSubmitting}
-                fullWidth
-                size="large"
-                type="submit"
-                variant="contained"
-              >
+              <Button color="primary" fullWidth size="large" type="submit" variant="contained">
                 Log in
               </Button>
             </Box>

@@ -1342,10 +1342,10 @@ const QueryAnalytics = () => {
         <div
           className="ag-theme-alpine"
           style={{
-            height: "500px",
+            // height: "500px",
             width: "100%",
             marginTop: "10px",
-            backgroundColor: "pink",
+            // backgroundColor: "pink",
             // height: "350px",
             boxShadow: "1px 2px 2px 1px rgba(1, 1,1, 0.1)",
             borderRadius: "5px",

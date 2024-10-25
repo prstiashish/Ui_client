@@ -25,6 +25,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"; // Importing DatePicker from MUI
 import TextField from "@mui/material/TextField"; // Importing TextField for the date input
 
+
+
+
 import { format } from "date-fns";
 
 const MyComponent = () => {
@@ -242,7 +245,10 @@ const MyComponent = () => {
     console.log("Fetching data with payload:", payload);
     try {
       const response = await axios.post(dataUrl, payload);
+      console.log("dddddddddddd data:", response);
       const data = response.data;
+
+      console.log(typeof data,'typeeeeeeeeeeeee')
 
       // // Log response data for debugging
       // console.log("Response data:", data);

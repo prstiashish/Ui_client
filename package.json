@@ -35,6 +35,8 @@
     "@nivo/scatterplot": "^0.79.1",
     "@nivo/waffle": "^0.79.1",
     "ag-charts-react": "^10.1.0",
+    "ag-grid-community": "^32.3.0",
+    "ag-grid-react": "^32.3.0",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify-react": "^5.1.43",
     "axios": "^0.27.2",

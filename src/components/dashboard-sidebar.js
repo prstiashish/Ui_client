@@ -77,16 +77,28 @@ const items = [
     icon: <EqualizerIcon fontSize="small" />,
     title: "Enterprise Dashboard",
   },
+
+
   {
-    href: "/datadrilldown",
-    icon: <TableViewIcon fontSize="small" />,
+    href: "/devDatadrilldown",
+   icon: <TableViewIcon fontSize="small" />,
     title: "Data Grid",
   },
+
+  
+  // {
+  //   href: "/datadrilldown",
+  //   icon: <TableViewIcon fontSize="small" />,
+  //   title: "Data Grid",
+  // },
+
+
   // {
   //   href: "/tstopsalesvisualization",
   //   icon: <TrendingUpIcon fontSize="small" />,
   //   title: "Top Trend Visualization",
   // },
+
 
   {
     href: "/devTopTrendsVisual",
@@ -119,6 +131,24 @@ const items = [
     icon: <FaFileAlt fontSize="small" />,
     title: "P & L Statements",
   },
+
+
+  {
+    href: "/gridChart",
+   icon: <TableViewIcon fontSize="small" />,
+    title: "Data grid Chart",
+  },
+
+
+  // {
+  //   href: "/devDatadrilldown",
+  //  icon: <TableViewIcon fontSize="small" />,
+  //   title: "Grid View",
+  // },
+
+
+
+
 
   // {
   //   href: "/PLStatementsDev",

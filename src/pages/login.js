@@ -473,6 +473,7 @@
 // const api_gateway_url = "https://vkrf2otwj6.execute-api.ap-south-1.amazonaws.com/dev/authenticate";
 
 const Base64Key = "Lqlt/LF7DUmXyog2XKY5ukwHuhulsoNGDHfl/vDYShs=";
+// const Base64Key = process.env.REACT_APP_BASE64_KEY;
 
 const api_gateway_url = "https://vkrf2otwj6.execute-api.ap-south-1.amazonaws.com/dev/authenticate";
 
@@ -493,6 +494,8 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     const base64Key = Base64Key; // Your Base64 key
+    // const base64Key = process.env.REACT_APP_BASE64_KEY;
+
     console.log("Base64Key:", base64Key);
     const secretKey = CryptoJS.enc.Base64.parse(base64Key);
 

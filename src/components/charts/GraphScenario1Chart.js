@@ -99,28 +99,50 @@
 
 const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
-
 import React, { useState, useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
 import "chartjs-plugin-datalabels"; // Ensure the plugin is imported
 
 const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
+  console.log('chartData', chartData)
+
+  console.log('chartData', chartData);
+
+// Check if chartData and datasets are valid
+if (
+  !chartData || 
+  !chartData.labels || chartData.labels.length === 0 ||  // Check for labels
+  !chartData.datasets || chartData.datasets.length === 0 || // Check for datasets
+  !chartData.datasets[0].data || chartData.datasets[0].data.length === 0 // Check if data exists in datasets
+) {
+  return (
+    <div>
+      <p>No data available to display the chart.</p>
+    </div>
+  );
+}
+
+  console.log('g11111111111111',chartData)
   const [selectedBarData, setSelectedBarData] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
   const [timeWindow, setTimeWindow] = useState("M"); // Default time window
+  const [dimensionName, setDimensionName] = useState(null);
 
   const chartRef = useRef(null);
 
-  // Format value for y-axis
+ 
   const formatValue = (value) => {
-    const maxValue = Math.max(...(chartData.datasets[0]?.data || [0]));
+    const maxValue = Math.max(...(chartData?.datasets?.[0]?.data || [0]));  // Added optional chaining
+  
     if (maxValue >= 10000000) return value / 10000000;
     if (maxValue >= 100000) return value / 100000;
     if (maxValue >= 1000) return value / 1000;
+    
     return value;
   };
+  
 
   // Fetch data based on selected payload and time window
   const fetchPeriodicData = async (requestPayload) => {
@@ -145,164 +167,138 @@ const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
     }
   };
 
-  // Handle bar click event
-  // const handleBarClick = (event, elements) => {
-  //   if (elements.length === 0) return;
-
-  //   const element = elements[0];
-  //   const clickedIndex = element.index;
-  //   const clickedLabel = chartData.labels[clickedIndex];
-  //   const dimensionType = chartData.xLabel;
-
-  //   if (!Array.isArray(receivedPayload)) {
-  //     console.error("Expected receivedPayload to be an array:", receivedPayload);
-  //     return; // Exit if it's not an array
-  //   }
   
-
-  //   const correspondingPayload = receivedPayload.find(
-  //     (item) => item.dimension === `${dimensionType}:${clickedLabel}`
-  //   );
-
-  //   const finalPayload =
-  //     correspondingPayload ||
-  //     receivedPayload.find((item) => item.dimension.includes(dimensionType));
-
-  //   if (!finalPayload) {
-  //     console.error("No matching payload found for clicked bar.");
-  //     return;
-  //   }
-
-  //   setSelectedBarData({
-  //     clickedIndex,
-  //     clickedLabel,
-  //     measure: finalPayload.measure,
-  //     additionalData: finalPayload,
-  //   });
-
-  //   setIsDialogOpen(true); // Open the dialog
-
-  //   // Fetch initial data right away when the dialog opens
-  //   const hitToUrl = {
-  //     bottomRank: finalPayload.bottomRank,
-  //     topRank: finalPayload.topRank,
-  //     dimension: `${finalPayload.dimension.split(":")[0]}:${clickedLabel}`,
-  //     measure: finalPayload.measure,
-  //     partition: finalPayload.partition,
-  //     includeCOGS: finalPayload.includeCOGS,
-  //     start_date: finalPayload.start_date,
-  //     end_date: finalPayload.end_date,
-  //     time_window: timeWindow, // Using the default time window here
-  //   };
-
-  //   fetchPeriodicData(hitToUrl);
-  // };
+ 
+ 
 
   const handleBarClick = (event, elements) => {
-    console.log('chartData', chartData)
+
+    if (!chartData || !chartData.labels || elements.length === 0) return;
+
+    console.log("chartData", chartData);
     console.log("Received payload:", receivedPayload);
     // Check if any element was clicked
     if (elements.length === 0) return;
-  
+
     const element = elements[0];
     const clickedIndex = element.index;
     const clickedLabel = chartData.labels[clickedIndex];
-    const dimensionType = chartData.xLabel;
-
+    setDimensionName(clickedLabel)
+    // const dimensionType = chartData.xLabel;
+    const dimensionType = chartData.xLabel || "Unknown Dimension"; 
     console.log("Clicked index:", clickedIndex);
     console.log("Clicked label:", clickedLabel);
     console.log("Dimension type:", dimensionType);
-  
+
     // Ensure receivedPayload is an array
     let payloadArray = Array.isArray(receivedPayload) ? receivedPayload : [receivedPayload];
-  
-    // Attempt to find the corresponding payload based on the clicked bar
-    // const correspondingPayload = payloadArray.find(
-    //   (item) => item.dimension === `${dimensionType}:${clickedLabel}`
-    // );  
-    payloadArray.forEach((item, index) => {
-      console.log(`Payload item ${index}:`, item);
-    });
-  
-    // Updated matching logic: handle 'Product:All' for a more generic case
+
+    
+    
+
     const correspondingPayload = payloadArray.find((item) => {
-      const dimensionMatches = item.dimension.includes(dimensionType) && item.dimension.includes('All');
-      const partitionMatches = item.partition === 'None';  // Adjust if needed to match actual partition structure
-  
-      return dimensionMatches && partitionMatches;
+      return (
+        item.partition === "None" && item.includeCOGS === false
+        // item.partition.includes(clickedLabel) &&
+        // item.dimension.includes(dimensionType)
+      );
     });
-  
+
+   
+
+    console.log("Corresponding Payload:", correspondingPayload); // Log the matching payload
+
     if (correspondingPayload) {
-      console.log('Corresponding Payload:', correspondingPayload);
+      const { bottomRank, topRank, measure, partition, includeCOGS, start_date, end_date } =
+        correspondingPayload;
+
+      const [prefix, currentValues] = partition.split(":");
+      console.log(prefix);
+      console.log(currentValues);
+
+      const hitToUrl = {
+        bottomRank,
+        topRank,
+        dimension: `${dimensionType}:${clickedLabel}`,
+        measure,
+        partition: "None",
+        includeCOGS: false,
+        start_date,
+        end_date,
+        time_window: timeWindow, // Include the current time window
+      };
+
+      console.log("Hit to URL:", hitToUrl); // Log the hitToUrl object
+
+      fetchPeriodicData(hitToUrl);
+
+     
+
+      setSelectedBarData(hitToUrl);
+
+      setIsDialogOpen(true);
     } else {
-      console.log('No matching payload found for the clicked bar.');
+      console.log("No matching payload found for clicked bar.");
     }
 
     // ==========
-  
-    // Fallback to find any payload that includes the dimension type
-    const finalPayload =
-      correspondingPayload ||
-      payloadArray.find((item) => item.dimension.includes(dimensionType));
 
-      console.log("Final payload:", finalPayload);
-  
-    if (!finalPayload) {
-      console.error("No matching payload found for clicked bar.");
-      return; // Exit if no matching payload is found
-    }
-  
-    // Update state with selected bar data
-    setSelectedBarData({
-      clickedIndex,
-      clickedLabel,
-      measure: finalPayload.measure,
-      additionalData: finalPayload,
-    });
-  
-    // Open the dialog
-    setIsDialogOpen(true);
-  
-    // Prepare data for the API call
-    const hitToUrl = {
-      bottomRank: finalPayload.bottomRank,
-      topRank: finalPayload.topRank,
-      dimension: `${finalPayload.dimension.split(":")[0]}:${clickedLabel}`,
-      measure: finalPayload.measure,
-      partition: finalPayload.partition,
-      includeCOGS: finalPayload.includeCOGS,
-      start_date: finalPayload.start_date,
-      end_date: finalPayload.end_date,
-      time_window: timeWindow, // Using the default time window here
-    };
-  
+   
+
+    
+
     // Fetch data based on the constructed URL parameters
-    fetchPeriodicData(hitToUrl);
   };
-  
 
-  // Handle the time window change and fetch new data immediately
+ 
+
+
   const handleTimeWindowChange = (newTimeWindow) => {
     setTimeWindow(newTimeWindow);
+    console.log("Time window changed to:", newTimeWindow); // Log time window change
+    console.log("Selected Bar Data:", selectedBarData); // Log the selected bar
 
+    // Ensure selectedBarData is available before fetching
     if (selectedBarData) {
+      const {
+        bottomRank,
+        topRank,
+        measure,
+        partition,
+        includeCOGS,
+        start_date,
+        end_date,
+        dimension,
+      } = selectedBarData;
+
       const hitToUrl = {
-        bottomRank: selectedBarData.additionalData.bottomRank,
-        topRank: selectedBarData.additionalData.topRank,
-        dimension: `${selectedBarData.additionalData.dimension.split(":")[0]}:${
-          selectedBarData.clickedLabel
-        }`,
-        measure: selectedBarData.additionalData.measure,
-        partition: selectedBarData.additionalData.partition,
-        includeCOGS: selectedBarData.additionalData.includeCOGS,
-        start_date: selectedBarData.additionalData.start_date,
-        end_date: selectedBarData.additionalData.end_date,
-        time_window: newTimeWindow, // New time window is set here
+        bottomRank,
+        topRank,
+        dimension,
+        measure,
+        partition,
+        includeCOGS,
+        start_date,
+        end_date,
+        time_window: newTimeWindow, // Use new time window directly
       };
 
-      fetchPeriodicData(hitToUrl);
+      console.log("Fetching data with updated time window:", hitToUrl); // Log fetch with new time window
+      fetchPeriodicData(hitToUrl); // Fetch data again with the updated time window
     }
   };
+
+  // Fetch data when the dialog is opened and selectedBarData changes
+  useEffect(() => {
+    if (isDialogOpen && selectedBarData) {
+      const hitToUrl = {
+        ...selectedBarData,
+        time_window: timeWindow, // Ensure the current time window is used
+      };
+      console.log("Fetching data on dialog open with:", hitToUrl); // Log fetch on dialog open
+      fetchPeriodicData(hitToUrl);
+    }
+  }, [isDialogOpen, selectedBarData, timeWindow]);
 
   // Bar chart options
   const options = {
@@ -356,7 +352,7 @@ const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
       >
         <DialogContent>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3>Data for {selectedBarData?.clickedLabel || "Unknown"}</h3>
+            <h3>Data for {dimensionName || "Unknown"}</h3>
             <select
               onChange={(e) => handleTimeWindowChange(e.target.value)}
               value={timeWindow}
@@ -367,7 +363,7 @@ const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
               <option value="Q">Quarterly</option>
             </select>
           </div>
-          {fetchedData.length > 0 ? (
+          {fetchedData && fetchedData.length > 0 ? (
             <Bar
               data={{
                 labels: fetchedData.map(
@@ -453,5 +449,3 @@ const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
 };
 
 export default GraphScenario1Chart;
-
-

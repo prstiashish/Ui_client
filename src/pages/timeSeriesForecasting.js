@@ -13,7 +13,6 @@ import jsonData from "src/components/charts/timeSeriesData";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
 
-
 // Register AG Grid modules
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -141,6 +140,9 @@ const TimeSeriesForecastChart = ({ data }) => {
       },
     },
     plugins: {
+      datalabels: {
+                display: false,
+              },
       legend: {
         display: true,
         position: "top",

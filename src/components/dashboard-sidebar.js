@@ -144,10 +144,11 @@ const items = [
   },
 
  {
-    href: "/timeSeriesForecasting.js",
+    href: "/timeSeriesForecasting",
     icon: <TimelineIcon fontSize="small" />,
     title: "Time Series",
   },
+
 
 
   // {

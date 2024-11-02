@@ -12,6 +12,9 @@
     "lint-fix": "next lint --fix"
   },
   "dependencies": {
+    "@ag-grid-community/core": "^32.3.2",
+    "@ag-grid-community/react": "^32.3.2",
+    "@ag-grid-community/styles": "^32.3.2",
     "@canvasjs/charts": "^3.7.44",
     "@emotion/cache": "^11.5.0",
     "@emotion/react": "^11.13.3",

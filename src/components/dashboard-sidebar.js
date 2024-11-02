@@ -28,6 +28,10 @@ import { FaFileAlt } from "react-icons/fa";
 
 import ExploreIcon from "@mui/icons-material/Explore";
 
+import TimelineIcon from '@mui/icons-material/Timeline';
+
+
+
 const items = [
   // {
   //   href: "/app",
@@ -137,6 +141,12 @@ const items = [
     href: "/gridChart",
    icon: <TableViewIcon fontSize="small" />,
     title: "Data grid Chart",
+  },
+
+ {
+    href: "/timeSeriesForecasting.js",
+    icon: <TimelineIcon fontSize="small" />,
+    title: "Time Series",
   },
 
 

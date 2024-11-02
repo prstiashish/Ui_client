@@ -8,13 +8,10 @@ import "@ag-grid-community/styles/ag-grid.css";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import jsonData from "./allData"; // Import your data
-import { Chart, registerables } from "chart.js";
-import zoomPlugin from "chartjs-plugin-zoom";
+import jsonData from "./allData";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
-Chart.register(...registerables); // Register necessary components
-Chart.register(zoomPlugin); // Register the zoom plugin
+
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -171,7 +168,6 @@ const TimeSeriesForecastChart = ({ data }) => {
   return (
     <div
       style={{
-        padding: "50px",
         margin: "20px 0",
         backgroundColor: "#f9f9f9",
         borderRadius: "8px",

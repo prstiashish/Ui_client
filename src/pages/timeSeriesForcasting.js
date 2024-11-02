@@ -9,7 +9,7 @@ import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 // import jsonData from "./allData";
-import jsonData from "../components/charts/timeSeriesData";
+import jsonData from "src/components/charts/timeSeriesData";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
 

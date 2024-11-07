@@ -131,7 +131,7 @@ const DevVisualization = ({ onClose, onSubmit, onNewClick }) => {
       try {
         const response = await axios.get(
           // "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json"
-          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown.json"
+          "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown-New.json"
         );
 
         const newallData = response.data;

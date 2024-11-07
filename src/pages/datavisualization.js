@@ -161,7 +161,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     .filter((option) => option && option.toLowerCase().includes(searchValue.toLowerCase()))
     .filter((option) => option !== "All");
 
-  const queryAnalGetUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown.json"
+  const queryAnalGetUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown-New.json"
 
   useEffect(() => {
     const fetchData = async () => {

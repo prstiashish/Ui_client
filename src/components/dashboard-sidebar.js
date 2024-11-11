@@ -31,6 +31,7 @@ import ExploreIcon from "@mui/icons-material/Explore";
 import TimelineIcon from '@mui/icons-material/Timeline';
 
 
+import QrCodeIcon from '@mui/icons-material/QrCode';
 
 const items = [
   // {
@@ -89,7 +90,7 @@ const items = [
     title: "Data Grid",
   },
 
-  
+
   // {
   //   href: "/datadrilldown",
   //   icon: <TableViewIcon fontSize="small" />,
@@ -148,6 +149,12 @@ const items = [
     icon: <TimelineIcon fontSize="small" />,
     title: "Time Series",
   },
+
+  // {
+  //   href: "/qrScanner",
+  //   icon: <QrCodeIcon fontSize="small" />,
+  //   title: "QR Scanner",
+  // },
 
 
 

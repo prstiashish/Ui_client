@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-
-
-
 export const GetAuthToken = () => {
   if (typeof window !== "undefined") {
     return sessionStorage.getItem("IdToken");

@@ -11,9 +11,6 @@ import { DashboardLayout } from "src/components/dashboard-layout";
 import LocalStorageService from "src/utils/browser-storage/local";
 import dynamic from "next/dynamic";
 
-
-
-
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {

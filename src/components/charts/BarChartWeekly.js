@@ -20,9 +20,9 @@ import plugin from "chartjs-plugin-datalabels";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function BarChartWeekly({ chartData, options, title }) {
+export default function BarChartWeekly({ chartData, title }) {
+
   console.log(chartData, "BarChartWeeklychartData");
-  console.log(options, "BarChartWeeklyoptions");
 
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -87,6 +87,34 @@ export default function BarChartWeekly({ chartData, options, title }) {
       }
     },
   };
+
+  // const doubleGroup = {
+  //   id: "doubleGroup",
+  //   beforeDatasetsDraw(chart, args, pluginOptions) {
+  //     const {
+  //       ctx,
+  //       data,
+  //       chartArea: { top, bottom, left, right, width, height },
+  //     } = chart;
+  //
+  //     const segment = width / data.labels.length;
+  //     const quarter = segment / 5;
+  //     let VisibleCount = chart.getVisibleDatasetCount();
+
+  //     if (data.datasets.length > 0) {
+  //       const coorX = chart.getDatasetMeta(0).data.map((datapoint, index) => {
+  //         return datapoint.x;
+  //       });
+
+  //       chart.getDatasetMeta(0).data.forEach((datapoint, index) => {
+  //
+  //         // datapoint.x = segment * index + left + quarter + 20;
+  //         datapoint.x = segment + 20;
+  //         // console.log(segment * index + left + quarter + 20);
+  //       });
+  //     }
+  //   },
+  // };
 
   let titleText = title;
   let formatValue;
@@ -156,15 +184,13 @@ export default function BarChartWeekly({ chartData, options, title }) {
                 </IconButton>
               </div>
               <div>
-                <Line
+                <Bar
                   data={chartData}
                   options={{
-                    ...options,
                     plugins: {
-                      ...options.plugins,
                       title: {
                         display: true,
-                        text: title,
+                        text: titleText,
                       },
                       legend: {
                         display: chartData.datasets[0].data[0] > 0,
@@ -186,14 +212,12 @@ export default function BarChartWeekly({ chartData, options, title }) {
                       y: {
                         beginAtZero: true,
                         ticks: {
-                          callback: formatNumber,
-                          // function (value) {
-                          //   return `${value}`; // Formatting the Y-axis values
-                          // },
+                          callback: formatValue,
                         },
                       },
                     },
                   }}
+                  //plugins={[doubleGroup]}
                 />
               </div>
             </div>
@@ -227,7 +251,7 @@ export default function BarChartWeekly({ chartData, options, title }) {
                   </IconButton>
                 </DialogTitle>
                 <DialogContent>
-                  <PopupChart chartData={chartData} options={options} title={titleText} />
+                  <PopupChart chartData={chartData} title={titleText} />
                 </DialogContent>
               </Dialog>
             </Grid>
@@ -240,13 +264,13 @@ export default function BarChartWeekly({ chartData, options, title }) {
 
 function formatNumber(number) {
   if (number >= 10000000) {
-    return (number / 10000000).toFixed(0);
+    return (number / 10000000).toFixed(2) + " Cr";
   } else if (number >= 100000) {
-    return (number / 100000).toFixed(0);
+    return (number / 100000).toFixed(2) + " Lakh";
   } else if (number >= 1000) {
-    return (number / 1000).toFixed(0);
+    return (number / 1000).toFixed(2) + " K";
   } else {
-    return number.toFixed(0);
+    return number.toFixed(2);
   }
 }
 
@@ -303,65 +327,55 @@ const doubleGroups = {
   },
 };
 
-
-
-function PopupChart({ chartData, title, options }) {
-  console.log(chartData);
-  console.log(options, "pppp");
-
-  useEffect(() => {
+function PopupChart({ chartData, title }) {
+  React.useEffect(() => {
     const ctx = document.getElementById("popup-chart").getContext("2d");
-
-    ChartJS.register(Title, Legend, Tooltip, BarElement, CategoryScale, LinearScale);
-
-    const finalOptions = {
-      ...options,
-      plugins: {
-        ...options?.plugins,
-        title: {
-          display: true,
-          text: title,
-        },
-        legend: {
-          display: chartData.datasets[0].data[0] > 0,
-          labels: {
-            usePointStyle: true,
-          },
-        },
-        datalabels: false,
-      },
-     
-      layout: {
-        padding: {
-          left: 10,
-          right: 10,
-          top: 10,
-          bottom: 10,
-        },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: formatNumber,
-            // function (value) {
-            //   return `${value}`;
-            // },
-          },
-        },
-      },
-    };
-
-    const chartInstance = new ChartJS(ctx, {
+    // ChartJS.register(doubleGroups);
+    new ChartJS(ctx, {
       type: "bar",
       data: chartData,
-      options: finalOptions,
+      // plugins: { doubleGroups },
+      options: {
+        plugins: {
+          title: {
+            display: true,
+            text: title,
+          },
+          legend: {
+            display: chartData.datasets[0].data[0] > 0,
+            labels: {
+              usePointStyle: true,
+            },
+          },
+          datalabels: false,
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value, index, values) {
+                if (value >= 10000000) {
+                  return (value / 10000000).toFixed(2);
+                } else if (value >= 100000) {
+                  return (value / 100000).toFixed(2);
+                } else if (value >= 1000) {
+                  return (value / 1000).toFixed(2);
+                } else {
+                  return value.toFixed(2);
+                }
+              },
+            },
+          },
+        },
+        // plugins: [doubleGroups],
+      },
     });
 
     return () => {
-      chartInstance.destroy();
+      // ChartJS.unregister(doubleGroups);
     };
-  }, [chartData, options, title]);
+  }, [chartData]);
+
   return (
     <div className="popup-chart">
       <canvas id="popup-chart"></canvas>

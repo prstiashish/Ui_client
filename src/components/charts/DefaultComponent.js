@@ -1,8 +1,8 @@
 const DefaultComponent = () => {
   return (
     <div>
-      <h1>NOO Charts</h1>
-
+      <h1></h1>
+     
       </div>
   )
 }

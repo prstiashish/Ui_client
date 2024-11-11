@@ -32,7 +32,7 @@ import { format } from "date-fns";
 
 const MyComponent = () => {
   const [dimension, setDimension] = useState("Branch");
-  // console.log(dimension, "hwwwwwww");
+  console.log(dimension, "hwwwwwww");
   const [toplimit, setTopLimit] = useState(15);
   const [chartData, setChartData] = useState({
     labels: [],
@@ -49,7 +49,9 @@ const MyComponent = () => {
 
   const [error, setError] = useState(null);
 
-  
+  // const [startDate, setStartDate] = useState(null);
+
+  // const [endDate, setEndDate] = useState(null);
   const [startDate, setStartDate] = useState(new Date("2024-04-01")); // Default start date
   const [endDate, setEndDate] = useState(new Date()); // Current date
 
@@ -70,8 +72,142 @@ const MyComponent = () => {
 
   const dataUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
+  // Initial fetch of default data on component mount
+  // useEffect(() => {
+  //   const defaultPayload = {
+  //     dimension: `${dimension}:All`,
+  //     view: "top-trends",
+  //     topRank: toplimit,
+  //   };
+  //   fetchData(defaultPayload);
+  // }, []);
 
+  // const handleFetchData = () => {
+  //   // const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : "";
+  //   // const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : "";
+  //   const defaultStartDate = "2024-04-01";
+  //   const defaultEndDate = format(new Date(), "yyyy-MM-dd"); // Current date formatted
 
+  //   // Format start and end dates or use default values
+  //   const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : defaultStartDate;
+  //   const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : defaultEndDate;
+
+  //   setStartDate(formattedStartDate);
+  //   setEndDate(formattedEndDate);
+
+  //   console.log(formattedStartDate, "startDdddddddddddddate");
+  //   console.log(formattedEndDate, "endDdddddddddddddddate");
+
+  //   const payload = {
+  //     dimension: `${dimension}:All`,
+  //     view: "top-trends",
+  //     topRank: toplimit,
+  //     start_date: formattedStartDate,
+  //     end_date: formattedEndDate,
+  //     include_prev_year: isChecked,
+  //   };
+  //   console.log("Payload inside handleFetchData:", payload);
+
+  //   // console.log("Payload inside handleFetchData:", payload);
+  //   fetchData(payload);
+  // };
+
+  // const fetchData = async (payload) => {
+  //   console.log("Fetching data with payload:", payload);
+  //   try {
+  //     const response = await axios.post(dataUrl, payload);
+  //     const data = response.data;
+
+  //     // Log response data for debugging
+  //     console.log("Response data:", data);
+  //     console.log("Data keys:", Object.keys(data));
+  //     console.log("Data for current fiscal year:", data["Current Fiscal Year"]);
+  //     console.log("Data for previous fiscal year:", data["Previous Fiscal Year"]);
+
+  //     // Check if the response data is an array or contains expected keys
+  //     if (Array.isArray(data)) {
+  //       // Process data if it's an array (for when include_prev_year is false)
+  //       const labels = data.map((item) => item[dimension] || "Unknown"); // Handle missing dimension
+  //       const salesData = data.map((item) => item.Gross_Amount || 0); // Handle missing Gross_Amount
+
+  //       const newChartData = {
+  //         labels: labels,
+  //         datasets: [
+  //           {
+  //             label: `${dimension} Sales`,
+  //             data: salesData,
+  //             // backgroundColor: "#004792",
+  //             backgroundColor: "rgba(25, 127, 192)",
+  //           },
+  //         ],
+  //       };
+
+  //       setChartData(newChartData);
+  //     } else if (data["Current Fiscal Year"] && data["Previous Fiscal Year"]) {
+  //       // Process data if it includes current and previous fiscal years
+  //       const currentYearData = data["Current Fiscal Year"] || [];
+  //       const previousYearData = data["Previous Fiscal Year"] || [];
+
+  //       const currentLabels = currentYearData.map((item) => item[dimension] || "Unknown");
+  //       const currentSalesData = currentYearData.map((item) => item.Gross_Amount || 0);
+
+  //       const previousLabels = previousYearData.map((item) => item[dimension] || "Unknown");
+  //       const previousSalesData = previousYearData.map((item) => item.Gross_Amount || 0);
+
+  //       // Combine labels and sales data
+  //       const labels = [...new Set([...currentLabels, ...previousLabels])];
+  //       const combinedSalesData = labels.map((label) => {
+  //         return {
+  //           current: currentSalesData[currentLabels.indexOf(label)] || 0,
+  //           previous: previousSalesData[previousLabels.indexOf(label)] || 0,
+  //         };
+  //       });
+
+  //       const datasets = [
+  //         {
+  //           label: "Current Fiscal Year Sales",
+  //           data: combinedSalesData.map((item) => item.current),
+  //           // backgroundColor: "rgb(0, 71, 146)",
+  //           backgroundColor: "rgba(25, 127, 192)",
+  //         },
+  //       ];
+
+  //       if (previousYearData.length > 0) {
+  //         datasets.push({
+  //           label: "Previous Fiscal Year Sales",
+  //           data: combinedSalesData.map((item) => item.previous),
+  //           // backgroundColor: "rgb(0, 71, 146,0.3)",
+  //           backgroundColor: "rgba(25, 127, 192, 0.18)",
+  //         });
+  //       }
+
+  //       const newChartData = {
+  //         labels: labels,
+  //         datasets: datasets,
+  //       };
+
+  //       setChartData(newChartData);
+  //     } else {
+  //       console.error("Unexpected data format:", data);
+  //     }
+
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const handleSubmit = () => {
+  //   handleFetchData();
+  //   setIsSlideOpen(false);
+  //   setTopLimit(15);
+  //   // setStartDate(null);
+  //   // setEndDate(null);
+  //   setStartDate("2024-04-01");
+  //   setEndDate(format(new Date(), "yyyy-MM-dd"));
+  //   setIsChecked(false);
+  // };
 
   const createPayload = () => {
     const defaultStartDate = new Date("2024-04-01"); // Set default start date
@@ -327,7 +463,7 @@ const MyComponent = () => {
                 border: "1px solid #dcdcdc",
                 backgroundColor: "#f9f9f9",
                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                marginTop: "10px",
+                marginTop: "50px",
               }}
             >
               <Typography variant="h6" sx={{ marginBottom: "8px" }}>

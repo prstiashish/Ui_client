@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { GetAuthToken } from "src/components/charts/AuthDetails";
 
-
-
 const SplashScreen = () => {
   useEffect(() => {
     setTimeout(() => {

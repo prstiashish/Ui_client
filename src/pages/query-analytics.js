@@ -158,14 +158,27 @@ const QueryAnalytics = () => {
     const result = {
       labels,
       datasets: [
+        // {
+        //   backgroundColor: "#003380",
+        //   borderColor: "#003380",
+        //   hoverBackgroundColor: "#003380",
+        //   hoverBorderColor: "#003380",
+        //   barThickness: 30,
+        //   maxBarThickness: 40,
+        //   barPercentage: 0.1,
+        //   categoryPercentage: 1,
 
+        // },
         {
           backgroundColor: "#A1C6E7",
           borderColor: "#FFFFFF",
           borderWidth: 1,
           hoverBackgroundColor: "#6A9BD4",
           hoverBorderColor: "#6A9BD4",
-
+          // barThickness: 45,
+          // maxBarThickness: 50,
+          // barPercentage: 1.0,
+          // categoryPercentage: 1.0,
           barThickness: 40,
           barPercentage: 0.8,
           categoryPercentage: 0.8,
@@ -174,8 +187,37 @@ const QueryAnalytics = () => {
           measureName: measure, // Include the measure name here
         },
       ],
-
-
+      // chartOptions: {
+      //   responsive: true,
+      //   maintainAspectRatio: false,
+      //   plugins: {
+      //     legend: {
+      //       display: false,
+      //     },
+      //     title: {
+      //       display: true,
+      //       text: title, // Set the dynamic title here
+      //     },
+      //   },
+      //   scales: {
+      //     x: {
+      //       title: {
+      //         display: true,
+      //         text: xLabel, // Set the dynamic X-axis label here
+      //       },
+      //       grid: {
+      //         display: false,
+      //       },
+      //     },
+      //     y: {
+      //       beginAtZero: true,
+      //       title: {
+      //         display: true,
+      //         text: yLabel, // Set the dynamic Y-axis label here
+      //       },
+      //     },
+      //   },
+      // },
     };
 
     // console.log(result, "resultttt");
@@ -183,12 +225,56 @@ const QueryAnalytics = () => {
     return { ...result, title, xLabel, yLabel };
   }
 
+  // function scenario2(data, dimension, measure, itemsToStack) {
 
+  //   let labels = [];
+  //   let dataSets = [];
 
+  //   const colors = [
+  //     "#FFA07A", // Light Salmon (Soft orange-pink)
+  //     "#A4D6A8",
+  //     "#87CEFA", // Light Sky Blue (Calm blue)
+  //     "#98FB98", // Pale Green (Soft green)
 
+  //     "#F08080", // Light Coral (Soft red)
+  //     "#FFB6C1", // Light Pink (Soft and delicate)
+  //   ];
 
+  //   console.log(itemsToStack, "itemsToStack");
 
+  //   // Create a dataset for each stackable item
+  //   itemsToStack.forEach((item, index) => {
+  //     dataSets.push({
+  //       label: item.label,
+  //       // measure: item.measure,
+  //       backgroundColor: colors[index % colors.length], // Apply the shades
+  //       borderColor: colors[index % colors.length], // Border color
+  //       hoverBackgroundColor: colors[index % colors.length], // Keep the same color on hover
+  //       hoverBorderColor: colors[index % colors.length], // Keep the same border color on hover
+  //       data: [], // Breakdown data
+  //       stack: "stack1",
+  //     });
+  //   });
 
+  //   // Process each data point
+  //   data.forEach((d) => {
+  //     labels.push(d[dimension]); // Set labels for x-axis
+  //     let cumulativeValue = 0;
+
+  //     // Calculate and store values for each stackable item
+  //     itemsToStack.forEach((item, idx) => {
+  //       const itemValue = d[item.itemKey] || 0;
+  //       dataSets[idx].data.push(itemValue);
+  //       cumulativeValue += itemValue;
+  //     });
+
+  //   });
+
+  //   return {
+  //     labels,
+  //     datasets: dataSets,
+  //   };
+  // }
 
   function scenario2(data, dimension, measure, itemsToStack) {
     let labels = [];
@@ -237,7 +323,87 @@ const QueryAnalytics = () => {
     };
   }
 
+  // function scenario3(data, dimension, measure) {
+  //   console.log("dataaa", data); // Debugging output
 
+  //   const topLabels = Object.keys(data); // Get all dimension labels
+  //   const allItems = []; // To hold unique items for the specified dimension
+  //   const datasets = []; // To hold datasets for the chart
+
+  //   const colors = [
+  //     "#A0C6E0", // Light Blue
+  //     "#FFD2A6", // Light Orange
+  //     "#A4D6A8", // Light Green
+  //     "#F2B2B1", // Light Red
+  //     "#D5C3E8", // Light Purple
+  //     "#D2BFA2", // Light Brown
+  //     "#F2A6C8", // Light Pink
+  //     "#BEBEBE", // Light Gray
+  //     "#D8D95B", // Light Olive
+  //     "#A3E6E5", // Light Cyan
+  //     "#C4D6E9", // Soft Blue
+  //     "#FFE6B5", // Soft Orange
+  //     "#B5E1B5", // Soft Green
+  //     "#FFB3B1", // Soft Red
+  //     "#D6B9E8", // Soft Lavender
+  //     "#E1C6B0", // Soft Tan
+  //     "#F9C3D0", // Soft Blush
+  //     "#D7D7D7", // Light Gray
+  //     "#E3E3A5", // Light Olive
+  //     "#B0E4E3", // Soft Teal
+  //     "#F2D6C1", // Soft Peach
+  //   ];
+
+  //   const colorMap = {}; // To store colors for each unique item
+
+  //   // Iterate through each dimension label
+  //   topLabels.forEach((label) => {
+  //     data[label].forEach((item) => {
+  //       const itemValue = item[dimension]; // Get the value for the specified dimension
+  //       const itemMeasure = item[measure]; // Get the measure value
+
+  //       // Check if the item already exists and find its index
+  //       const itemIdx = allItems.findIndex((i) => i === itemValue);
+
+  //       if (itemIdx > -1) {
+  //         // Item exists, push the measure value into the existing dataset
+  //         datasets[itemIdx].data.push(itemMeasure);
+  //       } else {
+  //         // Item does not exist, create a new entry
+  //         allItems.push(itemValue); // Add the new item value
+  //         datasets.push({
+  //           // `${stack} - ${itemConfig.label}`
+  //           // label: itemValue, // Assign the label for the dataset
+  //           label: `${itemValue} - ${measure}`,
+  //           data: [itemMeasure], // Initialize with the measure value
+  //           backgroundColor: colors[allItems.length % colors.length], // Assign color
+  //         });
+  //       }
+  //     });
+  //   });
+
+  //   // Fill in empty data arrays for missing items across different groups
+  //   datasets.forEach((dataset) => {
+  //     dataset.data.length = topLabels.length; // Ensure the dataset length matches the number of labels
+  //     dataset.data.fill(0); // Fill with zeros initially
+  //   });
+
+  //   // Re-populate datasets with the actual measure values
+  //   topLabels.forEach((label, labelIndex) => {
+  //     data[label].forEach((item) => {
+  //       const itemValue = item[dimension];
+  //       const datasetIndex = allItems.indexOf(itemValue);
+  //       if (datasetIndex > -1) {
+  //         datasets[datasetIndex].data[labelIndex] = item[measure]; // Assign the measure value
+  //       }
+  //     });
+  //   });
+
+  //   return {
+  //     labels: topLabels, // Labels for each dimension
+  //     datasets: datasets, // Datasets for the chart
+  //   };
+  // }
 
   function scenario3(data, dimension, measure) {
     const topLabels = Object.keys(data); // Get all dimension labels
@@ -300,15 +466,109 @@ const QueryAnalytics = () => {
     };
   }
 
+  // for color 1st
+  // function scenario4(data, dimension, measure, itemsToStack) {
+  //   console.log("scenario444444444dataa", data);
+  //   console.log(measure, "mmmmmmm");
+  //   const topLabels = Object.keys(data); // Get all dimension labels
 
+  //   let stacks = []; // To hold unique stacks for the specified dimension
+  //   let datasets = []; // To hold datasets for the chart
+  //   let values = []; // To hold final data values
 
+  //   // Define a set of distinct colors for each measure
+  //   const colorPalette = [
+  //     "#A0C6E0", // Light Blue
+  //     "#FFD2A6", // Light Orange
+  //     "#A4D6A8", // Light Green
+  //     "#F2B2B1", // Light Red
+  //     "#D5C3E8", // Light Purple
+  //     "#D2BFA2", // Light Brown
+  //     "#F2A6C8", // Light Pink
+  //     "#BEBEBE", // Light Gray
+  //     "#D8D95B", // Light Olive
+  //     "#A3E6E5", // Light Cyan
+  //     // Add more colors as needed
+  //   ];
 
+  //   // Process and sort each dimension's data by rank
+  //   topLabels.forEach((label) => {
+  //     data[label] = (data[label] || []).sort((a, b) => (a.rank || 0) - (b.rank || 0));
+  //   });
 
+  //   // Iterate through each label to create stacks
+  //   topLabels.forEach((label, labelIdx) => {
+  //     (data[label] || []).forEach((item) => {
+  //       const stackIdx = stacks.findIndex((i) => i === item[dimension]);
 
+  //       if (stackIdx > -1) {
+  //         // Update existing stack
+  //         itemsToStack.forEach((i, iIdx) => {
+  //           datasets[stackIdx][iIdx][labelIdx] = item[i] || 0; // Ensure fallback to zero
+  //         });
+  //       } else {
+  //         // Create new stack
+  //         stacks.push(item[dimension]);
 
+  //         // Initialize new array for this stack
+  //         let ar = Array(itemsToStack.length)
+  //           .fill(0)
+  //           .map(() => Array(topLabels.length).fill(0));
+  //         itemsToStack.forEach((i, iIdx) => {
+  //           ar[iIdx][labelIdx] = item[i] || 0; // Ensure fallback to zero
+  //         });
+  //         datasets.push(ar);
+  //       }
+  //     });
+  //   });
 
+  //   stacks.forEach((stack, stackIdx) => {
+  //     let marginValues = Array(topLabels.length).fill(0);
 
+  //     topLabels.forEach((label, labelIdx) => {
+  //       const totalSales =
+  //         (data[label] || []).find((item) => item[dimension] === stack)?.[measure] || 0;
+  //       let totalCost = 0;
 
+  //       itemsToStack.forEach((item, itemIdx) => {
+  //         totalCost += (datasets[stackIdx]?.[itemIdx] || []).reduce((a, b) => a + (b || 0), 0); // Sum up costs
+  //       });
+
+  //       // marginValues[labelIdx] = totalSales - totalCost;
+  //     });
+
+  //     // Add margin values to the last dataset
+  //     // datasets[stackIdx].push(marginValues);
+
+  //     // Create dataset for each stack
+  //     itemsToStack.concat("Margin").forEach((item, itemIdx) => {
+  //       const dataForItem = datasets[stackIdx][itemIdx] || [];
+  //       const hasNonZeroValue = dataForItem.some((value) => value !== 0);
+
+  //       if (hasNonZeroValue) {
+  //         const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
+
+  //         values.push({
+  //           label: `${stack}: ${item}`,
+  //           backgroundColor: baseColor, // Use the base color for the stack
+  //           data: dataForItem,
+  //           stack: stack,
+  //         });
+  //       }
+  //     });
+  //   });
+
+  //   return {
+  //     labels: topLabels, // Labels for each dimension
+  //     datasets: values, // Datasets for the chart
+  //   };
+  // }
+
+  // working without percentage
+
+  //
+
+  // geting somtie error
 
   function scenario4(data, dimension, measure, itemsToStack) {
     const topLabels = Object.keys(data); // Get all dimension labels
@@ -432,15 +692,104 @@ const QueryAnalytics = () => {
     };
   }
 
+  // yes
+  // function scenario4(data, dimension, measure, itemsToStack) {
+  //   // console.log("Input Data:", data);
+  //   // console.log("Measure:", measure);
 
+  //   const topLabels = Object.keys(data); // Get all dimension labels
+  //   const stacks = []; // To hold unique stacks for the specified dimension
+  //   const datasets = []; // To hold datasets for the chart
+  //   const values = []; // To hold final data values
 
+  //   const colorPalette = [
+  //     "#FFA07A", // Light Salmon (Soft orange-pink)
+  //     "#A4D6A8",
+  //     "#87CEFA", // Light Sky Blue (Calm blue)
+  //     "#98FB98", // Pale Green (Soft green)
 
+  //     "#F08080", // Light Coral (Soft red)
+  //     "#FFB6C1", // Light Pink (Soft and delicate)
+  //   ];
 
+  //   // Sort each dimension's data by rank
+  //   topLabels.forEach((label) => {
+  //     data[label] = (data[label] || []).sort((a, b) => (a.rank || 0) - (b.rank || 0));
+  //   });
 
+  //   // Iterate through each label to create stacks
+  //   topLabels.forEach((label, labelIdx) => {
+  //     (data[label] || []).forEach((item) => {
+  //       const stackIndex = stacks.findIndex((i) => i === item[dimension]);
 
+  //       if (stackIndex > -1) {
+  //         // Update existing stack
+  //         itemsToStack.forEach((itemConfig, iIdx) => {
+  //           datasets[stackIndex][iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
+  //         });
+  //       } else {
+  //         // Create new stack
+  //         stacks.push(item[dimension]);
 
+  //         // Initialize new array for this stack
+  //         const newStackData = Array(itemsToStack.length)
+  //           .fill(0)
+  //           .map(() => Array(topLabels.length).fill(0));
 
+  //         itemsToStack.forEach((itemConfig, iIdx) => {
+  //           newStackData[iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
+  //         });
 
+  //         datasets.push(newStackData);
+  //       }
+  //     });
+  //   });
+
+  //   // Create dataset for each stack
+  //   // stacks.forEach((stack, stackIdx) => {
+  //   //   itemsToStack.forEach((itemConfig, itemIdx) => {
+  //   //     const dataForItem = datasets[stackIdx][itemIdx] || [];
+  //   //     const hasNonZeroValue = dataForItem.some((value) => value !== 0);
+
+  //   //     if (hasNonZeroValue) {
+  //   //       const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
+
+  //   //       values.push({
+  //   //         label: itemConfig.label, // Use the label directly from itemConfig
+  //   //         backgroundColor: baseColor, // Use the base color for the stack
+  //   //         data: dataForItem,
+  //   //         stack: stack,
+  //   //       });
+  //   //     }
+  //   //   });
+  //   // });
+
+  //   stacks.forEach((stack, stackIdx) => {
+  //     itemsToStack.forEach((itemConfig, itemIdx) => {
+  //       const dataForItem = datasets[stackIdx][itemIdx] || [];
+  //       const hasNonZeroValue = dataForItem.some((value) => value !== 0);
+
+  //       if (hasNonZeroValue) {
+  //         const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
+
+  //         values.push({
+  //           // Include both the dimension (stack) and item label in the label property
+  //           label: `${stack} - ${itemConfig.label}`, // Dimension (stack) and label combined
+  //           backgroundColor: baseColor, // Use the base color for the stack
+  //           data: dataForItem,
+  //           stack: stack, // This remains the same
+  //         });
+  //       }
+  //     });
+  //   });
+
+  //   // console.log(datasets, "444444444444444");
+
+  //   return {
+  //     labels: topLabels, // Labels for each dimension
+  //     datasets: values, // Datasets for the chart
+  //   };
+  // }
 
   const getChartTitle = (dimension, measure, includeCOGS, partition, scenario) => {
     if (scenario === 1) return `Chart based on ${dimension} and ${measure}`;
@@ -483,7 +832,20 @@ const QueryAnalytics = () => {
     }
   };
 
-
+  // const getBarDivStyles = (scenario, labelsLength) => {
+  //   switch (scenario) {
+  //     case 1:
+  //       return { minWidth: labelsLength * 80 };
+  //     case 2:
+  //       return { minWidth: labelsLength * 90 };
+  //     case 3:
+  //       return { minWidth: labelsLength * 1000 };
+  //     case 4:
+  //       return { minWidth: labelsLength * 1000 };
+  //     //   default:
+  //     //     return { minWidth: labelsLength * 80 }; // Ensure this is your default value
+  //   }
+  // };
 
   const getBarDivStyles = (scenario, labelsLength) => {
     const baseWidthPerLabel = 60; // Set a smaller base width per label to avoid large bars for minimal data
@@ -547,7 +909,15 @@ const QueryAnalytics = () => {
         chartDimension = getChartDimenion(dimensionKey, 1);
         scenario = 1;
       } else if (includeCOGS && partition === "None") {
+        // generatedChartData = scenario2(fetchedData, dimensionKey, measure, [
+        //   { label: "Materials Cost", itemKey: "Materials_Cost" },
+        //   { label: "Channel Commission", itemKey: "Channel_Commission" },
+        //   { label: "Discounts", itemKey: "Discounts" },
+        //   { label: "Supplies Cost", itemKey: "Supplies_Cost" },
+        //   { label: "Margin", itemKey: "Margin" },
+        //   // { label: "Channel Commission", itemKey: "Channel_Commission" },
 
+        // ]);
 
         generatedChartData = scenario2(fetchedData, dimensionKey, measure, [
           {
@@ -587,7 +957,18 @@ const QueryAnalytics = () => {
         chartDimension = getChartDimenion(dimensionKey, 3);
         scenario = 3;
       } else if (includeCOGS && partition !== "None") {
-
+        // generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
+        //   // "Materials_Cost",
+        //   // "Channel_Commission",
+        //   // "Discounts",
+        //   // "Supplies_Cost",
+        //   // "Margin"
+        //   { label: "Materials Cost", itemKey: "Materials_Cost" },
+        //   { label: "Channel Commission", itemKey: "Channel_Commission" },
+        //   { label: "Discounts", itemKey: "Discounts" },
+        //   { label: "Supplies Cost", itemKey: "Supplies_Cost" },
+        //   { label: "Margin", itemKey: "Margin" },
+        // ]);
 
         generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
           {
@@ -646,7 +1027,57 @@ const QueryAnalytics = () => {
     }
   };
 
- 
+  //  ===============++++++++++++okokok
+
+  // const handleSubmit = async (data, receivedPayload) => {
+  //   console.log("Data:", data);
+  //   console.log("Received Payload:", receivedPayload);
+
+  //   if (data) {
+  //     setChartsData(data);
+  //     setPanelOpen(false);
+  //   }
+
+  //   if (receivedPayload) {
+  //     // Retrieve existing payload array from cookies
+  //     const existingPayloads = Cookies.get('chartPayload');
+  //     let payloadArray = [];
+
+  //     if (existingPayloads) {
+  //       try {
+  //         // Parse existing payload array from cookies
+  //         payloadArray = JSON.parse(existingPayloads);
+  //       } catch (error) {
+  //         console.error('Error parsing existing payloads:', error);
+  //       }
+  //     }
+
+  //     // Ensure that payloadArray is an array
+  //     if (!Array.isArray(payloadArray)) {
+  //       payloadArray = [];
+  //     }
+
+  //     // Check if the payload is already saved in the cookies
+  //     const isDuplicate = payloadArray.some(
+  //       (payload) => JSON.stringify(payload) === JSON.stringify(receivedPayload)
+  //     );
+
+  //     if (!isDuplicate) {
+  //       // Append the new payload to the payloadArray if not a duplicate
+  //       payloadArray.push(receivedPayload);
+
+  //       // Save the updated payload array to cookies
+  //       Cookies.set('chartPayload', JSON.stringify(payloadArray), { expires: 7 }); // Store for 7 days
+
+  //       // Fetch chart data from the backend with the new payload
+  //       const fetchedData = await fetchChartData(receivedPayload);
+  //       if (fetchedData) {
+  //         processFetchedData(fetchedData, receivedPayload);
+  //       }
+  //     }
+  //   }
+  // };
+
   const [startDate, setStartDate] = useState(null);
 
   const [endDate, setEndDate] = useState(null);
@@ -845,7 +1276,7 @@ const QueryAnalytics = () => {
       // Remove the chart from cookies
       try {
         // Remove the chart at the specified index from the payload array
-        payloadArray.splice(index, 1);
+        payloadArray.splice(index, 1); // Remove the specific chart using splice
 
         // Update the cookies with the modified payload array
         Cookies.set(userChartsKey, JSON.stringify(payloadArray), { expires: 7 });
@@ -864,7 +1295,7 @@ const QueryAnalytics = () => {
     // Check if the value is a number
     if (typeof value !== "number") {
       console.error("Value is not a number:", value);
-      return value;
+      return value; // Return the original value for non-numeric inputs
     }
 
     const currentChartData = chartDataList[0];
@@ -872,7 +1303,7 @@ const QueryAnalytics = () => {
     // Check if chart data and datasets are defined
     if (!currentChartData || !currentChartData.datasets) {
       console.error("Chart data or datasets are undefined:", currentChartData);
-      return value;
+      return value; // Return the original value if datasets are undefined
     }
 
     const datasets = currentChartData.datasets;
@@ -914,9 +1345,85 @@ const QueryAnalytics = () => {
     setPanelOpen(true);
   };
 
+  // const chartOptions = (currentData) => ({
+  //   responsive: true,
+  //   maintainAspectRatio: false,
+  //   plugins: {
+  //     title: {
+  //       display: true,
+  //       text: "", // Add dynamic title if needed
+  //     },
+  //     legend: {
+  //       display: false,
+  //     },
+  //     datalabels: {
+  //       display: false, // Disable data labels
+  //     },
+  //   },
+  //   layout: {
+  //     padding: {
+  //       left: 0,
+  //       right: 10,
+  //     },
+  //   },
+  //   scales: {
+  //     x: {
+  //       stacked: currentData.datasets.some((dataset) => dataset.label === "Gross Amount"), // Adjust based on your logic
+  //       title: {
+  //         display: true,
+  //         text: "", // Add dynamic axis title if needed
+  //         font: {
+  //           size: 14,
+  //           weight: "bold",
+  //         },
+  //       },
+  //       ticks: {
+  //         font: {
+  //           weight: 900,
+  //           size: 8,
+  //         },
+  //       },
+  //       grid: {
+  //         display: true, // Turn on grid lines on the x-axis
+  //       },
+  //     },
+  //     y: {
+  //       beginAtZero: false,
+  //       type: "logarithmic", // Use logarithmic scale if necessary
+  //       // type: 'symlog',
+  //       ticks: {
+  //         callback: formatValue, // Ensure this formats your y-axis ticks correctly
+  //       },
+  //       title: {
+  //         display: true,
+  //         text: "", // Add dynamic measure title if needed
+  //         font: {
+  //           size: 24,
+  //           weight: "bold",
+  //         },
+  //       },
+  //       grid: {
+  //                   display: true,
+  //                   color: "#ddd",
+  //                   lineWidth: 1,
+  //                 },
+  //     },
+  //   },
+  //   elements: {
+  //     bar: {
+  //       // borderRadius: 4,
+  //       // barThickness: 40, // Control thickness for clarity
+  //       // maxBarThickness: 50, // Set max thickness
+  //       // borderRadius: 4,
+  //       barThickness: 30, // Adjust thickness as necessary
+  //       maxBarThickness: 50,
+  //       categoryPercentage: 0.8, // Control spacing between stacked bars
+  //       barPercentage: 0.9, // Control the width of the bars
+  //     },
+  //   },
+  // });
 
-
-
+  // for big bar workngg
 
   const chartOptions = (currentData) => {
     // Determine if the chart is stacked
@@ -1026,6 +1533,124 @@ const QueryAnalytics = () => {
     };
   };
 
+  // const chartOptions = (currentData) => {
+  //   // Calculate the maximum value dynamically to adjust y-axis range
+
+  //   console.log("currentData:", currentData);
+
+  //   const maxPositive = Math.max(
+  //     ...currentData.datasets.flatMap((dataset) => dataset.data.filter((value) => value > 0))
+  //   );
+  //   const minNegative = Math.min(
+  //     ...currentData.datasets.flatMap((dataset) => dataset.data.filter((value) => value < 0))
+  //   );
+
+  //   // console.log("minNegative:", minNegative, "maxPositive:", maxPositive);
+
+  //   // Set y-axis limits based on data
+  //   const yMin = minNegative < 0 ? minNegative * 2.5 : 0; // Extend the min for visibility
+  //   const yMax = Math.max(maxPositive * 2.5); // Just slightly extend the max
+
+  //   // console.log("yMin:", yMin, "yMax:", yMax);
+
+  //   const isStacked = currentData.datasets.some((dataset) => dataset.label === "Gross Amount");
+
+  //   return {
+  //     responsive: true,
+  //     maintainAspectRatio: false,
+  //     plugins: {
+  //       title: {
+  //         display: true,
+  //         text: "", // Add dynamic title if needed
+  //       },
+  //       legend: {
+  //         display: false, // Enable legend for clarity
+  //       },
+  //       datalabels: {
+  //         display: true, // Enable data labels
+  //         // formatter: (value) => formatValue(value), // Use the formatValue function for data labels
+  //         formatter: (value, context) => {
+  //           // Safely check if percentageData exists and the current data index is defined
+  //           const percentageData = context.dataset.percentageData;
+  //           const percentage = percentageData && percentageData[context.dataIndex];
+
+  //           // Return percentage data if available, otherwise use the raw value
+  //           return percentage !== undefined ? `${percentage.toFixed(1)}%` : formatValue(value, 0);
+  //         },
+
+  //         color: "black", // Color of the labels
+  //         anchor: "center", // Center the label on the bar
+  //         align: "center", // Align label to the center of the bar
+  //         font: {
+  //           weight: "bold", // Make the font bold
+  //           size: "8", // Set the font size
+  //         },
+  //       },
+  //     },
+  //     layout: {
+  //       padding: {
+  //         left: 0,
+  //         right: 10,
+  //       },
+  //     },
+  //     scales: {
+  //       x: {
+  //         // stacked: true,
+
+  //         title: {
+  //           display: true,
+  //           text: "", // Add dynamic axis title if needed
+  //           font: {
+  //             size: 14,
+  //             weight: "bold",
+  //           },
+  //         },
+  //         ticks: {
+  //           font: {
+  //             weight: 900,
+  //             size: 10,
+  //           },
+  //         },
+  //         grid: {
+  //           display: true, // Show grid lines
+  //         },
+  //       },
+  //       y: {
+  //         beginAtZero: false, // Allow y-axis to start below zero
+  //         type: "logarithmic", // Use logarithmic scale if necessary
+  //         min: yMin, // Use dynamically calculated min
+  //         max: yMax, // Use dynamically calculated max
+  //         ticks: {
+  //           callback: formatValue, // Use the formatValue function
+  //           font: {
+  //             size: 10,
+  //           },
+  //         },
+  //         title: {
+  //           display: true,
+  //           text: "", // Add dynamic measure title if needed
+  //           font: {
+  //             size: 24,
+  //             weight: "bold",
+  //           },
+  //         },
+  //         // grid: {
+  //         //   display: true,
+  //         //   color: "#ddd",
+  //         //   lineWidth: 1,
+  //         // },
+  //       },
+  //     },
+  //     elements: {
+  //       bar: {
+  //         barThickness: 35, // Adjust thickness for clarity
+  //         maxBarThickness: 50,
+  //         categoryPercentage: 0.8,
+  //         barPercentage: 0.9,
+  //       },
+  //     },
+  //   };
+  // };
 
   return (
     <>

@@ -38,7 +38,6 @@ import Cookies from "js-cookie";
 
 const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
-
 const QueryAnalytics = () => {
   const [loadingStates, setLoadingStates] = useState([]); // Track loading states for each chart
 
@@ -68,9 +67,8 @@ const QueryAnalytics = () => {
   };
   const handleCloseModal = () => setOpenModal(false);
 
-  // for periodic tale
-  const [chartPayload, setChartPayload] = useState(null); // State to store the payload
-  console.log(chartPayload, "chartPayload");
+  // for periodic tale Ankita
+  // const [chartPayload, setChartPayload] = useState(null); // State to store the payload
 
   // worlignn
 
@@ -418,7 +416,6 @@ const QueryAnalytics = () => {
 
   // ==========================================================
 
-
   // =================================----------------
 
   const fetchChartData = async (payload) => {
@@ -440,137 +437,9 @@ const QueryAnalytics = () => {
     }
   };
 
-  // const processFetchedData = (fetchedData, receivedPayload) => {
-  //   console.log("fetchedData", fetchedData);
-  //   const { dimension, measure, includeCOGS, partition } = receivedPayload;
-  //   let generatedChartData;
-  //   console.log("generatedChartData", generatedChartData);
-  //   let chartTitle = "";
-  //   let chartDimension = "";
-
-  //   let scenario = 1; // Default scenario
-
-  //   if (dimension && measure) {
-  //     const dimensionKey = dimension.split(":")[0];
-
-  //     // Your existing chart generation logic using fetchedData
-  //     if (!includeCOGS && partition === "None") {
-  //       generatedChartData = scenario1(fetchedData, dimensionKey, measure);
-  //       chartTitle = getChartTitle(dimensionKey, measure, includeCOGS, partition, 1);
-  //       chartDimension = getChartDimenion(dimensionKey, 1);
-  //       scenario = 1;
-  //     } else if (includeCOGS && partition === "None") {
-  //       generatedChartData = scenario2(fetchedData, dimensionKey, measure, [
-  //         {
-  //           label: "Materials Cost",
-  //           itemKey: "Materials_Cost",
-  //           percentageKey: "MATERIAL_COST_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Channel Commission",
-  //           itemKey: "Channel_Commission",
-  //           percentageKey: "CHANNEL_COMMISSION_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Discounts",
-  //           itemKey: "Discounts",
-  //           percentageKey: "DISCOUNT_COST_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Supplies Cost",
-  //           itemKey: "Supplies_Cost",
-  //           percentageKey: "SUPPLIES_COST_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Shipping Cost",
-  //           itemKey: "Shipping_Cost",
-  //           percentageKey: "SHIPPING_COST_to_Gross_Amount",
-  //         },
-  //         { label: "Margin", itemKey: "Margin", percentageKey: "Margin_to_Gross_Amount" },
-  //       ]);
-
-  //       chartTitle = getChartTitle(dimensionKey, measure, includeCOGS, partition, 2);
-  //       chartDimension = getChartDimenion(dimensionKey, 2);
-  //       scenario = 2;
-  //     } else if (!includeCOGS && partition !== "None") {
-  //       generatedChartData = scenario3(fetchedData, dimensionKey, measure);
-  //       chartTitle = getChartTitle(dimensionKey, measure, includeCOGS, partition, 3);
-  //       chartDimension = getChartDimenion(dimensionKey, 3);
-  //       scenario = 3;
-  //     } else if (includeCOGS && partition !== "None") {
-  //       generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
-  //         {
-  //           label: "Materials Cost",
-  //           itemKey: "Materials_Cost",
-  //           percentageKey: "MATERIAL_COST_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Channel Commission",
-  //           itemKey: "Channel_Commission",
-  //           percentageKey: "CHANNEL_COMMISSION_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Discounts",
-  //           itemKey: "Discounts",
-  //           percentageKey: "DISCOUNT_COST_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Supplies Cost",
-  //           itemKey: "Supplies_Cost",
-  //           percentageKey: "SUPPLIES_COST_to_Gross_Amount",
-  //         },
-  //         {
-  //           label: "Shipping Cost",
-  //           itemKey: "Shipping_Cost",
-  //           percentageKey: "SHIPPING_COST_to_Gross_Amount",
-  //         },
-  //         { label: "Margin", itemKey: "Margin", percentageKey: "Margin_to_Gross_Amount" },
-  //       ]);
-  //       chartTitle = getChartTitle(dimensionKey, measure, includeCOGS, partition, 4);
-  //       chartDimension = getChartDimenion(dimensionKey, 4);
-  //       scenario = 4;
-  //     }
-
-  //     // console.log("Determined Scenario:", scenario);
-
-  //     // Check for duplicates before adding
-  //     if (generatedChartData) {
-  //       if ( !generatedChartData) {
-  //         console.log("Warning: Selected dates are outside the available data range.");
-  //         // You can also show an alert or notification to the user if needed
-  //         alert(
-  //           'Selected dates are outside the available data range. Please select a different date range.'
-  //         );
-  //         return; // Exit the function
-  //       }
-  //       else {
-  //         const existingChart = chartDataList.find(
-  //           (chart) => chart.title === generatedChartData.title
-  //         );
-  //         if (!existingChart) {
-  //           generatedChartData.title = chartTitle;
-  //           generatedChartData.dimension = chartDimension;
-  //           generatedChartData.scenario = scenario;
-  //           // setChartDataList((prevDataList) => [...prevDataList, generatedChartData]);
-  //           setChartDataList([generatedChartData]);
-
-  //           const labelsLength = generatedChartData.labels.length;
-  //           const styles = getBarDivStyles(scenario, labelsLength);
-  //           // setBarDivStyles(styles);
-  //           setDialogStyles(getDialogContentStyles(scenario));
-  //         }
-  //       }
-
-  //     }
-  //   }
-  //   else {
-  //     alert('no dateeeeeeeeeeeee')
-  //     setBarDivStyles(null);
-  //   setDialogStyles(null);
-  //   }
-  // };
   const processFetchedData = (fetchedData, receivedPayload) => {
     console.log("fetchedData", fetchedData);
+    setData(fetchedData);
     const { dimension, measure, includeCOGS, partition } = receivedPayload;
     let generatedChartData;
     let chartTitle = "";
@@ -703,10 +572,30 @@ const QueryAnalytics = () => {
 
   // kokoko
 
+  const currentDate = new Date(); // Get current date as end_date
+  const end_date = currentDate.toISOString().split("T")[0]; // Convert to 'YYYY-MM-DD' format
+  console.log("end_date:", end_date);
+  // Calculate start_date (14 days before the current date)
+  currentDate.setDate(currentDate.getDate() - 14);
+  const start_date = currentDate.toISOString().split("T")[0]; // Convert to 'YYYY-MM-DD' format
+  console.log("start_date:", start_date);
+
+  const defaultPayload = {
+    dimension: "Product:All",
+    start_date: "2024-04-01",
+    end_date: end_date,
+    measure: "Gross_Amount",
+    includeCOGS: true,
+    partition: "None",
+    bottomRank: 0,
+    topRank: 0,
+  };
+  const [chartPayload, setChartPayload] = useState(defaultPayload);
+
   const handleSubmit = async (data, receivedPayload) => {
-    setData(data);
+    // setData(data);
     console.log("Data:", data);
-    console.log("Received Payload:", receivedPayload);
+    console.log("Received Payloaddddddd:", receivedPayload);
     setChartPayload(receivedPayload);
     const { start_date, end_date } = receivedPayload;
 
@@ -719,72 +608,17 @@ const QueryAnalytics = () => {
       if (fetchedData) {
         processFetchedData(fetchedData, receivedPayload);
       } else {
-        alert("No data");
+        connsole.error("Failed to fetch chart data.");
+        // alert("No data");
       }
     }
   };
 
+  useEffect(() => {
+    handleSubmit({}, defaultPayload); // Pass an empty data object and the default payload
+  }, []);
+
   const processedPayloadsRef = useRef(new Set()); // Use a ref to persist across renders
-
-  // useEffect(() => {
-  //   // Start loading
-  //   const session = new SessionStorageService();
-  //   const currentUser = session.getItem("currentUser");
-
-  //   if (!currentUser) {
-  //     console.error("No user found in session.");
-  //     return;
-  //   }
-
-  //   const userChartsKey = `prsti_${currentUser}_charts`;
-
-  //   // Retrieve the payload array from cookies using the user-specific key
-  //   const cookiePayload = Cookies.get(userChartsKey);
-
-  //   if (cookiePayload) {
-  //     try {
-  //       // Parse payload array from cookies
-  //       const payloadArray = JSON.parse(cookiePayload);
-  //       console.log("Received Payload Array from Cookies:", payloadArray);
-  //       setChartPayload(payloadArray);
-  //       payloadArray.forEach((item, index) => {
-  //         console.log(`Item ${index + 1}:`, item);
-
-  //         // If the object contains start_date and end_date, extract them
-  //         const { start_date, end_date } = item;
-  //         console.log(`Start Date: ${start_date}`);
-  //         console.log(`End Date: ${end_date}`);
-  //         setStartDate(start_date);
-  //         setEndDate(end_date);
-  //       });
-
-  //       // Iterate through each payload and process it
-  //       payloadArray.forEach((receivedPayload) => {
-  //         const payloadString = JSON.stringify(receivedPayload);
-
-  //         // Check if this payload has already been processed using the ref
-  //         if (!processedPayloadsRef.current.has(payloadString)) {
-  //           fetchChartData(receivedPayload).then((fetchedData) => {
-  //             if (fetchedData) {
-  //               // Process and render the fetched data
-  //               processFetchedData(fetchedData, receivedPayload);
-  //               // Add the stringified payload to the ref to prevent duplication
-  //               processedPayloadsRef.current.add(payloadString);
-  //             }
-  //           });
-  //         } else {
-  //           console.log("Duplicate payload found, skipping:", payloadString);
-  //         }
-  //       });
-  //     } catch (error) {
-  //       console.error("Error parsing chart payload from cookies:", error);
-  //     }
-  //   } else {
-  //     console.error("No payload found in cookies.");
-  //   }
-  // }, []);
-
-  // ok
 
   const handleDeleteChart = (index) => {
     // Confirm the deletion (optional)
@@ -1193,7 +1027,7 @@ const QueryAnalytics = () => {
                       >
                         <BsArrowsFullscreen />
                       </IconButton>
-                      <IconButton
+                      {/* <IconButton
                         onClick={() => handleDeleteChart(index)}
                         // onClick={() => handleDeleteChart(chartData.id)}
                         style={{
@@ -1204,7 +1038,7 @@ const QueryAnalytics = () => {
                         }}
                       >
                         <BsTrash />
-                      </IconButton>
+                      </IconButton> */}
                     </div>
                   </div>
 

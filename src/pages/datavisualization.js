@@ -172,7 +172,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
         );
 
         const newallData = response.data;
-        console.log(newallData, "newallData");
+        console.log(newallData, "newallDatas333");
         setDimensions(newallData.dimension);
         setMeasures(newallData.measure);
         setCurrency(newallData.currency);

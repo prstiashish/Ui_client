@@ -20,8 +20,8 @@ import { format } from "date-fns";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 export default function TopTrendBarChart({ chartData, title, startDate, endDate }) {
-  console.log("startDate", startDate);
-  console.log("endDate", endDate);
+  // console.log("startDate", startDate);
+  // console.log("endDate", endDate);
 
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);

@@ -150,11 +150,6 @@ const items = [
     title: "Time Series",
   },
 
-  {
-    href: "/timeSeriesAnalysis",
-    icon: <TimelineIcon fontSize="small" />,
-    title: "Time Series Analysis",
-  },
 
   // {
   //   href: "/qrScanner",

@@ -22,17 +22,14 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"; // Importing DatePicker from MUI
-import TextField from "@mui/material/TextField"; // Importing TextField for the date input
-
-
-
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import TextField from "@mui/material/TextField";
 
 import { format } from "date-fns";
 
 const MyComponent = () => {
   const [dimension, setDimension] = useState("Branch");
-  console.log(dimension, "hwwwwwww");
+  // console.log(dimension, "hwwwwwww");
   const [toplimit, setTopLimit] = useState(15);
   const [chartData, setChartData] = useState({
     labels: [],
@@ -49,16 +46,12 @@ const MyComponent = () => {
 
   const [error, setError] = useState(null);
 
-  // const [startDate, setStartDate] = useState(null);
-
-  // const [endDate, setEndDate] = useState(null);
-  const [startDate, setStartDate] = useState(new Date("2024-04-01")); // Default start date
-  const [endDate, setEndDate] = useState(new Date()); // Current date
+  const [startDate, setStartDate] = useState(new Date("2024-04-01"));
+  const [endDate, setEndDate] = useState(new Date());
 
   const [FYStartDate, setFYStartDate] = useState(null);
-  console.log(FYStartDate, "FYStartDate");
+
   const [FYEndDate, setFYEndDate] = useState(null);
-  console.log(FYEndDate, "FYEndDate");
 
   const [isChecked, setIsChecked] = useState(false);
 
@@ -72,146 +65,9 @@ const MyComponent = () => {
 
   const dataUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
-  // Initial fetch of default data on component mount
-  // useEffect(() => {
-  //   const defaultPayload = {
-  //     dimension: `${dimension}:All`,
-  //     view: "top-trends",
-  //     topRank: toplimit,
-  //   };
-  //   fetchData(defaultPayload);
-  // }, []);
-
-  // const handleFetchData = () => {
-  //   // const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : "";
-  //   // const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : "";
-  //   const defaultStartDate = "2024-04-01";
-  //   const defaultEndDate = format(new Date(), "yyyy-MM-dd"); // Current date formatted
-
-  //   // Format start and end dates or use default values
-  //   const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : defaultStartDate;
-  //   const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : defaultEndDate;
-
-  //   setStartDate(formattedStartDate);
-  //   setEndDate(formattedEndDate);
-
-  //   console.log(formattedStartDate, "startDdddddddddddddate");
-  //   console.log(formattedEndDate, "endDdddddddddddddddate");
-
-  //   const payload = {
-  //     dimension: `${dimension}:All`,
-  //     view: "top-trends",
-  //     topRank: toplimit,
-  //     start_date: formattedStartDate,
-  //     end_date: formattedEndDate,
-  //     include_prev_year: isChecked,
-  //   };
-  //   console.log("Payload inside handleFetchData:", payload);
-
-  //   // console.log("Payload inside handleFetchData:", payload);
-  //   fetchData(payload);
-  // };
-
-  // const fetchData = async (payload) => {
-  //   console.log("Fetching data with payload:", payload);
-  //   try {
-  //     const response = await axios.post(dataUrl, payload);
-  //     const data = response.data;
-
-  //     // Log response data for debugging
-  //     console.log("Response data:", data);
-  //     console.log("Data keys:", Object.keys(data));
-  //     console.log("Data for current fiscal year:", data["Current Fiscal Year"]);
-  //     console.log("Data for previous fiscal year:", data["Previous Fiscal Year"]);
-
-  //     // Check if the response data is an array or contains expected keys
-  //     if (Array.isArray(data)) {
-  //       // Process data if it's an array (for when include_prev_year is false)
-  //       const labels = data.map((item) => item[dimension] || "Unknown"); // Handle missing dimension
-  //       const salesData = data.map((item) => item.Gross_Amount || 0); // Handle missing Gross_Amount
-
-  //       const newChartData = {
-  //         labels: labels,
-  //         datasets: [
-  //           {
-  //             label: `${dimension} Sales`,
-  //             data: salesData,
-  //             // backgroundColor: "#004792",
-  //             backgroundColor: "rgba(25, 127, 192)",
-  //           },
-  //         ],
-  //       };
-
-  //       setChartData(newChartData);
-  //     } else if (data["Current Fiscal Year"] && data["Previous Fiscal Year"]) {
-  //       // Process data if it includes current and previous fiscal years
-  //       const currentYearData = data["Current Fiscal Year"] || [];
-  //       const previousYearData = data["Previous Fiscal Year"] || [];
-
-  //       const currentLabels = currentYearData.map((item) => item[dimension] || "Unknown");
-  //       const currentSalesData = currentYearData.map((item) => item.Gross_Amount || 0);
-
-  //       const previousLabels = previousYearData.map((item) => item[dimension] || "Unknown");
-  //       const previousSalesData = previousYearData.map((item) => item.Gross_Amount || 0);
-
-  //       // Combine labels and sales data
-  //       const labels = [...new Set([...currentLabels, ...previousLabels])];
-  //       const combinedSalesData = labels.map((label) => {
-  //         return {
-  //           current: currentSalesData[currentLabels.indexOf(label)] || 0,
-  //           previous: previousSalesData[previousLabels.indexOf(label)] || 0,
-  //         };
-  //       });
-
-  //       const datasets = [
-  //         {
-  //           label: "Current Fiscal Year Sales",
-  //           data: combinedSalesData.map((item) => item.current),
-  //           // backgroundColor: "rgb(0, 71, 146)",
-  //           backgroundColor: "rgba(25, 127, 192)",
-  //         },
-  //       ];
-
-  //       if (previousYearData.length > 0) {
-  //         datasets.push({
-  //           label: "Previous Fiscal Year Sales",
-  //           data: combinedSalesData.map((item) => item.previous),
-  //           // backgroundColor: "rgb(0, 71, 146,0.3)",
-  //           backgroundColor: "rgba(25, 127, 192, 0.18)",
-  //         });
-  //       }
-
-  //       const newChartData = {
-  //         labels: labels,
-  //         datasets: datasets,
-  //       };
-
-  //       setChartData(newChartData);
-  //     } else {
-  //       console.error("Unexpected data format:", data);
-  //     }
-
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const handleSubmit = () => {
-  //   handleFetchData();
-  //   setIsSlideOpen(false);
-  //   setTopLimit(15);
-  //   // setStartDate(null);
-  //   // setEndDate(null);
-  //   setStartDate("2024-04-01");
-  //   setEndDate(format(new Date(), "yyyy-MM-dd"));
-  //   setIsChecked(false);
-  // };
-
   const createPayload = () => {
-    const defaultStartDate = new Date("2024-04-01"); // Set default start date
-    const defaultEndDate = format(new Date(), "yyyy-MM-dd"); // Current date
+    const defaultStartDate = new Date("2024-04-01");
+    const defaultEndDate = format(new Date(), "yyyy-MM-dd");
 
     const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : defaultStartDate;
     const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : defaultEndDate;
@@ -231,9 +87,8 @@ const MyComponent = () => {
   useEffect(() => {
     const defaultPayload = createPayload();
     fetchData(defaultPayload);
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
-  // Function to handle data fetching
   const handleFetchData = () => {
     const payload = createPayload();
     // console.log("Payload inside handleFetchData:", payload);
@@ -242,13 +97,10 @@ const MyComponent = () => {
   };
 
   const fetchData = async (payload) => {
-    console.log("Fetching data with payload:", payload);
     try {
       const response = await axios.post(dataUrl, payload);
-      console.log("dddddddddddd data:", response);
-      const data = response.data;
 
-      console.log(typeof data,'typeeeeeeeeeeeee')
+      const data = response.data;
 
       // // Log response data for debugging
       // console.log("Response data:", data);
@@ -334,8 +186,6 @@ const MyComponent = () => {
     handleFetchData();
     setIsSlideOpen(false);
     setTopLimit(15);
-    // setStartDate(null);
-    // setEndDate(null);
     setStartDate("2024-04-01");
     setEndDate(format(new Date(), "yyyy-MM-dd"));
     setIsChecked(false);
@@ -363,7 +213,6 @@ const MyComponent = () => {
 
   const handleCheckboxChange = (event) => {
     const checked = event.target.checked;
-    // console.log(checked, "event.target.checked");
     setIsChecked(checked);
   };
 
@@ -395,9 +244,9 @@ const MyComponent = () => {
       </p>
       <div
         style={{
-          display: "flex", // Flexbox layout
-          justifyContent: "space-between", // Spreads out the content
-          alignItems: "center", // Vertically centers the items
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: "0px",
           fontWeight: "bold",
           padding: "0px",
@@ -409,169 +258,201 @@ const MyComponent = () => {
       </div>
 
       {/* Slide-Out Panel */}
-      <Drawer anchor="right" open={isSlideOpen} onClose={() => setIsSlideOpen(false)}>
-        <div style={{ width: "300px", padding: "20px" }}>
-          <IconButton
-            onClick={() => setIsSlideOpen(false)}
-            sx={{ position: "absolute", top: "16px", right: "16px" }}
-          >
-            <CloseIcon />
-          </IconButton>
-
+      <Drawer
+        anchor="right"
+        open={isSlideOpen}
+        onClose={() => setIsSlideOpen(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            borderTopLeftRadius: "30px",
+          },
+        }}
+      >
+        <div style={{ width: "250px", padding: "10px", borderTopLeftRadius: "30px" }}>
           {/* Dimension Selection */}
-          <Grid item xs={12}>
-            <Box
-              sx={{
-                padding: "18px",
-                borderRadius: "5px",
-                border: "1px solid #dcdcdc",
-                backgroundColor: "#f9f9f9",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                marginTop: "50px",
-              }}
+          <Box
+            sx={{
+              width: 230,
+              padding: "16px",
+              position: "relative",
+              border: "1px solid gray",
+              borderTopLeftRadius: "30px",
+              // borderBottomLeftRadius: "30px",
+              display: "flex",
+              flexDirection: "column",
+              // height: "100%",
+              background:
+                "linear-gradient(to bottom,#d9d9d9, #d9d9d9, #f3f1f1, #ffffff, #ffffff, #ffffff)", // Gradient from darker gray to lighter gray
+            }}
+            role="presentation"
+          >
+            <IconButton
+              onClick={() => setIsSlideOpen(false)}
+              sx={{ position: "absolute", top: "0px", right: "-3px" }}
             >
-              <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                Select Dimension
-              </Typography>
+              <CloseIcon />
+            </IconButton>
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  padding: "18px",
+                  borderRadius: "5px",
+                  border: "1px solid #dcdcdc",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                  marginTop: "20px",
+                }}
+              >
+                <Typography variant="h6" sx={{ marginBottom: "8px" }}>
+                  Select Dimension
+                </Typography>
 
-              <FormControl fullWidth>
-                <InputLabel>Dimension</InputLabel>
-                <Select
-                  value={dimension}
-                  onChange={(e) => setDimension(e.target.value)}
-                  label="Dimension"
-                >
-                  <MenuItem value="Brand">Brand</MenuItem>
-                  <MenuItem value="Franchise_Type">Franchise Type</MenuItem>
-                  <MenuItem value="Region">Region</MenuItem>
-                  <MenuItem value="Branch">Branch</MenuItem>
-                  <MenuItem value="Channel">Channel</MenuItem>
-                  <MenuItem value="Category">Category</MenuItem>
-                  <MenuItem value="Subcategory">SubCategory</MenuItem>
-                  <MenuItem value="Product">Product</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Grid>
-
-          {/* Top Limit Selection */}
-          <Grid item xs={12}>
-            <Box
-              sx={{
-                padding: "18px",
-                borderRadius: "5px",
-                border: "1px solid #dcdcdc",
-                backgroundColor: "#f9f9f9",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                marginTop: "50px",
-              }}
-            >
-              <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                Top Trend
-              </Typography>
-
-              <FormControl fullWidth>
-                <InputLabel>Top</InputLabel>
-                <Select value={toplimit} onChange={(e) => setTopLimit(e.target.value)} label="Top">
-                  <MenuItem value={10}>Top 10</MenuItem>
-                  <MenuItem value={15}>Top 15</MenuItem>
-                  <MenuItem value={30}>Top 30</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Grid>
-
-          {/* time window */}
-
-          <Grid item xs={12}>
-            <Box
-              sx={{
-                padding: "8px",
-                // width: "180px",
-                borderRadius: "5px",
-                border: "1px solid #dcdcdc",
-                backgroundColor: "#f9f9f9",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                marginTop: "30px",
-                marginBottom: "30px",
-              }}
-            >
-              <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                Select Time Window
-              </Typography>
-
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
-                  <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
-                    Start Date
-                  </InputLabel>
-
-                  <DatePicker
-                    id="start-date-picker"
-                    value={startDate || null}
-                    views={["year", "month", "day"]}
-                    onChange={(date) => handleStartDateChange(date)}
-                    renderInput={(params) => <TextField {...params} />}
-                    minDate={new Date(1900, 0, 1)} // January 1 of current year
-                    maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
-                    sx={{ marginTop: "10px" }}
-
-                  />
-                  {error && <FormHelperText>{error}</FormHelperText>}
+                <FormControl fullWidth>
+                  <InputLabel>Dimension</InputLabel>
+                  <Select
+                    value={dimension}
+                    onChange={(e) => setDimension(e.target.value)}
+                    label="Dimension"
+                  >
+                    <MenuItem value="Brand">Brand</MenuItem>
+                    <MenuItem value="Franchise_Type">Franchise Type</MenuItem>
+                    <MenuItem value="Region">Region</MenuItem>
+                    <MenuItem value="Branch">Branch</MenuItem>
+                    <MenuItem value="Channel">Channel</MenuItem>
+                    <MenuItem value="Category">Category</MenuItem>
+                    <MenuItem value="Subcategory">SubCategory</MenuItem>
+                    <MenuItem value="Product">Product</MenuItem>
+                  </Select>
                 </FormControl>
+              </Box>
+            </Grid>
 
-                <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
-                  <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
-                    End Date
-                  </InputLabel>
-                  <DatePicker
-                    id="end-date-picker"
-                    value={endDate || null}
-                    views={["year", "month", "day"]}
-                    onChange={(date) => handleEndDateChange(date)}
-                    renderInput={(params) => <TextField {...params} />}
-                    minDate={new Date(1900, 0, 1)} // January 1 of current year
-                    maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
-                    sx={{ marginTop: "10px" }}
-                  />
-                  {error && <FormHelperText>{error}</FormHelperText>}
+            {/* Top Limit Selection */}
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  padding: "18px",
+                  borderRadius: "5px",
+                  border: "1px solid #dcdcdc",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                  marginTop: "10px",
+                }}
+              >
+                <Typography variant="h6" sx={{ marginBottom: "8px" }}>
+                  Top Trend
+                </Typography>
+
+                <FormControl fullWidth>
+                  <InputLabel>Top</InputLabel>
+                  <Select
+                    value={toplimit}
+                    onChange={(e) => setTopLimit(e.target.value)}
+                    label="Top"
+                  >
+                    <MenuItem value={10}>Top 10</MenuItem>
+                    <MenuItem value={15}>Top 15</MenuItem>
+                    <MenuItem value={30}>Top 30</MenuItem>
+                  </Select>
                 </FormControl>
-              </LocalizationProvider>
+              </Box>
+            </Grid>
 
-              <div>
-                <FormControlLabel
-                  control={
-                    <Checkbox checked={isChecked} onChange={handleCheckboxChange} color="primary" />
-                  }
-                  label={isChecked ? "Checked" : "Previous Data Comparison"}
-                  sx={{
-                    "& .MuiFormControlLabel-label": {
-                      fontWeight: "bold",
-                    },
-                  }}
-                />
-              </div>
-            </Box>
-          </Grid>
+            {/* time window */}
 
-          {/* Submit Button */}
-          <Grid container justifyContent="center" style={{ marginTop: "15px" }}>
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={24} color="inherit" /> : null}
-              style={{
-                backgroundColor: loading ? "#d6f5d6" : "#267326",
-                // color: loading ? "black" : "white",
-                "&:hover": {
-                  backgroundColor: loading ? "#d6f5d6" : "#267326",
-                },
-              }}
-            >
-              {loading ? "Loading..." : "Render Visual"}
-            </Button>
-          </Grid>
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  padding: "8px",
+                  // width: "180px",
+                  borderRadius: "5px",
+                  border: "1px solid #dcdcdc",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                  marginTop: "30px",
+                  marginBottom: "10px",
+                }}
+              >
+                <Typography variant="h6" sx={{ marginBottom: "8px" }}>
+                  Select Time Window
+                </Typography>
+
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                    <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
+                      Start Date
+                    </InputLabel>
+
+                    <DatePicker
+                      id="start-date-picker"
+                      value={startDate || null}
+                      views={["year", "month", "day"]}
+                      onChange={(date) => handleStartDateChange(date)}
+                      renderInput={(params) => <TextField {...params} />}
+                      minDate={new Date(1900, 0, 1)}
+                      maxDate={new Date(currentYear + 1, 11, 31)}
+                      sx={{ marginTop: "10px" }}
+                    />
+                    {error && <FormHelperText>{error}</FormHelperText>}
+                  </FormControl>
+
+                  <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                    <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
+                      End Date
+                    </InputLabel>
+                    <DatePicker
+                      id="end-date-picker"
+                      value={endDate || null}
+                      views={["year", "month", "day"]}
+                      onChange={(date) => handleEndDateChange(date)}
+                      renderInput={(params) => <TextField {...params} />}
+                      minDate={new Date(1900, 0, 1)}
+                      maxDate={new Date(currentYear + 1, 11, 31)}
+                      sx={{ marginTop: "10px" }}
+                    />
+                    {error && <FormHelperText>{error}</FormHelperText>}
+                  </FormControl>
+                </LocalizationProvider>
+
+                <div>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isChecked}
+                        onChange={handleCheckboxChange}
+                        color="primary"
+                      />
+                    }
+                    label={isChecked ? "Checked" : "Previous Data Comparison"}
+                    sx={{
+                      "& .MuiFormControlLabel-label": {
+                        fontWeight: "bold",
+                      },
+                    }}
+                  />
+                </div>
+              </Box>
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid container justifyContent="center" style={{ marginTop: "15px", borderTop: "1px solid gray", paddingTop: "10px" }}>
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                disabled={loading}
+                startIcon={loading ? <CircularProgress size={24} color="inherit" /> : null}
+                style={{
+                  backgroundColor: loading ? "#b30000" : "#006600",
+                  color: loading ? "white" : "white",
+                  "&:hover": {
+                    backgroundColor: loading ? "#b30000" : "#006600",
+                  },
+                }}
+              >
+                {loading ? "Loading..." : "Render Visual"}
+              </Button>
+            </Grid>
+          </Box>
         </div>
       </Drawer>
 
@@ -594,7 +475,7 @@ const MyComponent = () => {
             ) : ( */}
             <TopTrendBarChart
               chartData={chartData}
-              startDate={FYStartDate} // Pass the start date
+              startDate={FYStartDate}
               endDate={FYEndDate}
               title="Top Trend Visualization"
             />

@@ -33,7 +33,6 @@ import {
   weekWiseTotalSales,
 } from "src/components/charts/ThickShakeInfo";
 import StackedBarChart from "src/components/charts/StackedBarChart";
-import PopupBarChart from "src/components/charts/BarChartPopup";
 
 const SalesVisualization = () => {
   const [selectedBranch, setSelectedBranch] = useState("");

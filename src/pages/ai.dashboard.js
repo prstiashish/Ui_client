@@ -33,9 +33,11 @@ import {
 } from "@mui/material";
 import DevVisualization from "./devvisualization";
 
+import { useData } from '../contexts/DataContext'; // Import the useData hook
+
+
 const AIDashboard = () => {
   // const [responseData, setResponseData] = useState(null);
-
 
   const [MTDTotalSales, setMTDTotalSales] = useState(0);
   const [MTDtotalCost, setMTDTotalCost] = useState(0);
@@ -61,14 +63,14 @@ const AIDashboard = () => {
 
   const router = useRouter();
 
-  const { dimension, timeWindow, startDate, endDate, isChecked } = router.query;
+  const { data } = useData();
+  console.log(data,'daadadadadadadad');
+
+  // const { dimension, timeWindow, startDate, endDate, isChecked } = router.query;
+
+  const { dimension, timeWindow, startDate, endDate, isChecked } = data || {};
 
   const [includePrevYear, setIncludePrevYear] = useState(false);
-
-  // useEffect(() => {
-  //   // Ensure isChecked is always treated as a boolean
-  //   setIncludePrevYear(isChecked === "true" || isChecked === true);
-  // }, [isChecked]);
 
   // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
   const url = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
@@ -84,9 +86,9 @@ const AIDashboard = () => {
 
   useEffect(() => {
     // const urls = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
-    const urls = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+    // const urls = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
-    const url = urls; // Replace with your actual URL
+    // const url = urls; // Replace with your actual URL
     const defaultCardPayload = {
       view: "measures-ytd-mtd",
     };
@@ -97,9 +99,9 @@ const AIDashboard = () => {
         const data = response.data;
         // console.log(response.data, "cardsssssssssssssssssss");
         if (data.YTD && data.YTD.length > 0) {
-          const ytdData = data.YTD[0]; // Assuming YTD data is at index 0
+          const ytdData = data.YTD[0];
 
-          // Extract values
+
           setTotalSales(ytdData.Gross_Amount);
           setCogs(ytdData.Cogs);
           setMargin(ytdData.Margin);
@@ -124,36 +126,23 @@ const AIDashboard = () => {
   const [responseData, setResponseData] = useState([]);
   // console.log(responseData, "responseData");
 
-  const defaultStartDate = "2024-04-01"; // Default start date
+  const defaultStartDate = "2024-04-01";
   const currentDate = new Date().toISOString().split("T")[0];
 
-  console.log("Include Prev Year:", includePrevYear);
-  console.log("Start Date:", startDate);
-  console.log("End Date:", endDate);
-
-  // const defaultPayload = useMemo(
-  //   () => ({
-  //     dimension: dimension || "none",
-  //     view: "All",
-  //     start_date:  startDate || "",
-  //     end_date: endDate || "",
-  //     include_prev_year: includePrevYear, // Use state value
-  //     time_window: timeWindow || "M",
-
-  //   }),
-  //   [dimension, timeWindow, includePrevYear, startDate, endDate]
-  // );
+  // console.log("Include Prev Year:", includePrevYear);
+  // console.log("Start Date:", startDate);
+  // console.log("End Date:", endDate);
 
   useEffect(() => {
-    // Ensure isChecked is always treated as a boolean
+
     if (isChecked) {
       setIncludePrevYear(isChecked === "true");
     }
   }, [isChecked]);
 
   const defaultPayload = useMemo(() => {
-    const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-    const defaultStartDate = "2024-04-01"; // Your default start date
+    const currentDate = new Date().toISOString().split("T")[0];
+    const defaultStartDate = "2024-04-01";
 
     return {
       dimension: dimension || "none",
@@ -165,14 +154,14 @@ const AIDashboard = () => {
     };
   }, [dimension, timeWindow, includePrevYear, startDate, endDate]);
 
-  console.log("defaultPayload:", defaultPayload);
+  // console.log("defaultPayload:", defaultPayload);
 
   const stableUrl = useMemo(() => url, [url]);
   const stablePayload = useMemo(() => defaultPayload, [defaultPayload]);
 
   useEffect(() => {
     console.log("Updated defaultPayload:", defaultPayload);
-  }, [defaultPayload]); // Dependency on `defaultPayload`
+  }, [defaultPayload]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -187,7 +176,7 @@ const AIDashboard = () => {
 
         // console.log("Fetched data:", responseData);
 
-        // Process response data
+
         const currentYearData = responseData["Current Fiscal Year"];
         if (stablePayload.include_prev_year) {
           const previousYearData = responseData["Previous Fiscal Year"];
@@ -206,9 +195,8 @@ const AIDashboard = () => {
       }
     };
 
-    fetchData(); // Call fetch data whenever payload changes
-  }, [stableUrl, stablePayload]); // React to changes in URL and payload
-
+    fetchData();
+  }, [stableUrl, stablePayload]);
   useEffect(() => {
     if (responseData) {
       // console.log("Graph data updated with:", responseData);
@@ -221,7 +209,7 @@ const AIDashboard = () => {
 
     const currentYearDataset = Array.isArray(currentYearData)
       ? currentYearData.map((item) => ({
-          week: item.Week, // Ensure this field name matches your data
+          week: item.Week,
           //  week: `${item.Fiscal_Year} ${item.Week}`,
           totalSales: item.Gross_Amount,
         }))
@@ -229,7 +217,7 @@ const AIDashboard = () => {
 
     const previousYearDataset = Array.isArray(previousYearData)
       ? previousYearData.map((item) => ({
-          week: item.Week, // Ensure this field name matches your data
+          week: item.Week,
           //  week: `${item.Fiscal_Year} ${item.Week}`,
           totalSales: item.Gross_Amount,
         }))
@@ -244,14 +232,14 @@ const AIDashboard = () => {
 
     const currentYearDataset = Array.isArray(currentYearData)
       ? currentYearData.map((item) => ({
-          quarter: item.Quarter, // Ensure these fields are correct
+          quarter: item.Quarter,
           totalSales: item.Gross_Amount,
         }))
       : [];
 
     const previousYearDataset = Array.isArray(previousYearData)
       ? previousYearData.map((item) => ({
-          quarter: item.Quarter, // Ensure these fields are correct
+          quarter: item.Quarter,
           totalSales: item.Gross_Amount,
         }))
       : [];
@@ -265,14 +253,14 @@ const AIDashboard = () => {
 
     const currentYearDataset = Array.isArray(currentYearData)
       ? currentYearData.map((item) => ({
-          year: item.Year, // Ensure these fields are correct
+          year: item.Year,
           totalSales: item.Gross_Amount,
         }))
       : [];
 
     const previousYearDataset = Array.isArray(previousYearData)
       ? previousYearData.map((item) => ({
-          year: item.Year, // Ensure these fields are correct
+          year: item.Year,
           totalSales: item.Gross_Amount,
         }))
       : [];
@@ -320,7 +308,7 @@ const AIDashboard = () => {
       let previousYearData = [];
       let processedData = [];
 
-      // Determine the labelType based on the timeWindow
+
       let labelType;
       if (timeWindow === "W") {
         labelType = "week";
@@ -360,24 +348,24 @@ const AIDashboard = () => {
       // console.log("currentYearDatasetmmm:", currentYearData);
       // console.log("previousYearDatasetmmm:", previousYearData);
 
-      // Ensure labels are extracted correctly
+
       const allLabels = [
         ...new Set([
-          ...currentYearData.map((item) => item[labelType]), // Use labelType here
+          ...currentYearData.map((item) => item[labelType]),
           ...previousYearData.map((item) => item[labelType]),
         ]),
       ];
 
       // console.log("All Labels:", allLabels);
 
-      // Prepare the data for each label
+
       const data = allLabels.map((label) => {
-        // Find the matching data point for the current year
+
         const currentYearDataPoint = currentYearData.find((item) => item[labelType] === label);
-        // Find the matching data point for the previous year
+
         const previousYearDataPoint = previousYearData.find((item) => item[labelType] === label);
 
-        // Return data points for both years, or 0 if missing
+
         return {
           currentYear: currentYearDataPoint ? currentYearDataPoint.totalSales : 0,
           previousYear: previousYearDataPoint ? previousYearDataPoint.totalSales : 0,
@@ -392,7 +380,7 @@ const AIDashboard = () => {
         const previousYearDataset = data.map((d) => d.previousYear);
 
         return {
-          labels: allLabels, // Use the combined labels
+          labels: allLabels,
           datasets: [
             {
               label: "Current FY",
@@ -417,8 +405,8 @@ const AIDashboard = () => {
   }, [responseData, timeWindow]);
 
   const updateChartTitle = () => {
-    const isWeekEnable = false; // Replace with actual condition
-    const isQuarterEnable = false; // Replace with actual condition
+    const isWeekEnable = false;
+    const isQuarterEnable = false;
 
     if (isWeekEnable) {
       setChartTitlemonthwise("Week Wise Total Sales");
@@ -429,13 +417,8 @@ const AIDashboard = () => {
     }
   };
 
-  // const memoizedChartData = useMemo(() => monthlyWiseSalesChart, [monthlyWiseSalesChart]);
-  // const totalsalesData = responseData ? getTotalSalesDataByMonth(responseData) : [];
 
-  // COGS this is rigth
-  // ++++++++++++++++++++++++++++++
 
-  // for value
   const getProcessedDataByMonth = ({ currentYearData, previousYearData }) => {
     let currentYearDataset = [];
     let previousYearDataset = [];
@@ -445,8 +428,8 @@ const AIDashboard = () => {
         month: item.Month,
         Supplies_Cost: item.Supplies_Cost,
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -458,8 +441,8 @@ const AIDashboard = () => {
         month: item.Month,
         Supplies_Cost: item.Supplies_Cost,
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -475,11 +458,11 @@ const AIDashboard = () => {
 
     if (Array.isArray(currentYearData)) {
       currentYearDataset = currentYearData.map((item) => ({
-        quarter: item.Quarter, // Assuming quarter information is stored in `item.Quarter`
+        quarter: item.Quarter,
         Supplies_Cost: item.Supplies_Cost,
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -488,11 +471,11 @@ const AIDashboard = () => {
 
     if (Array.isArray(previousYearData)) {
       previousYearDataset = previousYearData.map((item) => ({
-        quarter: item.Quarter, // Assuming quarter information is stored in `item.Quarter`
+        quarter: item.Quarter,
         Supplies_Cost: item.Supplies_Cost,
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -511,8 +494,8 @@ const AIDashboard = () => {
         year: item.Year,
         Supplies_Cost: item.Supplies_Cost,
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -524,8 +507,8 @@ const AIDashboard = () => {
         year: item.Year,
         Supplies_Cost: item.Supplies_Cost,
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -549,8 +532,8 @@ const AIDashboard = () => {
         Supplies_Cost: item.Supplies_Cost,
 
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -565,8 +548,8 @@ const AIDashboard = () => {
         Supplies_Cost: item.Supplies_Cost,
 
         Materials_Cost: item.Materials_Cost,
-        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"], // Added field
-        Materials_Cost_Cogs: item["Materials_Cost/Cogs"], // Added field
+        Supplies_Cost_Cogs: item["Supplies_Cost/Cogs"],
+        Materials_Cost_Cogs: item["Materials_Cost/Cogs"],
         // Discounts: item.Discounts,
       }));
     } else {
@@ -597,7 +580,7 @@ const AIDashboard = () => {
       let currentYearData = [];
       let previousYearData = [];
 
-      // Determine the labelType based on the timeWindow
+
       let labelType;
       if (timeWindow === "W") {
         labelType = "week";
@@ -609,7 +592,7 @@ const AIDashboard = () => {
         labelType = "month";
       }
 
-      // Extract data based on the time window
+
       switch (timeWindow) {
         case "W":
           const weekData = getProcessedDataByWeek(responseData);
@@ -644,7 +627,7 @@ const AIDashboard = () => {
 
       // console.log("All Labels:", allLabels);
 
-      // Prepare the data for each label
+
       const data = allLabels.map((label) => {
         const currentYearDataPoint = currentYearData.find((item) => item[labelType] === label);
         const previousYearDataPoint = previousYearData.find((item) => item[labelType] === label);
@@ -679,7 +662,7 @@ const AIDashboard = () => {
 
       // console.log("Processed data22222:", data);
 
-      // Update chart data
+
       setStackedMonthWiseInfo({
         labels: allLabels,
         datasets: [
@@ -711,41 +694,40 @@ const AIDashboard = () => {
             stack: "previousYear",
             hidden: false,
           },
-          // Adding the `Cogs %` for data labels
+
           {
             label: "Supplies Cost Cogs (Current Year)",
             data: data.map((d) => d.Supplies_Cost_Cogs_CurrentYear),
             type: "bar",
-            backgroundColor: "rgba(255,255,255,0.5)", // Color for cogs data label
+            backgroundColor: "rgba(255,255,255,0.5)",
             stack: "currentYear",
-            hidden: true, // Hide this dataset but use it for labels
+            hidden: true,
           },
           {
             label: "Materials Cost Cogs (Current Year)",
             data: data.map((d) => d.Materials_Cost_Cogs_CurrentYear),
             type: "bar",
-            backgroundColor: "rgba(255,255,255,0.5)", // Color for cogs data label
+            backgroundColor: "rgba(255,255,255,0.5)",
             stack: "currentYear",
-            hidden: true, // Hide this dataset but use it for labels
+            hidden: true,
           },
           {
             label: "Supplies Cost Cogs (Previous Year)",
             data: data.map((d) => d.Supplies_Cost_Cogs_PreviousYear),
             type: "bar",
-            backgroundColor: "rgba(255,255,255,0.5)", // Color for cogs data label
+            backgroundColor: "rgba(255,255,255,0.5)",
             stack: "previousYear",
-            hidden: true, // Hide this dataset but use it for labels
+            hidden: true,
           },
           {
             label: "Materials Cost Cogs (Previous Year)",
             data: data.map((d) => d.Materials_Cost_Cogs_PreviousYear),
             type: "bar",
-            backgroundColor: "rgba(255,255,255,0.5)", // Color for cogs data label
+            backgroundColor: "rgba(255,255,255,0.5)",
             stack: "previousYear",
-            hidden: true, // Hide this dataset but use it for labels
+            hidden: true,
           },
         ],
-
       });
     } else {
       console.error("Response data or timeWindow is missing.");
@@ -932,7 +914,7 @@ const AIDashboard = () => {
       let previousYearData = [];
       let processedData = [];
 
-      // Determine the labelType based on the timeWindow
+
       let labelType;
       if (timeWindow === "W") {
         labelType = "week";
@@ -982,14 +964,14 @@ const AIDashboard = () => {
 
       // console.log("All Labels:", allLabels);
 
-      // Prepare the data for each label
+
       const data = allLabels.map((label) => {
-        // Find the matching data point for the current year
+
         const currentYearDataPoint = currentYearData.find((item) => item[labelType] === label);
-        // Find the matching data point for the previous year
+
         const previousYearDataPoint = previousYearData.find((item) => item[labelType] === label);
 
-        // Return data points for both years, or 0 if missing
+
         return {
           Channel_Commission_CurrentYear: currentYearDataPoint
             ? currentYearDataPoint.ChannelCommission
@@ -1023,7 +1005,7 @@ const AIDashboard = () => {
 
       // console.log("Processed data333333333333:", data);
 
-      // Update chart data
+
       setStackedSalesInfo({
         labels: allLabels, // Use the combined labels
         datasets: [
@@ -1635,45 +1617,157 @@ const AIDashboard = () => {
 
   // ===================================code for line chartttt
 
-
-
-
   // myyyyyyyyy
 
   const urlForDaywise = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
 
+  // const [WeeklyChartdata, setWeeklyChartData] = useState({
+  //   labels: [], // Week labels will go here (e.g., ['Week 04', 'Week 05', ...])
+  //   datasets: [], // Data for daily sales and total sales per week will be populated here
+  //   plugins: [
+  //     {
+  //       datalabels: {
+  //         anchor: "end",
+  //         align: "top",
+  //         formatter: (value, context) => {
+  //           // Show the value only for the "Total Sales per Week" line
+  //           return context.dataset.label === "Gross Amount per Week" ? value : "";
+  //         },
+  //         color: "#000", // Set the label color to black
+  //         font: {
+  //           weight: "bold", // Make the labels bold
+  //         },
+  //       },
+  //     },
+  //   ],
+  // });
 
+  // In your useEffect, you will update this state with new data:
+  // useEffect(() => {
+  //   const url = urlForDaywise; // Replace with your actual URL
+  //   const defaultCardPayload = {
+  //     view: "weekly-gmv-measure",
+  //   };
 
+  //   const fetchCardData = async () => {
+  //     try {
+  //       const response = await axios.post(url, defaultCardPayload);
+  //       const WeeklySalesMarginInfo = response.data;
+  //       console.log(WeeklySalesMarginInfo, "dayyyyyyyyyyyyyss");
+  //       const backgroundColorsWeekly = [
+  //                     "#19b091",
+  //                     "#f2a571",
+  //                     "#21c2c3",
+  //                     "#197fc0",
+  //                     "#e75361",
+  //                     "#758b98",
+  //                     "#ff835c",
+  //                   ];
 
+  //       if (WeeklySalesMarginInfo.length > 0) {
+  //         const weeks = WeeklySalesMarginInfo.map((item) => Object.keys(item)[0]);
+  //         const salPerday = {
+  //           Monday: [],
+  //           Tuesday: [],
+  //           Wednesday: [],
+  //           Thursday: [],
+  //           Friday: [],
+  //           Saturday: [],
+  //           Sunday: [],
+  //         };
 
+  //         console.log(salPerday,'salPerdaysalPerday')
 
+  //         WeeklySalesMarginInfo.forEach((weekData) => {
+  //           const weekKey = Object.keys(weekData)[0];
+  //           const weekInfo = weekData[weekKey];
 
+  //           Object.keys(salPerday).forEach((day) => {
+  //             salPerday[day].push(weekInfo[day] || 0);
+  //           });
+  //         });
 
+  //         const datasets = [
+  //           {
+  //             label: "Gross Amount per Week",
+  //             type: "line",
+  //             backgroundColor: "#4E78A6",
+  //             borderColor: "#4E78A6",
+  //             fill: false,
+  //             data: weeks.map((weekKey) =>
+  //               WeeklySalesMarginInfo.find((weekData) => weekKey in weekData)[weekKey][
+  //                 "Gross_Amount_Per_Week"
+  //               ]
+  //             ),
+  //             categoryPercentage: 1.0,
+  //             barPercentage: 0.2,
+  //           },
+  //           ...Object.keys(salPerday).map((dayOfWeek, index) => ({
+  //             // type: "line",
+  //             label: dayOfWeek,
+  //             backgroundColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
+  //             borderColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length], // Color for the line
+
+  //             data: salPerday[dayOfWeek],
+  //             barPercentage: 1.0,
+  //             categoryPercentage: 0.5,
+  //           })),
+  //         ];
+
+  //         // console.log(datasets, 'datasettttttttttts')
+
+  //         setWeeklyChartData({
+  //           labels: weeks.map((week) => `${week}`),
+  //           datasets: datasets,
+  //           plugins: WeeklyChartdata.plugins, // Retain the data labels plugin
+  //         });
+  //       } else {
+  //         console.log("No weekly sales data found.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching card data:", error);
+  //     }
+  //   };
+
+  //   fetchCardData();
+  // }, []);
 
   const [WeeklyChartdata, setWeeklyChartData] = useState({
-    labels: [], // Week labels will go here (e.g., ['Week 04', 'Week 05', ...])
-    datasets: [], // Data for daily sales and total sales per week will be populated here
-    plugins: [
-      {
-        datalabels: {
-          anchor: "end",
-          align: "top",
-          formatter: (value, context) => {
-            // Show the value only for the "Total Sales per Week" line
-            return context.dataset.label === "Gross Amount per Week" ? value : "";
-          },
-          color: "#000", // Set the label color to black
-          font: {
-            weight: "bold", // Make the labels bold
+    labels: [], // Week labels go here
+    datasets: [], // Data for sales per day and total sales per week
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (tooltipItem) => {
+              console.log(tooltipItem, "Tooltip Item");
+
+              // Get the day (e.g., Monday, Tuesday, etc.) from the tooltipItem dataset label
+              const day = tooltipItem.dataset.label;
+              // Get the index of the specific week or day for the current tooltip
+              const weekIndex = tooltipItem.dataIndex;
+
+              // Access the sales data and event for that day and week
+              const salesData = salPerday[day][weekIndex];
+
+              // Create the tooltip label with the sales value
+              let label = `${day}: $${salesData.value.toFixed(2)}`;
+
+              if (salesData.event) {
+                label += ` - ${salesData.event}`; // Add event details if present
+              }
+
+              console.log(label, "Label");
+
+              return label; // Return the final label to be shown in the tooltip
+            },
           },
         },
       },
-    ],
+    },
   });
 
-  // In your useEffect, you will update this state with new data:
   useEffect(() => {
-    const url = urlForDaywise; // Replace with your actual URL
     const defaultCardPayload = {
       view: "weekly-gmv-measure",
     };
@@ -1682,16 +1776,16 @@ const AIDashboard = () => {
       try {
         const response = await axios.post(url, defaultCardPayload);
         const WeeklySalesMarginInfo = response.data;
-        console.log(WeeklySalesMarginInfo, "dayyyyyyyyyyyyyss");
+
         const backgroundColorsWeekly = [
-                      "#19b091",
-                      "#f2a571",
-                      "#21c2c3",
-                      "#197fc0",
-                      "#e75361",
-                      "#758b98",
-                      "#ff835c",
-                    ];
+          "#19b091",
+          "#f2a571",
+          "#21c2c3",
+          "#197fc0",
+          "#e75361",
+          "#758b98",
+          "#ff835c",
+        ];
 
         if (WeeklySalesMarginInfo.length > 0) {
           const weeks = WeeklySalesMarginInfo.map((item) => Object.keys(item)[0]);
@@ -1705,14 +1799,16 @@ const AIDashboard = () => {
             Sunday: [],
           };
 
-          console.log(salPerday,'salPerdaysalPerday')
-
           WeeklySalesMarginInfo.forEach((weekData) => {
             const weekKey = Object.keys(weekData)[0];
             const weekInfo = weekData[weekKey];
 
             Object.keys(salPerday).forEach((day) => {
-              salPerday[day].push(weekInfo[day] || 0);
+              const [value, event] = (weekInfo[day] || "0").split(" - ").map((str) => str.trim());
+              salPerday[day].push({
+                value: parseFloat(value) || 0,
+                event: event || null,
+              });
             });
           });
 
@@ -1720,33 +1816,124 @@ const AIDashboard = () => {
             {
               label: "Gross Amount per Week",
               type: "line",
+              backgroundColor: "#4E78A6",
               borderColor: "#4E78A6",
               fill: false,
-              data: weeks.map((weekKey) =>
-                WeeklySalesMarginInfo.find((weekData) => weekKey in weekData)[weekKey][
-                  "Gross_Amount_Per_Week"
-                ]
+              data: weeks.map(
+                (weekKey) =>
+                  parseFloat(
+                    WeeklySalesMarginInfo.find((weekData) => weekKey in weekData)[weekKey][
+                      "Gross_Amount_Per_Week"
+                    ]
+                  ) || 0
               ),
               categoryPercentage: 1.0,
               barPercentage: 0.2,
             },
             ...Object.keys(salPerday).map((dayOfWeek, index) => ({
-              type: "bar",
               label: dayOfWeek,
               backgroundColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
-              data: salPerday[dayOfWeek],
+              borderColor: backgroundColorsWeekly[index % backgroundColorsWeekly.length],
+              data: salPerday[dayOfWeek].map((entry) => entry.value),
               barPercentage: 1.0,
               categoryPercentage: 0.5,
             })),
           ];
 
-
-          console.log(datasets, 'datasettttttttttts')
-
+          // Update chart data with custom tooltip for both line and bar datasets
           setWeeklyChartData({
             labels: weeks.map((week) => `${week}`),
             datasets: datasets,
-            plugins: WeeklyChartdata.plugins, // Retain the data labels plugin
+            // options: {
+            //   plugins: {
+            //     tooltip: {
+            //       callbacks: {
+            //         label: (tooltipItem) => {
+            //           const datasetLabel = tooltipItem.dataset.label;
+            //           const weekIndex = tooltipItem.dataIndex;
+
+            //           // For the "Gross Amount per Week" line dataset
+            //           if (datasetLabel === "Gross Amount per Week") {
+            //             const value = tooltipItem.raw || 0;
+            //             return `${datasetLabel}: ${value.toFixed(2)}`;
+            //           }
+
+            //           // For day-of-week datasets with event data
+            //           if (salPerday[datasetLabel]) {
+            //             const salesData = salPerday[datasetLabel][weekIndex];
+            //             let label = `${datasetLabel}: ${salesData.value.toFixed(2)}`;
+            //             if (salesData.event) {
+            //               label += ` - ${salesData.event}`;
+            //             }
+            //             return label;
+            //           }
+
+            //           return datasetLabel; // Fallback in case of an unknown dataset
+            //         },
+            //       },
+            //     },
+            //   },
+            // },
+            options: {
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    // label: function (tooltipItem) {
+                    //   console.log("Tooltip Item:", tooltipItem);
+                    //   const datasetLabel = tooltipItem.dataset.label; // Access the dataset label
+                    //   const value = tooltipItem.raw || 0; // Tooltip value
+
+                    //   // Check if it's the "Gross Amount per Week" dataset
+                    //   if (datasetLabel === "Gross Amount per Week") {
+                    //     return `${datasetLabel}: ${value.toFixed(2)}`;
+                    //   }
+
+                    //   // Handle day-wise data if it matches other dataset labels
+                    //   if (salPerday[datasetLabel]) {
+                    //     const weekIndex = tooltipItem.dataIndex; // Get the week index for this day
+                    //     const salesData = salPerday[datasetLabel][weekIndex];
+
+                    //     // Check if the specific day and week data exist
+                    //     if (salesData) {
+                    //       let label = `${datasetLabel}: ${salesData.value.toFixed(2)}`;
+                    //       if (salesData.event) {
+                    //         label += `  **${salesData.event}`; // Append event if it exists
+                    //       }
+                    //       return label;
+                    //     }
+                    //   }
+
+                    //   return datasetLabel; // Fallback if no match found
+                    // },
+                    label: (tooltipItem) => {
+                      const datasetLabel = tooltipItem.dataset.label;
+
+                      if (datasetLabel === "Gross Amount per Week") {
+                        const value = tooltipItem.raw || 0;
+
+                        return `${datasetLabel}: ${value.toFixed(2)}`;
+                      }
+
+                      // Handle day-wise data
+                      if (salPerday[datasetLabel]) {
+                        const weekIndex = tooltipItem.dataIndex;
+                        const salesData = salPerday[datasetLabel][weekIndex];
+                        if (salesData) {
+                          let label = `${datasetLabel}: ${salesData.value.toFixed(2)}`;
+                          if (salesData.event) {
+                            label += `  **${salesData.event}`;
+                          }
+
+                          return label;
+                        }
+                      }
+
+                      return datasetLabel;
+                    },
+                  },
+                },
+              },
+            },
           });
         } else {
           console.log("No weekly sales data found.");
@@ -1758,9 +1945,6 @@ const AIDashboard = () => {
 
     fetchCardData();
   }, []);
-
-
-
 
   const chartTitleWeeklywise = "Weekly Total Sales";
   const handleChartDoubleClick = () => {
@@ -1780,13 +1964,13 @@ const AIDashboard = () => {
               fontSize: "14px",
 
               marginBottom: "1%",
-              backgroundColor: "#004792", // Button color
+              backgroundColor: "#004792",
               boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
-              color: "#fff", // Text color
-              borderColor: "#b366ff", // Border color
+              color: "#fff",
+              borderColor: "#b366ff",
               "&:hover": {
-                backgroundColor: "#9a4fff", // Color on hover
-                borderColor: "#9a4fff", // Border color on hover
+                backgroundColor: "#9a4fff",
+                borderColor: "#9a4fff",
               },
             }}
           >
@@ -1806,8 +1990,8 @@ const AIDashboard = () => {
             className="dashboard-card"
             sx={{
               flex: "0",
-              backgroundColor: "#19b091", // Dark blue card background color
-              color: "#fff", // White font color
+              backgroundColor: "#19b091",
+              color: "#fff",
               className: "dashboard-card-shadow",
             }}
           >
@@ -1842,8 +2026,8 @@ const AIDashboard = () => {
             className={"dashboard-card"}
             sx={{
               flex: "1",
-              backgroundColor: "#f2a571", // Dark blue card background color
-              color: "#fff", // White font color
+              backgroundColor: "#f2a571",
+              color: "#fff",
               className: "dashboard-card-shadow",
             }}
           >
@@ -1877,8 +2061,8 @@ const AIDashboard = () => {
             className="dashboard-card"
             sx={{
               flex: "1",
-              backgroundColor: "#21c2c3", // Dark blue card background color
-              color: "#fff", // White font color
+              backgroundColor: "#21c2c3",
+              color: "#fff",
               className: "dashboard-card-shadow",
             }}
           >
@@ -1911,8 +2095,8 @@ const AIDashboard = () => {
             className="dashboard-card"
             sx={{
               flex: "1",
-              backgroundColor: "#197fc0", // Dark blue card background color
-              color: "#fff", // White font color
+              backgroundColor: "#197fc0",
+              color: "#fff",
               className: "dashboard-card-shadow",
             }}
           >
@@ -1928,7 +2112,7 @@ const AIDashboard = () => {
                   fontWeight: "bold",
                 }}
               >
-              Total Sales MTD in ('000)
+                Total Sales MTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -1945,8 +2129,8 @@ const AIDashboard = () => {
             className="dashboard-card"
             sx={{
               flex: "1",
-              backgroundColor: "#e75361", // Dark blue card background color
-              color: "#fff", // White font color
+              backgroundColor: "#e75361",
+              color: "#fff",
               className: "dashboard-card-shadow",
             }}
           >
@@ -1962,7 +2146,7 @@ const AIDashboard = () => {
                   fontWeight: "bold",
                 }}
               >
-              Total Cost MTD in ('000)
+                Total Cost MTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -1979,8 +2163,8 @@ const AIDashboard = () => {
             className="dashboard-card"
             sx={{
               flex: "1",
-              backgroundColor: "#758b98", // Dark blue card background color
-              color: "#fff", // White font color
+              backgroundColor: "#758b98",
+              color: "#fff",
               className: "dashboard-card-shadow",
             }}
           >
@@ -1988,10 +2172,15 @@ const AIDashboard = () => {
               <Typography
                 variant="h7"
                 component="div"
-                style={{ left: "-5px", position: "relative", top: "-10px", fontSize: 9,                  fontWeight: "bold",
+                style={{
+                  left: "-5px",
+                  position: "relative",
+                  top: "-10px",
+                  fontSize: 9,
+                  fontWeight: "bold",
                 }}
               >
-              Total Margin MTD in ('000)
+                Total Margin MTD in ('000)
               </Typography>
               <Typography
                 variant="h4"
@@ -2033,15 +2222,9 @@ const AIDashboard = () => {
               // title={chartTitlemonthwise}
               title={`Gross Amount (${timeWindowMap[timeWindow] || "Monthly"})`}
               onDoubleClick={() => console.log("Chart clicked")}
-              startDate={startDate || defaultStartDate} // Pass startDate
-              endDate={endDate || currentDate} // Pass endDate
+              startDate={startDate || defaultStartDate}
+              endDate={endDate || currentDate}
             />
-            {/* <DonutChart
-              chartData={chartData}
-              // title={chartTitlemonthwise}
-              title={`Total Sales (${timeWindowMap[timeWindow] || "Month"})`}
-              onDoubleClick={() => console.log("Chart clicked")}
-            /> */}
           </div>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -2057,8 +2240,8 @@ const AIDashboard = () => {
             <StackedBarChart
               chartData={stackedMonthWiseInfo}
               title={`Cost of Goods Sold (${timeWindowMap[timeWindow] || "Monthly"})`}
-              startDate={startDate || defaultStartDate} // Pass startDate
-              endDate={endDate || currentDate} // Pass endDate
+              startDate={startDate || defaultStartDate}
+              endDate={endDate || currentDate}
             />
           </div>
         </Grid>
@@ -2080,8 +2263,8 @@ const AIDashboard = () => {
               // onDoubleClick={handleChartDoubleClick}
               onDoubleClick={() => console.log("Financial Chart clicked")}
               style={{ height: "100px" }}
-              startDate={startDate || defaultStartDate} // Pass startDate
-              endDate={endDate || currentDate} // Pass endDate
+              startDate={startDate || defaultStartDate}
+              endDate={endDate || currentDate}
             />
           </div>
         </Grid>
@@ -2098,10 +2281,10 @@ const AIDashboard = () => {
               chartData={waterfallBar}
               // title={chartTitleMarginAnalysis}
               title={`Margin Trend Analysis (${timeWindowMap[timeWindow] || "Monthly"})`}
-              // onDoubleClick={handleChartDoubleClick} // Ensure this function is defined elsewhere
+              // onDoubleClick={handleChartDoubleClick}
               onDoubleClick={() => console.log("waterfall Chart clicked")}
-              startDate={startDate || defaultStartDate} // Pass startDate
-              endDate={endDate || currentDate} // Pass endDate
+              startDate={startDate || defaultStartDate}
+              endDate={endDate || currentDate}
             />
           </div>
         </Grid>
@@ -2118,6 +2301,7 @@ const AIDashboard = () => {
           >
             <BarChartWeekly
               chartData={WeeklyChartdata}
+              options={WeeklyChartdata.options}
               title={chartTitleWeeklywise}
               onDoubleClick={handleChartDoubleClick}
             />

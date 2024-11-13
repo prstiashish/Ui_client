@@ -43,8 +43,6 @@
 
 // export default App;
 
-
-
 import Head from "next/head";
 import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";
@@ -54,6 +52,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
+
+import { DataProvider } from "../contexts/DataContext";
 
 import { createEmotionCache } from "../utils/create-emotion-cache";
 import { theme } from "../theme";
@@ -79,7 +79,9 @@ const App = (props) => {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <RecoilRoot>
-            <SnackbarProvider>{getLayout(<Component {...pageProps} />)}</SnackbarProvider>
+            <SnackbarProvider>
+              <DataProvider>{getLayout(<Component {...pageProps} />)}</DataProvider>
+            </SnackbarProvider>
           </RecoilRoot>
         </ThemeProvider>
       </LocalizationProvider>

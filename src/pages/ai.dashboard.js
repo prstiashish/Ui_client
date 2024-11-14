@@ -136,7 +136,7 @@ const AIDashboard = () => {
   useEffect(() => {
 
     if (isChecked) {
-      setIncludePrevYear(isChecked === "true");
+      setIncludePrevYear(isChecked === true);
     }
   }, [isChecked]);
 

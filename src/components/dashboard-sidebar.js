@@ -84,12 +84,6 @@ const items = [
   },
 
 
-  {
-    href: "/devDatadrilldown",
-   icon: <TableViewIcon fontSize="small" />,
-    title: "Data Grid",
-  },
-
 
   // {
   //   href: "/datadrilldown",

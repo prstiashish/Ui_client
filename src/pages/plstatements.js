@@ -17,7 +17,7 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
-const getPLUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/P%26L-Dropdown.json";
+const getPLUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/P%26L-Dropdown-New.json";
 const postPLUrl = "https://upt2oqihzc5nw7urbslfops6qe0dvftz.lambda-url.ap-south-1.on.aws/";
 
 const ProfitLossTable = () => {

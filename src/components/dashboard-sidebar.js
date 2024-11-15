@@ -30,6 +30,8 @@ import ExploreIcon from "@mui/icons-material/Explore";
 
 import TimelineIcon from '@mui/icons-material/Timeline';
 
+import FilterListIcon from '@mui/icons-material/FilterList';  // For EDA, we can use AnalyticsIcon or any other relevant icon
+
 
 import QrCodeIcon from '@mui/icons-material/QrCode';
 
@@ -134,14 +136,21 @@ const items = [
 
   {
     href: "/gridChart",
-   icon: <TableViewIcon fontSize="small" />,
+    icon: <TableViewIcon fontSize="small" />,
     title: "Data grid Chart",
   },
 
- {
+  {
     href: "/timeSeriesForecasting",
     icon: <TimelineIcon fontSize="small" />,
     title: "Time Series",
+  },
+
+
+  {
+    href: "/exploratoryDataAnal",  // Link to EDA
+    icon: <FilterListIcon fontSize="small" />,  // Use AnalyticsIcon for EDA
+    title: "EDA",
   },
 
 

@@ -73,6 +73,7 @@ const Login = () => {
         sessionStorage.setItem("IdToken", id_token);
         //   sessionStorage.setItem("Schema_name", response.data.schema_name);
         sessionStorage.setItem("Refresh_Token", refresh_token);
+        sessionStorage.setItem("Access_Token", access_token);
         const session = new SessionStorageService();
         session.setItem("currentUser", username);
         router.push("ai.dashboard/");

@@ -96,7 +96,12 @@ const AIDashboard = () => {
     const fetchCardData = async () => {
       try {
         const response = await axios.post(url, defaultCardPayload);
-        const data = response.data;
+        // const data = response.data;
+
+        const responseData = response.data;
+
+        const validJsonString = responseData.replace(/'/g, '"')
+         const data = JSON.parse(validJsonString);
         // console.log(response.data, "cardsssssssssssssssssss");
         if (data.YTD && data.YTD.length > 0) {
           const ytdData = data.YTD[0];
@@ -227,7 +232,13 @@ const AIDashboard = () => {
           },
         });
 
-        const responseData = response.data;
+        // const responseData = response.data;
+
+        // const responseData = response.data;
+        const resData = response.data;
+
+        const validJsonString = resData.replace(/'/g, '"')
+         const responseData = JSON.parse(validJsonString);
 
         console.log("Fetched data:", responseData);
 
@@ -1832,7 +1843,11 @@ const AIDashboard = () => {
     const fetchCardData = async () => {
       try {
         const response = await axios.post(url, defaultCardPayload);
-        const WeeklySalesMarginInfo = response.data;
+        // const WeeklySalesMarginInfo = response.data;
+        const responseData = response.data;
+
+        const validJsonString = responseData.replace(/'/g, '"')
+         const WeeklySalesMarginInfo = JSON.parse(validJsonString);
 
         const backgroundColorsWeekly = [
           "#19b091",

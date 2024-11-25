@@ -5,12 +5,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
+// const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+const apiUrl = "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
 
 const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
 
 
   const [selectedBarData, setSelectedBarData] = useState(null);
-  console.log('selectedBarData', selectedBarData)
+  // console.log('selectedBarData', selectedBarData)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
   const [timeWindow, setTimeWindow] = useState("M");
@@ -19,11 +21,17 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
   const chartRef = useRef(null);
 
   const fetchPeriodicData = async (hitToUrl) => {
-    console.log("Fetching periodic data with:", hitToUrl); // Log what is being sent to fetch
+    // console.log("Fetching periodic data with:", hitToUrl); // Log what is being sent to fetch
     try {
+      const token = sessionStorage.getItem("Access_Token");
+
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify(hitToUrl),
       });
 
@@ -31,7 +39,12 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const data = await response.json();
+      // const data = await response.json();
+      const resData = await response.text();
+
+      // Replace single quotes with double quotes to ensure valid JSON
+      const validJsonString = resData.replace(/'/g, '"');
+      const data = JSON.parse(validJsonString);
 
       if (typeof data !== "object" || data === null || Object.keys(data).length === 0) {
         throw new Error("No data found in the response");
@@ -40,8 +53,20 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
       const firstKey = Object.keys(data)[0];
       const responseData = data[firstKey] || []; // Ensure responseData is an array
 
-      console.log("Fetched data:", responseData); // Log the fetched data
-      setFetchedData(responseData); // Update fetched data state
+
+      // console.log("Fetched data:", responseData); // Log the fetched data
+      // setFetchedData(responseData); // Update fetched data state
+
+      const monthOrder = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+      // Sort the data based on month order
+      const sortedData = Array.isArray(responseData)
+        ? responseData.sort((a, b) => monthOrder.indexOf(a.Month) - monthOrder.indexOf(b.Month))
+        : [];
+
+      setFetchedData(sortedData);
+
+
     } catch (error) {
       console.error("Error fetching periodic data:", error);
       setFetchedData([]); // Reset fetched data on error
@@ -50,8 +75,8 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
 
   const handleBarClick = (event, elements) => {
 
-    console.log("Received payload in GraphScenario3Chart:", receivedPayload);
-    console.log("Bar clicked. Elements:", elements); // Log clicked elements
+    // console.log("Received payload in GraphScenario3Chart:", receivedPayload);
+    // console.log("Bar clicked. Elements:", elements); // Log clicked elements
     if (elements.length === 0) return; // No element clicked
 
     const element = elements[0];
@@ -91,8 +116,8 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
         correspondingPayload;
 
         const [prefix, currentValues] = partition.split(':');
-          console.log(prefix)
-          console.log(currentValues)
+          // console.log(prefix)
+          // console.log(currentValues)
 
 
       const hitToUrl = {
@@ -124,8 +149,8 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
 
   const handleTimeWindowChange = (newTimeWindow) => {
     setTimeWindow(newTimeWindow);
-    console.log("Time window changed to:", newTimeWindow);
-    console.log("Selected Bar Data:", selectedBarData);
+    // console.log("Time window changed to:", newTimeWindow);
+    // console.log("Selected Bar Data:", selectedBarData);
 
     // Ensure selectedBarData is available before fetching
     if (selectedBarData) {
@@ -152,7 +177,7 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
         time_window: newTimeWindow,
       };
 
-      console.log("Fetching data with updated time window:", hitToUrl);
+      // console.log("Fetching data with updated time window:", hitToUrl);
       fetchPeriodicData(hitToUrl);
     }
   };
@@ -164,7 +189,7 @@ const GraphScenario3Chart = ({ chartData, receivedPayload }) => {
         ...selectedBarData,
         time_window: timeWindow,
       };
-      console.log("Fetching data on dialog open with:", hitToUrl); 
+      // console.log("Fetching data on dialog open with:", hitToUrl);
       fetchPeriodicData(hitToUrl);
     }
   }, [isDialogOpen, selectedBarData, timeWindow]);

@@ -19,15 +19,26 @@ import { fontWeight } from "@mui/system";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 export default function BarChart({ chartData, title, startDate, endDate }) {
-  // console.log("title", title);
+  // console.log("chartData111", chartData);
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
   const [topTrendTitle, setTopTrendTitle] = useState(title);
 
+  // useEffect(() => {
+  //   if (chartData.datasets && chartData.datasets.length > 0) {
+  //     setTopTrendTitle(chartData.datasets[0].label); // Update title from dataset label
+  //   }
+  // }, [chartData]);
   useEffect(() => {
-    if (chartData.datasets && chartData.datasets.length > 0) {
+    let isMounted = true; // Flag to track component mount status
+
+    if (chartData?.datasets?.length > 0) {
       setTopTrendTitle(chartData.datasets[0].label); // Update title from dataset label
     }
+
+    return () => {
+      isMounted = false; // Cleanup function to mark as unmounted
+    };
   }, [chartData]);
 
   const handleChartDoubleClick = () => {
@@ -93,11 +104,25 @@ export default function BarChart({ chartData, title, startDate, endDate }) {
     console.log("chartData or its datasets are not properly initialized.");
   }
 
+  // useEffect(() => {
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1000);
+  // }, [chartData]);
   useEffect(() => {
+    let isMounted = true; // Flag to track component mount status
+
     setLoading(true);
     setTimeout(() => {
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false); // Only update loading state if component is still mounted
+      }
     }, 1000);
+
+    return () => {
+      isMounted = false; // Cleanup flag on unmount
+    };
   }, [chartData]);
 
   return (

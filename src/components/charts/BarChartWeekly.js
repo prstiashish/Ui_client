@@ -21,8 +21,8 @@ import plugin from "chartjs-plugin-datalabels";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function BarChartWeekly({ chartData, options, title }) {
-  console.log(chartData, "BarChartWeeklychartData");
-  console.log(options, "BarChartWeeklyoptions");
+  // console.log(chartData, "BarChartWeeklychartData");
+  // console.log(options, "BarChartWeeklyoptions");
 
   const [showPopupChart, setShowPopupChart] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -330,7 +330,7 @@ function PopupChart({ chartData, title, options }) {
         },
         datalabels: false,
       },
-     
+
       layout: {
         padding: {
           left: 10,

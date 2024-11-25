@@ -56,9 +56,11 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const [includeCOGS, setIncludeCOGS] = useState(false);
   const [isGroupByEnabled, setIsGroupByEnabled] = useState(false);
   const [isNoneSelected, setIsNoneSelected] = useState(false);
+  console.log(isNoneSelected, "isNoneSelected");
 
   const [dimensionError, setDimensionError] = useState("");
   const [measureError, setMeasureError] = useState("");
+  const [partitionError, setPartitionError] = useState("");
 
   const [showDottedBox, setShowDottedBox] = useState(false);
 
@@ -79,7 +81,6 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
 
   const currentYear = new Date().getFullYear();
   const [timeWindowError, setTimeWindowError] = useState("");
-
 
   const dimensionKeys = Object.keys(dimensions);
 
@@ -118,6 +119,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
 
     setSelectedDimension(selectedFriendlyName);
     setSelectedValues([]); // Clear selection when dimension changes
+    setDimensionError("");
 
     // Optional: Uncomment if you need to see the backend value in the console
     console.log("Selected Dimension Value for Backend:", backendValue);
@@ -156,12 +158,12 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     }
   };
 
-
   const filteredOptions = getOptions(selectedDimension)
     .filter((option) => option && option.toLowerCase().includes(searchValue.toLowerCase()))
     .filter((option) => option !== "All");
 
-  const queryAnalGetUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown-New.json"
+  const queryAnalGetUrl =
+    "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/Ui-Dropdown-New.json";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -185,24 +187,6 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     fetchData();
   }, []);
 
-  // const [newallData, setNewallData] = useState([]);
-  // const [newallData, setNewallData] = useState({
-  // dimension: {},
-  // measure: {},
-  // });
-
-  // for json file
-
-  // const dimensions = newallData.dimension;
-
-  // const dimensionKeys = Object.keys(dimensions);
-  // console.log(dimensionKeys, "kkkk");
-  // const measures = newallData.measure;
-  // console.log(measures, "mm");
-  // const currency = newallData.currency;
-  // const timeWindows = newallData.time_window;
-  // console.log(timeWindows, "tw");
-
   // get
 
   // https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/UI_query_selection_dropdown.json
@@ -218,126 +202,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
       .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
   };
 
-  // old
-
   const { dimensionMapping, reverseDimensionMapping } = createDimensionMappings(dimensions);
-  // console.log(dimensionMapping,'dimensionMapping')
-
-  // const formatData = () => {
-  //   // Replace spaces with underscores in the selected dimension
-  //   const formattedDimension = selectedDimension ? selectedDimension.replace(/\s+/g, "_") : "";
-
-  //   // Build the dimension string using the formatted dimension
-  //   const dimension =
-  //     formattedDimension && selectedValues.length > 0
-  //       ? `${formattedDimension}:${selectedValues.join(", ")}`
-  //       : "";
-
-  //   // Handle partition formatting
-  //   const partition = isNoneSelected
-  //     ? "None"
-  //     : groupByDimension && groupByValues.length > 0
-  //     ? `${groupByDimension.replace(/\s+/g, "_")}:${groupByValues.join(", ")}`
-  //     : "";
-
-  //   // Prepare the measure and time window columns (no transformation needed here)
-  //   const measure = selectedMeasure;
-  //   const time_window_col = selectedTimeWindow;
-
-  //   // Log or return the formatted data as needed
-  //   // console.log("Formatted Dimension:", dimension);
-  //   // console.log("Partition:", partition);
-  //   // console.log("Measure:", measure);
-  //   // console.log("Time Window Column:", time_window_col);
-  //   const formattedStartDate =
-  //   startDate instanceof Date && !isNaN(startDate)
-  //     ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
-  //     : "";
-
-  // const formattedEndDate =
-  //   endDate instanceof Date && !isNaN(endDate)
-  //     ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
-  //     : "";
-
-  //   return {
-  //     dimension,
-  //     partition,
-  //     measure,
-
-  //     includeCOGS,
-  //     topRank: topInputValue || 0, // Send 0 if no value is provided
-  //     bottomRank: downInputValue || 0, // Send 0 if no value is provided
-  //     startDate: formattedStartDate,
-  //     endDate: formattedEndDate,
-
-  //   };
-  // };
-
-  // const handleSubmit = async () => {
-  //   let hasError = false;
-
-  //   if (!selectedDimension) {
-  //     setDimensionError("Please select a dimension.");
-  //     hasError = true;
-  //   } else {
-  //     setDimensionError("");
-  //   }
-
-  //   if (!selectedMeasure) {
-  //     setMeasureError("Please select a measure.");
-  //     hasError = true;
-  //   } else {
-  //     setMeasureError("");
-  //   }
-
-  //   if (hasError) return;
-
-  //   const payload = formatData();
-  //   console.log(payload, "payload");
-
-  //   // const url = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
-  //   const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/"
-  //   setLoading(true);
-  //   try {
-  //     const response = await fetch(postQueryAnlUrl, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-
-  //       body: JSON.stringify(payload),
-  //       // body: jsondata
-  //     });
-
-  //     if (!response.ok) {
-  //       const errorText = await response.text();
-  //       throw new Error(`Network response was not ok: ${errorText}`);
-  //     }
-
-  //     const result = await response.json();
-  //     onSubmit(result, payload);
-  //     console.log("Success Response:", result);
-  //     console.log(payload, "payload");
-
-  //     const router = useRouter();
-  //     router.push({
-  //       // pathname: "/datagraphs", // Replace with your target page
-  //       pathname: "/query-analytics", // Replace with your target page
-
-
-  //       query: {
-  //         ...result, // Pass the response
-  //         payload: JSON.stringify(data), // Pass the payload as part of query
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error submitting data:", error.message);
-  //     // Handle error response
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  //   onClose();
-  // };
 
   const formatData = () => {
     // Replace spaces with underscores in the selected dimension
@@ -376,14 +241,14 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
 
     // Format start and end dates, falling back to default values if not provided
     const formattedStartDate =
-        startDate instanceof Date && !isNaN(startDate)
-            ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
-            : defaultStartDate;
+      startDate instanceof Date && !isNaN(startDate)
+        ? startDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+        : defaultStartDate;
 
     const formattedEndDate =
-        endDate instanceof Date && !isNaN(endDate)
-            ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
-            : currentDate;
+      endDate instanceof Date && !isNaN(endDate)
+        ? endDate.toLocaleDateString("en-CA") // Formats to 'YYYY-MM-DD' in local time
+        : currentDate;
 
     console.log("Formatted Dimension:", dimension);
     console.log("Partition:", partition);
@@ -420,48 +285,104 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     } else {
       setMeasureError("");
     }
+    // if (!isNoneSelected) {
+    //   // Prevent submission if 'None' is not selected
+    //   setPartitionError("If you don't want to partition, please check the box.");
+    //   return;
+    // }else{
+    //   setPartitionError("");
+    // }
 
     if (hasError) return;
 
     const payload = formatData();
     console.log(payload, "payload"); // Log the payload before submission
 
-    const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+    // const postQueryAnlUrl =
+    //   "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+
+    const postQueryAnlUrl =
+      "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
+
     setLoading(true);
+
+    // try {
+    //   const response = await fetch(postQueryAnlUrl, {
+    //     method: "POST",
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //     body: JSON.stringify(payload),
+    //   });
+
+    //   if (!response.ok) {
+    //     const errorText = await response.text();
+    //     throw new Error(`Network response was not ok: ${errorText}`);
+    //   }
+
+
+
+    //   const responseData = await response.json;
+
+    //   // Replace single quotes with double quotes to ensure valid JSON
+    //   const validJsonString = responseData.replace(/'/g, '"');
+    //   const result = JSON.parse(validJsonString);
+
+
+    //   // const result = await response.json();
+    //   onSubmit(result, payload);
+    //   console.log("Success Response:", result);
+
+    //   // const router = useRouter();
+    //   // router.push({
+    //   //   pathname: "/query-analytics", // Replace with your target page
+    //   //   query: {
+    //   //     ...result, // Pass the response
+    //   //     payload: JSON.stringify(payload), // Pass the payload as part of query
+    //   //   },
+    //   // });
+    // }
     try {
+      const token = sessionStorage.getItem("Access_Token");
+
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
+
+      console.log("Using Access Token:", token);
       const response = await fetch(postQueryAnlUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
 
+
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorText = await response.text(); // Read error response as text
         throw new Error(`Network response was not ok: ${errorText}`);
       }
 
-      const result = await response.json();
+      // const responseData = await response.json(); // Corrected to call json()
+      const responseData = await response.text();
+
+      const validJsonString = responseData.replace(/'/g, '"');
+      const result = JSON.parse(validJsonString); // Parse the cleaned string
+
       onSubmit(result, payload);
       console.log("Success Response:", result);
 
-      const router = useRouter();
-      router.push({
-        pathname: "/query-analytics", // Replace with your target page
-        query: {
-          ...result, // Pass the response
-          payload: JSON.stringify(payload), // Pass the payload as part of query
-        },
-      });
-    } catch (error) {
+
+    }
+     catch (error) {
       console.error("Error submitting data:", error.message); // Log the error message
     } finally {
       setLoading(false);
     }
     onClose();
   };
-
 
   const handleNewClick = () => {
     console.log("New button clicked");
@@ -507,6 +428,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     setGroupByDimension(newGroupByDimension);
     setGroupByValues([]); // Clear values when dimension changes
     setSearchValueGroupBy("");
+    setPartitionError("");
   };
 
   const handleGroupByValueSelect = (value) => {
@@ -555,6 +477,7 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
     const value = event.target.value;
     console.log(typeof value, "typeeeeee");
     setSelectedMeasure(value);
+    setMeasureError("");
 
     // Show checkbox only if "Total Sales" is selected, otherwise hide it and reset checkbox state
     // if (value === "Total_Sales") {
@@ -648,11 +571,13 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
   const handleGroupByCheckboxChange = (event) => {
     const checked = event.target.checked;
     setIsNoneSelected(checked);
+    // setPartitionError("")
 
     if (checked) {
       // Clear dimension and values when "None" is selected
       setGroupByDimension("");
       setGroupByValues([]);
+      // setPartitionError("")
     }
   };
 
@@ -960,85 +885,87 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
 
                   {/* time window */}
                   <Grid item xs={12}>
-                <Box
-                  sx={{
-                    padding: "8px",
-                    // width: "180px",
-                    borderRadius: "5px",
-                    border: "1px solid #dcdcdc",
-                    backgroundColor: "#f9f9f9",
-                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                    marginTop: "30px",
-                    marginBottom: "30px",
-                  }}
-                >
-                  <Typography variant="h6" sx={{ marginBottom: "8px" }}>
-                    Select Time Window
-                  </Typography>
+                    <Box
+                      sx={{
+                        padding: "8px",
+                        // width: "180px",
+                        borderRadius: "5px",
+                        border: "1px solid #dcdcdc",
+                        backgroundColor: "#f9f9f9",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                        marginTop: "30px",
+                        marginBottom: "30px",
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ marginBottom: "8px" }}>
+                        Select Time Window
+                      </Typography>
 
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
-                      <InputLabel shrink htmlFor="start-date-picker" sx={{ marginLeft: "-11px" }}>
-                        Start Date
-                      </InputLabel>
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                          <InputLabel
+                            shrink
+                            htmlFor="start-date-picker"
+                            sx={{ marginLeft: "-11px" }}
+                          >
+                            Start Date
+                          </InputLabel>
 
-                      <DatePicker
-                        id="start-date-picker"
-                        value={startDate}
-                        onChange={handleStartDateChange}
-                        views={["year", "month", "day"]}
-                        inputFormat="yyyy/MM/dd"
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            sx={{
-                              width: "100px", // Set width of the input field
-                              "& .MuiInputBase-input": {
-                                height: "100px", // Adjust the height of the input field
-                              },
-                            }}
+                          <DatePicker
+                            id="start-date-picker"
+                            value={startDate}
+                            onChange={handleStartDateChange}
+                            views={["year", "month", "day"]}
+                            inputFormat="yyyy/MM/dd"
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                sx={{
+                                  width: "100px", // Set width of the input field
+                                  "& .MuiInputBase-input": {
+                                    height: "100px", // Adjust the height of the input field
+                                  },
+                                }}
+                              />
+                            )}
+                            minDate={new Date(1900, 0, 1)} // January 1 of current year
+                            maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
+                            sx={{ marginTop: "10px" }}
                           />
-                        )}
-                        minDate={new Date(1900, 0, 1)} // January 1 of current year
-                        maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
-                        sx={{ marginTop: "10px" }}
-                      />
-                      {error && <FormHelperText>{error}</FormHelperText>}
-                    </FormControl>
+                          {error && <FormHelperText>{error}</FormHelperText>}
+                        </FormControl>
 
-                    <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
-                      <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
-                        End Date
-                      </InputLabel>
+                        <FormControl fullWidth variant="outlined" margin="normal" error={!!error}>
+                          <InputLabel shrink htmlFor="end-date-picker" sx={{ marginLeft: "-11px" }}>
+                            End Date
+                          </InputLabel>
 
-                      <DatePicker
-                        id="end-date-picker"
-                        value={endDate}
-                        onChange={handleEndDateChange}
-                        views={["year", "month", "day"]}
-                        inputFormat="yyyy/MM/dd"
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            sx={{
-                              width: "100px", // Set width of the input field
-                              "& .MuiInputBase-input": {
-                                height: "20px", // Adjust the height of the input field
-                              },
-                            }}
+                          <DatePicker
+                            id="end-date-picker"
+                            value={endDate}
+                            onChange={handleEndDateChange}
+                            views={["year", "month", "day"]}
+                            inputFormat="yyyy/MM/dd"
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                sx={{
+                                  width: "100px", // Set width of the input field
+                                  "& .MuiInputBase-input": {
+                                    height: "20px", // Adjust the height of the input field
+                                  },
+                                }}
+                              />
+                            )}
+                            minDate={new Date(1900, 0, 1)} // January 1 of current year
+                            maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
+                            sx={{ marginTop: "10px" }}
                           />
-                        )}
-                        minDate={new Date(1900, 0, 1)} // January 1 of current year
-                        maxDate={new Date(currentYear + 1, 11, 31)} // December 31 of next year
-                        sx={{ marginTop: "10px" }}
-                      />
-                      {error && <FormHelperText>{error}</FormHelperText>}
-                    </FormControl>
-                  </LocalizationProvider>
+                          {error && <FormHelperText>{error}</FormHelperText>}
+                        </FormControl>
+                      </LocalizationProvider>
 
-
-
-                  {/* <FormControl fullWidth variant="outlined" margin="normal">
+                      {/* <FormControl fullWidth variant="outlined" margin="normal">
                     <InputLabel id="time-window-select-label">Time Window</InputLabel>
                     <Select
                       labelId="time-window-select-label"
@@ -1057,15 +984,13 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
                     </Select>
                   </FormControl> */}
 
-                  {timeWindowError && (
-                    <div style={{ color: "#F74617" }} className="error">
-                      {timeWindowError}
-                    </div>
-                  )}
-                </Box>
-              </Grid>
-
-
+                      {timeWindowError && (
+                        <div style={{ color: "#F74617" }} className="error">
+                          {timeWindowError}
+                        </div>
+                      )}
+                    </Box>
+                  </Grid>
                 </Grid>
               </Box>
             </Grid>
@@ -1147,10 +1072,10 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
                     </FormControl>
                     {/* {measureError && <div className="error">{measureError}</div>} */}
                     {measureError && (
-                        <div style={{ color: "#F74617" }} className="error">
-                          {measureError}
-                        </div>
-                      )}
+                      <div style={{ color: "#F74617" }} className="error">
+                        {measureError}
+                      </div>
+                    )}
 
                     {selectedMeasure === "Gross_Amount" && (
                       <FormControlLabel
@@ -1270,6 +1195,13 @@ const DataVisualization = ({ onClose, onSubmit, onNewClick }) => {
                             </Tooltip>
                           )}
                         </Typography>
+
+                        {/* partitionError */}
+                        {partitionError && (
+                          <div style={{ color: "#F74617" }} className="error">
+                            {partitionError}
+                          </div>
+                        )}
 
                         {groupByDimension && (
                           <>

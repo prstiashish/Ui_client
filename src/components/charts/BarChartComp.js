@@ -20,7 +20,241 @@ import { Chart } from "chart.js/auto";
 // Registering the required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// export default function BarChartComp({ chartData, title, startDate, endDate }) {
+
+//   if (!chartData || !chartData.datasets || chartData.datasets.length === 0) {
+//     return <div>No data available for the chart</div>;
+//   }
+
+
+//   console.log('waterererererer', chartData)
+//   const [loading, setLoading] = useState(false);
+//   const [showStackedPopupChart, setStackedShowPopupChart] = useState(false);
+
+//   const handleChartDoubleClick = () => {
+//     setStackedShowPopupChart(true);
+//   };
+
+//   let titleText = title;
+//   let formatValue;
+//   if (chartData && chartData.datasets && chartData.datasets.length > 0) {
+//     const data = chartData.datasets[0].data;
+
+//     if (data && data.length > 0) {
+//       let maxValue = Math.max(...data);
+//       formatValue = (value) => {
+//         if (maxValue >= 10000000) {
+//           return value / 10000000;
+//         } else if (maxValue >= 100000) {
+//           return value / 100000;
+//         } else if (maxValue >= 1000) {
+//           return value / 1000;
+//         } else {
+//           return value;
+//         }
+//       };
+
+//       if (maxValue >= 10000000) {
+//         // titleText += " (in Crores)";
+//       } else if (maxValue >= 100000) {
+//         // titleText += " (in Lakhs)";
+//       } else if (maxValue >= 1000) {
+//         // titleText += " (in Thousands)";
+//       }
+//     } else {
+//       console.log("Data is empty.");
+//     }
+//   } else {
+//     console.log("chartData or its datasets are not properly initialized.");
+//   }
+//   // useEffect(() => {
+//   //   setLoading(true);
+//   //   setTimeout(() => {
+//   //     setLoading(false);
+//   //   }, 1000);
+//   // }, [chartData]);
+//   useEffect(() => {
+//     let isMounted = true; // Flag to track component mount status
+
+//     setLoading(true);
+//     setTimeout(() => {
+//       if (isMounted) {
+//         setLoading(false); // Only update loading state if component is still mounted
+//       }
+//     }, 1000);
+
+//     return () => {
+//       isMounted = false; // Cleanup flag on unmount
+//     };
+//   }, [chartData]);
+//   return (
+//     <>
+//       {loading || !chartData?.datasets?.length || !chartData?.datasets[0].data?.length ? (
+//         <div
+//           style={{
+//             position: "relative",
+//             minHeight: "200px",
+//             marginLeft: "40%",
+//             alignContent: "center",
+//           }}
+//         >
+//           <BeatLoader color="#36D7B7" loading={true} size={10} />
+//         </div>
+//       ) : (
+//         <Grid container spacing={2}>
+//           <Grid item xs={12}>
+//             <div style={{ position: "relative" }}>
+//               <div style={{ position: "absolute", right: 0 }}>
+//                 <IconButton onClick={handleChartDoubleClick} size="small">
+//                   <BsArrowsFullscreen style={{ fontSize: "1.5rem" }} />
+//                 </IconButton>
+//               </div>
+//               <div>
+//                 <Bar
+//                   data={chartData}
+//                   options={{
+//                     responsive: true,
+//                     plugins: {
+//                       title: {
+//                         display: true,
+//                         text: titleText,
+//                       },
+
+//                       tooltip: {
+//                         callbacks: {
+//                           label: function (context) {
+//                             const dataset = context.dataset;
+//                             const dataIndex = context.dataIndex;
+
+//                             if (dataset && dataset.data && dataset.data[dataIndex] !== undefined) {
+//                               // Format the number to 2 decimal places
+//                               const value = dataset.data[dataIndex].toFixed(2);
+//                               return `Margin: ${value}`;
+//                             } else {
+//                               return "Margin: N/A";
+//                             }
+//                           },
+//                         },
+//                       },
+
+//                       legend: {
+//                         display: true,
+//                         onClick: () => {},
+//                         labels: {
+//                           generateLabels: function (chart) {
+//                             return [
+//                               {
+//                                 text: "Margin Decrease",
+//                                 fillStyle: "#ff4d4d",
+//                                 hidden: false,
+//                                 index: 1,
+//                                 lineWidth: 0,
+//                               },
+//                               {
+//                                 text: "Margin Increase",
+//                                 fillStyle: "#66d9ff",
+//                                 hidden: false,
+//                                 index: 0,
+//                                 lineWidth: 0,
+//                               },
+//                             ];
+//                           },
+//                         },
+//                       },
+//                       datalabels: {
+//                         display: false,
+//                       },
+//                     },
+//                     layout: {
+//                       padding: {
+//                         left: 10,
+//                         right: 10,
+//                       },
+//                     },
+//                     scales: {
+//                       x: {
+//                         stacked: true,
+//                       },
+//                       y: {
+//                         stacked: true,
+//                         ticks: {
+//                           callback: (value, index, values) => {
+//                             if (value >= 10000000) {
+//                               return value / 10000000;
+//                             } else if (value >= 100000) {
+//                               return value / 100000;
+//                             } else if (value >= 1000) {
+//                               return value / 1000;
+//                             } else {
+//                               return value;
+//                             }
+//                           },
+//                         },
+//                       },
+//                     },
+//                     elements: {
+//                       bar: {
+//                         // borderRadius: 3, // Optional: rounded corners
+//                       },
+//                     },
+//                   }}
+//                 />
+//               </div>
+//             </div>
+//           </Grid>
+//           <Grid item xs={12}>
+//             <Dialog
+//               open={showStackedPopupChart}
+//               onClose={() => setStackedShowPopupChart(false)}
+//               maxWidth="lg"
+//               fullWidth={true}
+//               sx={{
+//                 "& .MuiDialog-paper": { maxWidth: "80%", width: "80%" },
+//                 "& .MuiDialogContent-root": {
+//                   overflow: "hidden",
+//                 },
+//               }}
+//             >
+//               <DialogContent>
+//                 <Typography
+//                   sx={{
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
+//                 </Typography>
+//                 <PopupChart
+//                   chartData={chartData}
+//                   title={titleText}
+//                   onClose={() => setStackedShowPopupChart(false)}
+//                 />
+//                 <IconButton
+//                   aria-label="close"
+//                   onClick={() => setStackedShowPopupChart(false)}
+//                   sx={{
+//                     position: "absolute",
+//                     top: 0,
+//                     right: 0,
+//                   }}
+//                 >
+//                   <CloseIcon />
+//                 </IconButton>
+//               </DialogContent>
+//             </Dialog>
+//           </Grid>
+//         </Grid>
+//       )}
+//     </>
+//   );
+// }
+
 export default function BarChartComp({ chartData, title, startDate, endDate }) {
+  // if (!chartData || !chartData.datasets || chartData.datasets.length === 0) {
+  //   return <div>No data available for the chart</div>;
+  // }
+
+  // console.log("chartDatawwwwwwwwwwwwwwwwwwww", chartData);
+
   const [loading, setLoading] = useState(false);
   const [showStackedPopupChart, setStackedShowPopupChart] = useState(false);
 
@@ -30,6 +264,7 @@ export default function BarChartComp({ chartData, title, startDate, endDate }) {
 
   let titleText = title;
   let formatValue;
+
   if (chartData && chartData.datasets && chartData.datasets.length > 0) {
     const data = chartData.datasets[0].data;
 
@@ -46,37 +281,28 @@ export default function BarChartComp({ chartData, title, startDate, endDate }) {
           return value;
         }
       };
-
-      if (maxValue >= 10000000) {
-        // titleText += " (in Crores)";
-      } else if (maxValue >= 100000) {
-        // titleText += " (in Lakhs)";
-      } else if (maxValue >= 1000) {
-        // titleText += " (in Thousands)";
-      }
     } else {
       console.log("Data is empty.");
     }
-  } else {
-    console.log("chartData or its datasets are not properly initialized.");
   }
+
   useEffect(() => {
+    let isMounted = true;
     setLoading(true);
     setTimeout(() => {
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }, 1000);
+    return () => {
+      isMounted = false;
+    };
   }, [chartData]);
+
   return (
     <>
       {loading || !chartData?.datasets?.length || !chartData?.datasets[0].data?.length ? (
-        <div
-          style={{
-            position: "relative",
-            minHeight: "200px",
-            marginLeft: "40%",
-            alignContent: "center",
-          }}
-        >
+        <div style={{ position: "relative", minHeight: "200px", marginLeft: "40%", alignContent: "center" }}>
           <BeatLoader color="#36D7B7" loading={true} size={10} />
         </div>
       ) : (
@@ -98,86 +324,57 @@ export default function BarChartComp({ chartData, title, startDate, endDate }) {
                         display: true,
                         text: titleText,
                       },
-
-                      tooltip: {
-                        callbacks: {
-                          label: function (context) {
-                            const dataset = context.dataset;
-                            const dataIndex = context.dataIndex;
-
-                            if (dataset && dataset.data && dataset.data[dataIndex] !== undefined) {
-                              // Format the number to 2 decimal places
-                              const value = dataset.data[dataIndex].toFixed(2);
-                              return `Margin: ${value}`;
-                            } else {
-                              return "Margin: N/A";
-                            }
-                          },
-                        },
-                      },
-
+                      // tooltip: {
+                      //   callbacks: {
+                      //     label: function (context) {
+                      //       const dataset = context.dataset;
+                      //       const dataIndex = context.dataIndex;
+                      //       if (dataset && dataset.data && dataset.data[dataIndex] !== undefined) {
+                      //         const value = dataset.data[dataIndex].toFixed(2);
+                      //         return `Margin: ${value}`;
+                      //       } else {
+                      //         return "Margin: N/A";
+                      //       }
+                      //     },
+                      //   },
+                      // },
                       legend: {
-                        display: true,
+                        display: false,
                         onClick: () => {},
                         labels: {
                           generateLabels: function (chart) {
                             return [
-                              {
-                                text: "Margin Decrease",
-                                fillStyle: "#ff4d4d",
-                                hidden: false,
-                                index: 1,
-                                lineWidth: 0,
-                              },
-                              {
-                                text: "Margin Increase",
-                                fillStyle: "#66d9ff",
-                                hidden: false,
-                                index: 0,
-                                lineWidth: 0,
-                              },
+                              { text: "Margin Decrease", fillStyle: "#ff4d4d", hidden: false, index: 1, lineWidth: 0 },
+                              { text: "Margin Increase", fillStyle: "#66d9ff", hidden: false, index: 0, lineWidth: 0 },
                             ];
                           },
                         },
                       },
                       datalabels: {
                         display: false,
-                      },
+                      }
                     },
                     layout: {
-                      padding: {
-                        left: 10,
-                        right: 10,
-                      },
+                      padding: { left: 10, right: 10 },
                     },
                     scales: {
-                      x: {
-                        stacked: true,
-                      },
+                      x: { stacked: true },
                       y: {
                         stacked: true,
                         ticks: {
-                          callback: (value, index, values) => {
-                            if (value >= 10000000) {
-                              return value / 10000000;
-                            } else if (value >= 100000) {
-                              return value / 100000;
-                            } else if (value >= 1000) {
-                              return value / 1000;
-                            } else {
-                              return value;
-                            }
-                          },
+                          callback: (value) => formatValue(value),
                         },
-                      },
-                    },
-                    elements: {
-                      bar: {
-                        // borderRadius: 3, // Optional: rounded corners
                       },
                     },
                   }}
                 />
+
+
+
+
+
+
+
               </div>
             </div>
           </Grid>
@@ -187,35 +384,14 @@ export default function BarChartComp({ chartData, title, startDate, endDate }) {
               onClose={() => setStackedShowPopupChart(false)}
               maxWidth="lg"
               fullWidth={true}
-              sx={{
-                "& .MuiDialog-paper": { maxWidth: "80%", width: "80%" },
-                "& .MuiDialogContent-root": {
-                  overflow: "hidden",
-                },
-              }}
+              sx={{ "& .MuiDialog-paper": { maxWidth: "80%", width: "80%" }, "& .MuiDialogContent-root": { overflow: "hidden" } }}
             >
               <DialogContent>
-                <Typography
-                  sx={{
-                    fontWeight: "bold",
-                  }}
-                >
+                <Typography sx={{ fontWeight: "bold" }}>
                   Start Date: {startDate} &nbsp;&nbsp; End Date: {endDate}
                 </Typography>
-                <PopupChart
-                  chartData={chartData}
-                  title={titleText}
-                  onClose={() => setStackedShowPopupChart(false)}
-                />
-                <IconButton
-                  aria-label="close"
-                  onClick={() => setStackedShowPopupChart(false)}
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                  }}
-                >
+                <PopupChart chartData={chartData} title={titleText} onClose={() => setStackedShowPopupChart(false)} />
+                <IconButton aria-label="close" onClick={() => setStackedShowPopupChart(false)} sx={{ position: "absolute", top: 0, right: 0 }}>
                   <CloseIcon />
                 </IconButton>
               </DialogContent>
@@ -226,6 +402,7 @@ export default function BarChartComp({ chartData, title, startDate, endDate }) {
     </>
   );
 }
+
 
 function Modal({ children }) {
   return (
@@ -259,21 +436,21 @@ function PopupChart({ chartData, title }) {
             text: title,
           },
 
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const dataset = context.dataset;
-                const dataIndex = context.dataIndex;
+          // tooltip: {
+          //   callbacks: {
+          //     label: function (context) {
+          //       const dataset = context.dataset;
+          //       const dataIndex = context.dataIndex;
 
-                if (dataset && dataset.data && dataset.data[dataIndex] !== undefined) {
-                  const value = dataset.data[dataIndex].toFixed(2);
-                  return `Margin: ${value}`;
-                } else {
-                  return "Margin: N/A";
-                }
-              },
-            },
-          },
+          //       if (dataset && dataset.data && dataset.data[dataIndex] !== undefined) {
+          //         const value = dataset.data[dataIndex].toFixed(2);
+          //         return `Margin: ${value}`;
+          //       } else {
+          //         return "Margin: N/A";
+          //       }
+          //     },
+          //   },
+          // },
           legend: {
             display: true,
             onClick: () => {},

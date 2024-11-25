@@ -61,9 +61,8 @@ const MyComponent = () => {
     setIncludePrevYear(isChecked === "true" ? true : false);
   }, [isChecked]);
 
-  // const dataUrl = "https://q76xkcimhhl5rkpjehp2ad7ziu0oqtqo.lambda-url.ap-south-1.on.aws/";
-
-  const dataUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+  // const dataUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+  const dataUrl = "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
 
   const createPayload = () => {
     const defaultStartDate = new Date("2024-04-01");
@@ -98,19 +97,33 @@ const MyComponent = () => {
 
   const fetchData = async (payload) => {
     try {
-      const response = await axios.post(dataUrl, payload);
+      // const response = await axios.post(dataUrl, payload);
 
-      const data = response.data;
+      // const data = response.data;
+      const token = sessionStorage.getItem("Access_Token");
 
-      // // Log response data for debugging
-      // console.log("Response data:", data);
-      // console.log("Data keys:", Object.keys(data));
-      // console.log("Data for current fiscal year:", data["Current Fiscal Year"]);
-      // console.log("Data for previous fiscal year:", data["Previous Fiscal Year"]);
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
 
-      // Check if the response data is an array or contains expected keys
+      // console.log("Using Access Token:", token);
+      // Configure headers with the Authorization Bearer token
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      // console.log("Payload inside fetchData:", config);
+      const response = await axios.post(dataUrl, payload, config); // Pass headers as the third argument
+
+      const responseData = response.data;
+
+      // Replace single quotes with double quotes to ensure valid JSON
+      const validJsonString = responseData.replace(/'/g, '"');
+      const data = JSON.parse(validJsonString);
+
       if (Array.isArray(data)) {
-        // Process data if it's an array (for when include_prev_year is false)
         const labels = data.map((item) => item[dimension] || "Unknown"); // Handle missing dimension
         const salesData = data.map((item) => item.Gross_Amount || 0); // Handle missing Gross_Amount
 
@@ -128,7 +141,6 @@ const MyComponent = () => {
 
         setChartData(newChartData);
       } else if (data["Current Fiscal Year"] && data["Previous Fiscal Year"]) {
-        // Process data if it includes current and previous fiscal years
         const currentYearData = data["Current Fiscal Year"] || [];
         const previousYearData = data["Previous Fiscal Year"] || [];
 
@@ -138,7 +150,6 @@ const MyComponent = () => {
         const previousLabels = previousYearData.map((item) => item[dimension] || "Unknown");
         const previousSalesData = previousYearData.map((item) => item.Gross_Amount || 0);
 
-        // Combine labels and sales data
         const labels = [...new Set([...currentLabels, ...previousLabels])];
         const combinedSalesData = labels.map((label) => {
           return {
@@ -435,7 +446,11 @@ const MyComponent = () => {
             </Grid>
 
             {/* Submit Button */}
-            <Grid container justifyContent="center" style={{ marginTop: "15px", borderTop: "1px solid gray", paddingTop: "10px" }}>
+            <Grid
+              container
+              justifyContent="center"
+              style={{ marginTop: "15px", borderTop: "1px solid gray", paddingTop: "10px" }}
+            >
               <Button
                 variant="contained"
                 onClick={handleSubmit}

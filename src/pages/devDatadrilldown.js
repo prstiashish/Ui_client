@@ -42,22 +42,22 @@ const DevDatadrilldown = () => {
 
   const fetchData = async () => {
     const payload = {
-      page_number: parseInt(pageNumberInput, 10),
+      page_number: parseInt(pageNumberInput, 20),
     };
 
     try {
       const response = await axios.post(dataGridAPI, payload);
-      console.log("responseeeeeeeeeeeeeee", response); // Log the response data
-      console.log("API Response:", response.data); // Log the response data
-      console.log(typeof response.data, "typeeeeeeeeeee"); // Check the type of response.data
+      // console.log("responseeeeeeeeeeeeeee", response); // Log the response data
+      // console.log("API Response:", response.data); // Log the response data
+      // console.log(typeof response.data, "typeeeeeeeeeee"); // Check the type of response.data
 
       let fetchedData;
-      console.log("################################");
+      // console.log("################################");
       // fetchedData = response.data
 
       fetchedData = JSON.parse(response.data); // Parse the string to JSON
-      console.log("Fetched Data:", fetchedData);
-      console.log("################################");
+      // console.log("Fetched Data:", fetchedData);
+      // console.log("################################");
 
       // Log the fetched data
 
@@ -108,17 +108,13 @@ const DevDatadrilldown = () => {
   // }, [pageNumberInput]);
 
   useEffect(() => {
-    const pageNumber = parseInt(pageNumberInput, 10) || 1; // Default to 1 if invalid
+    const pageNumber = parseInt(pageNumberInput, 20) || 1; // Default to 1 if invalid
     if (pageNumber > 0) { // Only fetch data if pageNumber is valid
       fetchData(pageNumber);
     }
   }, [pageNumberInput]);
 
-  // const handleKeyDown = (event) => {
-  //   if (event.key === "Enter") {
-  //     fetchData(); // Call fetchData without parameters
-  //   }
-  // };
+ 
 
   const defaultColDefs = {
     sortable: true,
@@ -128,53 +124,13 @@ const DevDatadrilldown = () => {
 
   }
 
-  const rowData = [
-    { id: 1, name: "John Doe", age: 30, city: "New York" },
-    { id: 2, name: "Jane Smith", age: 25, city: "Los Angeles" },
-    { id: 3, name: "Bob Johnson", age: 40, city: "Chicago" },
-  ];
-
-  const columndefs = [
-    { field: "name", headerName: "Name", width: 150 },
-    { field: "age", headerName: "Age", width: 100 },
-    { field: "city", headerName: "City", width: 150 },
-  ];
 
 
   const onGridReady = (params) => {
     setGridApi(params.api);
   };
 
-  // return (
-  //   <>
-  //     <h1>Data Drill</h1>
-  //     <input
-  //       type="text" // Use text type for custom validation
-  //       value={pageNumberInput} // Bind value to state
-  //       onChange={handleInputChange} // Handle input changes
-  //       // onKeyDown={handleKeyDown} // Handle key down events
-  //       placeholder="Enter page number only"
-  //       style={{ width: "200px", padding: "8px", fontSize: "16px" }} // Optional styling
-  //     />
-  //      {/* Display error message if it exists */}
-  //      {error && (
-  //       <div style={{ color: "red", margin: "10px 0" }}>
-  //         Error: {error}
-  //       </div>
-  //     )}
-  //     <div style={{ height: 400, width: "100%" }}>
-  //       <DataGrid
-  //         rows={data} // Use the fetched data as rows
-  //         columns={columns} // Use the generated columns
-  //         // pageSize={5} // Set the number of rows per page
-  //         // rowsPerPageOptions={[5, 10, 20]} // Options for rows per page
-  //         // checkboxSelection // Optional: add checkbox selection
-  //         // rows={rowData} // Use the fetched data as rows
-  //         // columns={columndefs} // Use the generated columns
-  //       />
-  //     </div>
-  //   </>
-  // );
+
   return (
     <>
 
@@ -223,103 +179,3 @@ export default DevDatadrilldown;
 
 
 
-// const DevDatadrilldown = () => {
-//   const [pageNumberInput, setPageNumberInput] = useState(1);
-//   const [data, setData] = useState([]); // State to hold the fetched data
-//   const [columns, setColumns] = useState([]); // State to hold the column definitions
-//   const [error, setError] = useState(""); // State to hold error messages
-
-//   const handleInputChange = (event) => {
-//     const value = event.target.value;
-
-//     if (/^\d*$/.test(value)) {
-//       setPageNumberInput(value); // Update state with valid input
-//     }
-//   };
-
-//   const fetchData = async () => {
-//     const payload = {
-//       page_number: parseInt(pageNumberInput, 10),
-//     };
-
-//     try {
-//       const response = await axios.post(dataGridAPI, payload);
-//       console.log("API Response:", response.data); // Log the response data
-
-//       let fetchedData = JSON.parse(response.data); // Parse the string to JSON
-
-//       if (!Array.isArray(fetchedData)) {
-//         console.error("Fetched data is not an array:", fetchedData);
-//         throw new Error("Fetched data is not an array");
-//       }
-
-//       // Add unique ID to each object in the fetched data
-//       const dataWithId = fetchedData.map((item, index) => ({
-//         ...item,
-//         id: item.id || index, // Use the existing id or index
-//       }));
-
-//       setData(dataWithId); // Set the state with the fetched data
-//       setError(""); // Clear any previous error
-
-//       // Extract keys from the first object to create columns
-//       if (dataWithId.length > 0) {
-//         const keys = Object.keys(dataWithId[0]);
-//         const generatedColumns = keys.map((key) => ({
-//           field: key,
-//           headerName: key.charAt(0).toUpperCase() + key.slice(1),
-//           width: 140,
-//         }));
-//         setColumns(generatedColumns); // Set the columns state
-//       }
-//     } catch (error) {
-//       console.error("Error fetching data:", error.message);
-
-//       if (error.response && error.response.data) {
-//         setError(error.response.data.message); // Custom error response
-//       } else {
-//         setError(error.message); // Fallback error message
-//       }
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchData();
-//   }, [pageNumberInput]);
-
-//   const defaultColDefs = {
-//     sortable: true,
-//     flex: 1,
-//     filter: true,
-//     floatingFilter: true,
-//   };
-
-//   return (
-//     <>
-//       <h1>Data Drill</h1>
-//       <input
-//         type="text"
-//         value={pageNumberInput}
-//         onChange={handleInputChange}
-//         placeholder="Enter page number only"
-//         style={{ width: "200px", padding: "8px", fontSize: "16px" }}
-//       />
-//       {error && (
-//         <div style={{ color: "red", margin: "10px 0" }}>
-//           Error: {error}
-//         </div>
-//       )}
-//       <div style={{ height: 450, width: "100%" }}>
-//         <AgGridReact
-//           rows={data} // Use the fetched data as rows
-//           columns={columns} // Use the generated columns
-//           defaultColDef={defaultColDefs} // Add the default column definitions
-//         />
-//       </div>
-//     </>
-//   );
-// };
-
-// DevDatadrilldown.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
-
-// export default DevDatadrilldown;

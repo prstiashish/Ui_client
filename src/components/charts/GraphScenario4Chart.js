@@ -5,21 +5,20 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
 // ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+// const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+const apiUrl = "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
 
 const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
-  console.log("GraphScenario4Chart :", chartData);
-  console.log("GraphScenario4Chart receivedPayload :", receivedPayload);
 
   const payloadArray = Array.isArray(receivedPayload) ? receivedPayload : [receivedPayload];
 
-  console.log("Payload Array (Before Filter):", payloadArray);
+  // console.log("Payload Array (Before Filter):", payloadArray);
 
   const [selectedBarData, setSelectedBarData] = useState(null);
-  console.log("selectedBarData", selectedBarData);
+  // console.log("selectedBarData", selectedBarData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
-  console.log("fetchedData", fetchedData);
+  // console.log("fetchedData", fetchedData);
   const [timeWindow, setTimeWindow] = useState("M");
   const [dimensionName, SetdimensionName] = useState(null);
 
@@ -53,99 +52,30 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
     console.log("chartData or its datasets are not properly initialized.");
   }
 
-  // const handleBarClick = (event, elements) => {
-  //   console.log("GraphScenario4Chart data:", chartData);
-  //   console.log("GraphScenario4Chart receivedPayload:", receivedPayload);
 
-  //   if (elements.length === 0) return; // No element clicked
 
-  //   const element = elements[0];
-  //   const clickedIndex = element.index;
-  //   const clickedLabel = chartData.labels[clickedIndex];
-  //   // SetdimensionName(clickedLabel)
 
-  //   const dimensionType = chartData.dimension;
-  //   const clickedDataSet = chartData.datasets[element.datasetIndex].label;
-  //   const dimensionValue = clickedDataSet.split(" - ")[0];
 
-  //   // const dataSetMappings = {
-  //   //   "Materials Cost": "Materials_Cost",
-  //   //   "Channel Commission": "Channel_Commission",
-  //   //   Discounts: "Discounts",
-  //   //   "Supplies Cost": "Supplies_Cost",
-  //   //   Margin: "Margin",
-  //   // };
 
-  //   // Step 2: Use the mapping to get the corresponding measure
-  //   // const measureValue = dataSetMappings[clickedDataSet] || clickedDataSet; // Fallback to clickedDataSet if not found
 
-  //   console.log("Clicked Label:", clickedLabel); // Log the clicked label
-  //   console.log("Dimension Type:", dimensionType); // Log the dimension type
-  //   console.log("Clicked DataSet:", clickedDataSet); // Log the clicked dataset
-  //   console.log("Dimension Value:", dimensionValue); // Log the dimension value
 
-  //   const filteredItems = payloadArray.filter((item) => {
-  //     console.log("Item being filtered:", item); // Check each item
-  //     console.log("Partition:", item.partition);
-  //     console.log("Measure:", item.measure);
-  //     console.log("IncludeCOGS:", item.includeCOGS);
 
-  //     return (
-  //       item.partition !== "None" && // Ensure partition is not "None"
-  //       item.measure === "Gross_Amount" && // Ensure the correct measure
-  //       item.includeCOGS === true // Ensure COGS is includedh
-  //     );
-  //   });
 
-  //   console.log("Filtered Items:", filteredItems); // Log the filtered items
 
-  //   const correspondingPayload = filteredItems.find(item => {
-  //     // Match the partition or dimension with the clicked label
-  //     return item.partition === clickedLabel || item.dimension.includes(clickedLabel);
-  //   });
 
-  //   if (correspondingPayload) {
-  //     console.log("Corresponding Payload:", correspondingPayload); // Log the corresponding payload for the clicked bar
-  //   } else {
-  //     console.log("No matching payload found for clicked bar.");
-  //   }
-
-  //   // console.log("Corresponding Payload:", filteredItems); // Log the filtered items
-
-  //   // if (correspondingPayload) {
-  //   //   const { bottomRank, topRank, measure, partition, includeCOGS, start_date, end_date } =
-  //   //     correspondingPayload;
-
-  //   //   const hitToUrl = {
-  //   //     bottomRank,
-  //   //     topRank,
-  //   //     dimension: `${dimensionType}:${clickedLabel}`,
-  //   //     measure: measureValue,
-  //   //     partition,
-  //   //     includeCOGS: false,
-  //   //     start_date,
-  //   //     end_date,
-  //   //     time_window: timeWindow, // Include the current time window
-  //   //   };
-
-  //   //   console.log("Hit to URL:", hitToUrl); // Log the hitToUrl object
-
-  //   //   // fetchPeriodicData(hitToUrl);
-
-  //   //   // setSelectedBarData(hitToUrl)
-
-  //   //   // setIsDialogOpen(true);
-  //   // } else {
-  //   //   console.log("No matching payload found for clicked bar.");
-  //   // }
-  // };
 
   const fetchPeriodicData = async (hitToUrl) => {
     // Log what is being sent to fetch
     try {
+      const token = sessionStorage.getItem("Access_Token");
+
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {  Authorization: `Bearer ${token}` },
         body: JSON.stringify(hitToUrl),
       });
 
@@ -153,10 +83,15 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const data = await response.json();
+      // const data = await response.json();
       // console.log("Fetched data:", data); // Log the fetched
 
       // setFetchedData(data);
+      const resData = await response.text();
+
+      // Replace single quotes with double quotes to ensure valid JSON
+      const validJsonString = resData.replace(/'/g, '"');
+      const data = JSON.parse(validJsonString);
 
 
       if (typeof data !== "object" || data === null || Object.keys(data).length === 0) {
@@ -166,8 +101,16 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
       const firstKey = Object.keys(data)[0];
       const responseData = data[firstKey] || []; // Ensure responseData is an array
 
-      console.log("Fetched data:", responseData);
-      setFetchedData(responseData);
+      // console.log("Fetched data:", responseData);
+      // setFetchedData(responseData);
+      const monthOrder = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+      // Sort the data based on month order
+      const sortedData = Array.isArray(responseData)
+        ? responseData.sort((a, b) => monthOrder.indexOf(a.Month) - monthOrder.indexOf(b.Month))
+        : [];
+
+      setFetchedData(sortedData);
 
     } catch (error) {
       console.error("Error fetching periodic data:", error);
@@ -178,21 +121,6 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
   const handleBarClick = (event, elements) => {
     if (elements.length === 0) return; // No element clicked
 
-    // const specificPayload = filteredItems.find((item) => {
-    //   const partitionLabel = item.partition.split(":")[1];
-    //   const dimensionLabel = item.dimension.split(":")[0];
-
-    //   console.log("Partition Label:", partitionLabel); // E.g., "Hyderabad"
-    //   console.log("Dimension Label:", dimensionLabel); // E
-    //   // Match the clicked label (e.g., "Hyderabad") and dimension, excluding "All"
-    //   return (
-    //     dimensionLabel === dimensionType && // Ensure dimension matches
-    //     partitionLabel === clickedLabel && // Ensure clicked label matches partition
-    //     partitionLabel !== "All" // Exclude "All" for specific matches
-    //   );
-    // });
-
-    // console.log("Specific Payload:", specificPayload); // Log the specific payload
 
     const element = elements[0]; // Get the clicked bar element
     const clickedIndex = element.index; // Get the index of the clicked bar
@@ -203,14 +131,14 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
 
     const dimensionValue = clickedDataSet.split(" - ")[0]; // Extract the dimension value (e.g., "FOFO")
     SetdimensionName(dimensionValue)
-    console.log("Clicked Label:", clickedLabel); // E.g., "POS"
-    console.log("Dimension Type:", dimensionType); // E.g., "Franchise_Type"
-    console.log("Clicked DataSet:", clickedDataSet); // E.g., "FOFO - Margin"
-    console.log("Dimension Value:", dimensionValue); // E.g., "FOFO"
+    // console.log("Clicked Label:", clickedLabel); // E.g., "POS"
+    // console.log("Dimension Type:", dimensionType); // E.g., "Franchise_Type"
+    // console.log("Clicked DataSet:", clickedDataSet); // E.g., "FOFO - Margin"
+    // console.log("Dimension Value:", dimensionValue); // E.g., "FOFO"
 
     const measureValue = clickedDataSet.split(" - ")[1].trim();
 
-    console.log("Clicked measureValue:", measureValue); // E.g., "Margin"
+    // console.log("Clicked measureValue:", measureValue); // E.g., "Margin"
 
     // Define the mapping object
     const dataSetMappings = {
@@ -231,17 +159,17 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
         item.partition !== "None" && item.measure === "Gross_Amount" && item.includeCOGS === true
       );
     });
-    console.log("correspondingPayload:", correspondingPayload);
+    // console.log("correspondingPayload:", correspondingPayload);
 
     if (correspondingPayload) {
       const { bottomRank, topRank, measure, partition, includeCOGS, start_date, end_date } =
         correspondingPayload[0];
 
-      console.log(partition);
+      // console.log(partition);
 
       const [prefix, currentValues] = partition.split(":");
-      console.log(prefix);
-      console.log(currentValues);
+      // console.log(prefix);
+      // console.log(currentValues);
 
       const hitToUrl = {
         bottomRank,
@@ -249,13 +177,13 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
         dimension: `${dimensionType}:${dimensionValue}`, // Update dimension as needed
         measure: mappedMeasureValue, // Use the mapped measure value
         partition: `${prefix}: ${clickedLabel}`, // Modify partition if needed
-        includeCOGS: false,
+        includeCOGS: true,
         start_date,
         end_date,
         time_window: timeWindow, // Include the current time window
       };
 
-      console.log("Hit to URL:", hitToUrl); // Log the hitToUrl object
+      // console.log("Hit to URL:", hitToUrl); // Log the hitToUrl object
 
       fetchPeriodicData(hitToUrl);
 
@@ -267,8 +195,8 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
 
   const handleTimeWindowChange = (newTimeWindow) => {
     setTimeWindow(newTimeWindow);
-    console.log("Time window changed to:", newTimeWindow); // Log time window change
-    console.log("Selected Bar Data:", selectedBarData); // Log the selected bar
+    // console.log("Time window changed to:", newTimeWindow); // Log time window change
+    // console.log("Selected Bar Data:", selectedBarData); // Log the selected bar
 
     // Ensure selectedBarData is available before fetching
     if (selectedBarData) {
@@ -295,7 +223,7 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
         time_window: newTimeWindow, // Use new time window directly
       };
 
-      console.log("Fetching data with updated time window:", hitToUrl); // Log fetch with new time window
+      // console.log("Fetching data with updated time window:", hitToUrl); // Log fetch with new time window
       fetchPeriodicData(hitToUrl); // Fetch data again with the updated time window
     }
   };
@@ -307,7 +235,7 @@ const GraphScenario4Chart = ({ chartData, receivedPayload }) => {
         ...selectedBarData,
         time_window: timeWindow, // Ensure the current time window is used
       };
-      console.log("Fetching data on dialog open with:", hitToUrl); // Log fetch on dialog open
+      // console.log("Fetching data on dialog open with:", hitToUrl); // Log fetch on dialog open
       fetchPeriodicData(hitToUrl);
     }
   }, [isDialogOpen, selectedBarData, timeWindow]);

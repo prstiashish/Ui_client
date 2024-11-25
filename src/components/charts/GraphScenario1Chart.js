@@ -1,103 +1,5 @@
-// import { Margin } from "@mui/icons-material";
-// import { ticks } from "d3";
-// import { Bar } from "react-chartjs-2";
-
-// const GraphScenario1Chart = ({ chartData }) => {
-//   // console.log("GraphScenario1Chart :", chartData)
-
-//   let formatValue;
-//   if (chartData && chartData.datasets && chartData.datasets.length > 0) {
-//     const data = chartData.datasets[0].data;
-
-//     if (data && data.length > 0) {
-//       let maxValue = Math.max(...data);
-//       formatValue = (value) => {
-//         if (maxValue >= 10000000) {
-//           return value / 10000000;
-//         } else if (maxValue >= 100000) {
-//           return value / 100000;
-//         } else if (maxValue >= 1000) {
-//           return value / 1000;
-//         } else {
-//           return value;
-//         }
-//       };
-//     } else {
-//       console.log("Data is empty.");
-//     }
-//   } else {
-//     console.log("chartData or its datasets are not properly initialized.");
-//   }
-
-//   const options = {
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     plugins: {
-//       title: {
-//         display: true,
-//         // text: getDynamicTitle(currentData),
-//         text: "",
-//       },
-//       legend: {
-//         display: false,
-//         position: "top",
-//         marginTop: 10,
-//       },
-//       datalabels: {
-//         display: false,
-//       },
-//     },
-//     layout: {
-//       padding: {
-//         left: 10, // Adjust left padding
-//         right: 0,
-//         top: 10,
-//         bottom: 10,
-//       },
-//     },
-//     scales: {
-//       x: {
-//         grid: {
-//           display: false,
-//         },
-//         ticks: {
-//           display: false,
-//         },
-//         // ticks: {
-//         //   autoSkip: true,
-//         //   maxRotation: 35, // Rotate labels for better fit
-//         //   minRotation: -10,
-//         //   padding: 0, // Reduced padding
-//         //   font: {
-//         //     size: 10, // Smaller font size
-//         //   },
-//         // callback: function(value, index) {
-//         //   return index % 2 === 0 ? value : ''; // Display every other label
-//         // },
-//         // },
-//       },
-//       y: {
-//         beginAtZero: true,
-//         ticks: {
-//           callback: formatValue,
-//         },
-//       },
-//     },
-//     elements: {
-//       bar: {
-//         // borderRadius: 4, // Optional: rounded corners
-//       },
-//     },
-//   };
-
-//   return <Bar data={chartData} options={options} />;
-// };
-
-// export default GraphScenario1Chart;
-
-// for periodic dis  2nd tryingggg noe
-
-const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+// const apiUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+const apiUrl = "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
 
 import React, { useState, useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
@@ -105,25 +7,25 @@ import { Dialog, DialogContent, DialogActions, Button } from "@mui/material";
 import "chartjs-plugin-datalabels"; // Ensure the plugin is imported
 
 const GraphScenario1Chart = ({ chartData, receivedPayload, index }) => {
-  console.log('chartData', chartData)
 
-  console.log('chartData', chartData);
 
-// Check if chartData and datasets are valid
-if (
-  !chartData || 
-  !chartData.labels || chartData.labels.length === 0 ||  // Check for labels
-  !chartData.datasets || chartData.datasets.length === 0 || // Check for datasets
-  !chartData.datasets[0].data || chartData.datasets[0].data.length === 0 // Check if data exists in datasets
-) {
-  return (
-    <div>
-      <p>No data available to display the chart.</p>
-    </div>
-  );
-}
+  // Check if chartData and datasets are valid
+  if (
+    !chartData ||
+    !chartData.labels ||
+    chartData.labels.length === 0 || // Check for labels
+    !chartData.datasets ||
+    chartData.datasets.length === 0 || // Check for datasets
+    !chartData.datasets[0].data ||
+    chartData.datasets[0].data.length === 0 // Check if data exists in datasets
+  ) {
+    return (
+      <div>
+        <p>No data available to display the chart.</p>
+      </div>
+    );
+  }
 
-  console.log('g11111111111111',chartData)
   const [selectedBarData, setSelectedBarData] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
@@ -132,69 +34,96 @@ if (
 
   const chartRef = useRef(null);
 
- 
   const formatValue = (value) => {
-    const maxValue = Math.max(...(chartData?.datasets?.[0]?.data || [0]));  // Added optional chaining
-  
+    const maxValue = Math.max(...(chartData?.datasets?.[0]?.data || [0])); // Added optional chaining
+
     if (maxValue >= 10000000) return value / 10000000;
     if (maxValue >= 100000) return value / 100000;
     if (maxValue >= 1000) return value / 1000;
-    
+
     return value;
   };
-  
 
-  // Fetch data based on selected payload and time window
+
+
+
   const fetchPeriodicData = async (requestPayload) => {
     try {
+      const token = sessionStorage.getItem("Access_Token");
+
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
+
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify(requestPayload),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      console.log("****************************************");
 
-      const data = await response.json();
-      console.log("Fetched Data:", data); // Add logging for fetched data
+      const responseData = await response.text();
 
-      setFetchedData(Array.isArray(data) ? data : []);
+      // Replace single quotes with double quotes to ensure valid JSON
+      const validJsonString = responseData.replace(/'/g, '"');
+      const data = JSON.parse(validJsonString);
+
+      // const data = await response.json();
+      // console.log("Fetched Dataddddddddd:", data); // Logging for fetched data
+
+      // Define the correct month order
+      const monthOrder = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+
+      // Sort the data based on month order
+      const sortedData = Array.isArray(data)
+        ? data.sort((a, b) => monthOrder.indexOf(a.Month) - monthOrder.indexOf(b.Month))
+        : [];
+
+      setFetchedData(sortedData);
     } catch (error) {
       console.error("Error fetching periodic data:", error);
       setFetchedData([]);
     }
   };
 
-  
- 
- 
-
   const handleBarClick = (event, elements) => {
-
     if (!chartData || !chartData.labels || elements.length === 0) return;
 
-    console.log("chartData", chartData);
-    console.log("Received payload:", receivedPayload);
+    // console.log("chartData", chartData);
+    // console.log("Received payload:", receivedPayload);
     // Check if any element was clicked
     if (elements.length === 0) return;
 
     const element = elements[0];
     const clickedIndex = element.index;
     const clickedLabel = chartData.labels[clickedIndex];
-    setDimensionName(clickedLabel)
+    setDimensionName(clickedLabel);
     // const dimensionType = chartData.xLabel;
-    const dimensionType = chartData.xLabel || "Unknown Dimension"; 
-    console.log("Clicked index:", clickedIndex);
-    console.log("Clicked label:", clickedLabel);
-    console.log("Dimension type:", dimensionType);
+    const dimensionType = chartData.xLabel || "Unknown Dimension";
+    // console.log("Clicked index:", clickedIndex);
+    // console.log("Clicked label:", clickedLabel);
+    // console.log("Dimension type:", dimensionType);
 
     // Ensure receivedPayload is an array
     let payloadArray = Array.isArray(receivedPayload) ? receivedPayload : [receivedPayload];
-
-    
-    
 
     const correspondingPayload = payloadArray.find((item) => {
       return (
@@ -204,17 +133,14 @@ if (
       );
     });
 
-   
-
-    console.log("Corresponding Payload:", correspondingPayload); // Log the matching payload
 
     if (correspondingPayload) {
       const { bottomRank, topRank, measure, partition, includeCOGS, start_date, end_date } =
         correspondingPayload;
 
       const [prefix, currentValues] = partition.split(":");
-      console.log(prefix);
-      console.log(currentValues);
+      // console.log(prefix);
+      // console.log(currentValues);
 
       const hitToUrl = {
         bottomRank,
@@ -228,11 +154,9 @@ if (
         time_window: timeWindow, // Include the current time window
       };
 
-      console.log("Hit to URL:", hitToUrl); // Log the hitToUrl object
+      // console.log("Hit to URL:", hitToUrl); // Log the hitToUrl object
 
       fetchPeriodicData(hitToUrl);
-
-     
 
       setSelectedBarData(hitToUrl);
 
@@ -243,20 +167,13 @@ if (
 
     // ==========
 
-   
-
-    
-
     // Fetch data based on the constructed URL parameters
   };
 
- 
-
-
   const handleTimeWindowChange = (newTimeWindow) => {
     setTimeWindow(newTimeWindow);
-    console.log("Time window changed to:", newTimeWindow); // Log time window change
-    console.log("Selected Bar Data:", selectedBarData); // Log the selected bar
+    // console.log("Time window changed to:", newTimeWindow); // Log time window change
+    // console.log("Selected Bar Data:", selectedBarData); // Log the selected bar
 
     // Ensure selectedBarData is available before fetching
     if (selectedBarData) {
@@ -283,7 +200,7 @@ if (
         time_window: newTimeWindow, // Use new time window directly
       };
 
-      console.log("Fetching data with updated time window:", hitToUrl); // Log fetch with new time window
+      // console.log("Fetching data with updated time window:", hitToUrl); // Log fetch with new time window
       fetchPeriodicData(hitToUrl); // Fetch data again with the updated time window
     }
   };
@@ -295,7 +212,7 @@ if (
         ...selectedBarData,
         time_window: timeWindow, // Ensure the current time window is used
       };
-      console.log("Fetching data on dialog open with:", hitToUrl); // Log fetch on dialog open
+      // console.log("Fetching data on dialog open with:", hitToUrl); // Log fetch on dialog open
       fetchPeriodicData(hitToUrl);
     }
   }, [isDialogOpen, selectedBarData, timeWindow]);
@@ -409,7 +326,7 @@ if (
                     display: true, // Show data labels
                     color: "black", // Customize the color
                     formatter: (value) => {
-                      console.log(value); // Check the value being passed
+                      // console.log(value); // Check the value being passed
                       return Number(value).toFixed(2);
                     },
                   },

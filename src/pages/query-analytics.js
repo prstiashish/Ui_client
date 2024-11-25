@@ -71,7 +71,7 @@ const QueryAnalytics = () => {
 
   // for periodic tale
   const [chartPayload, setChartPayload] = useState(null); // State to store the payload
-  console.log(chartPayload, "chartPayload");
+  // console.log(chartPayload, "chartPayload");
 
   // worlignn
 
@@ -124,7 +124,7 @@ const QueryAnalytics = () => {
 
   function scenario1(data, dimension, measure) {
     if (!Array.isArray(data) || data.length === 0) {
-      console.warn("No valid data provided for scenario1."); // Log a warning if data is invalid
+      console.log("No valid data provided for scenario1."); // Log a warning if data is invalid
       return { labels: [], values: [] }; // Return empty data structure
     }
     let labels = [];
@@ -158,7 +158,6 @@ const QueryAnalytics = () => {
     const result = {
       labels,
       datasets: [
-
         {
           backgroundColor: "#A1C6E7",
           borderColor: "#FFFFFF",
@@ -174,8 +173,6 @@ const QueryAnalytics = () => {
           measureName: measure, // Include the measure name here
         },
       ],
-
-
     };
 
     // console.log(result, "resultttt");
@@ -183,24 +180,19 @@ const QueryAnalytics = () => {
     return { ...result, title, xLabel, yLabel };
   }
 
-
-
-
-
-
-
-
   function scenario2(data, dimension, measure, itemsToStack) {
     let labels = [];
     let dataSets = [];
 
     const colors = [
       "#FFA07A", // Light Salmon
-      "#A4D6A8",
+      "#F08080",
       "#87CEFA", // Light Sky Blue
       "#FFB6C1", // Light Pink
       "#98FB98", // Pale Green
-      "#F08080", // Light Coral
+      // "#F08080", // Light Coral
+      "#A4D6A8",
+      // "#66e066"
     ];
 
     // Create a dataset for each stackable item
@@ -236,8 +228,6 @@ const QueryAnalytics = () => {
       datasets: dataSets,
     };
   }
-
-
 
   function scenario3(data, dimension, measure) {
     const topLabels = Object.keys(data); // Get all dimension labels
@@ -300,16 +290,6 @@ const QueryAnalytics = () => {
     };
   }
 
-
-
-
-
-
-
-
-
-
-
   function scenario4(data, dimension, measure, itemsToStack) {
     const topLabels = Object.keys(data); // Get all dimension labels
     const stacks = []; // To hold unique stacks for the specified dimension
@@ -337,11 +317,11 @@ const QueryAnalytics = () => {
     topLabels.forEach((label) => {
       // Ensure data[label] is an array
       if (!Array.isArray(data[label])) {
-        console.warn(`data[${label}] is not an array. Received:`, data[label]);
+        console.log(`data[${label}] is not an array. Received:`, data[label]);
         data[label] = []; // Fallback to an empty array if it's not an array
       }
       data[label] = data[label].sort((a, b) => (a.rank || 0) - (b.rank || 0));
-      console.log(`Sorted data for ${label}:`, data[label]); // Log sorted data for each label
+      // console.log(`Sorted data for ${label}:`, data[label]); // Log sorted data for each label
     });
 
     // Iterate through each label to create stacks
@@ -432,16 +412,6 @@ const QueryAnalytics = () => {
     };
   }
 
-
-
-
-
-
-
-
-
-
-
   const getChartTitle = (dimension, measure, includeCOGS, partition, scenario) => {
     if (scenario === 1) return `Chart based on ${dimension} and ${measure}`;
     if (scenario === 2) return `Chart based on ${dimension} and ${measure}`;
@@ -483,8 +453,6 @@ const QueryAnalytics = () => {
     }
   };
 
-
-
   const getBarDivStyles = (scenario, labelsLength) => {
     const baseWidthPerLabel = 60; // Set a smaller base width per label to avoid large bars for minimal data
 
@@ -505,28 +473,46 @@ const QueryAnalytics = () => {
 
   // ==========================================================
 
-  const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+  // const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+  const postQueryAnlUrl =
+    "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
 
   // =================================----------------
 
+  
+
+
   const fetchChartData = async (payload) => {
     try {
+      const token = sessionStorage.getItem("Access_Token");
+
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
+
+      // console.log("Using Access Token:", token);
       const response = await fetch(postQueryAnlUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      return await response.json(); // Assuming the response is in JSON format
+      // console.log("Response status:", response);
+      const responseData = await response.text();
+      const validJsonString = responseData.replace(/'/g, '"');
+      return JSON.parse(validJsonString);
     } catch (error) {
       console.error("Error fetching chart data:", error);
       return null;
     }
   };
+
 
   const processFetchedData = (fetchedData, receivedPayload) => {
     // console.log("fetchedData", fetchedData);
@@ -547,8 +533,6 @@ const QueryAnalytics = () => {
         chartDimension = getChartDimenion(dimensionKey, 1);
         scenario = 1;
       } else if (includeCOGS && partition === "None") {
-
-
         generatedChartData = scenario2(fetchedData, dimensionKey, measure, [
           {
             label: "Materials Cost",
@@ -587,8 +571,6 @@ const QueryAnalytics = () => {
         chartDimension = getChartDimenion(dimensionKey, 3);
         scenario = 3;
       } else if (includeCOGS && partition !== "None") {
-
-
         generatedChartData = scenario4(fetchedData, dimensionKey, measure, [
           {
             label: "Materials Cost",
@@ -626,8 +608,6 @@ const QueryAnalytics = () => {
 
       // Check for duplicates before adding
       if (generatedChartData) {
-
-
         const existingChart = chartDataList.find(
           (chart) => chart.title === generatedChartData.title
         );
@@ -646,7 +626,6 @@ const QueryAnalytics = () => {
     }
   };
 
- 
   const [startDate, setStartDate] = useState(null);
 
   const [endDate, setEndDate] = useState(null);
@@ -656,8 +635,8 @@ const QueryAnalytics = () => {
   // kokoko
 
   const handleSubmit = async (data, receivedPayload) => {
-    console.log("Data:", data);
-    console.log("Received Payload:", receivedPayload);
+    // console.log("Data:", data);
+    // console.log("Received Payload:", receivedPayload);
     setChartPayload(receivedPayload);
     const { start_date, end_date } = receivedPayload;
 
@@ -671,7 +650,7 @@ const QueryAnalytics = () => {
       endDate: end_date,
     };
 
-    console.log(newChart, "newChart");
+    // console.log(newChart, "newChart");
 
     const session = new SessionStorageService();
     const currentUser = session.getItem("currentUser");
@@ -757,15 +736,15 @@ const QueryAnalytics = () => {
       try {
         // Parse payload array from cookies
         const payloadArray = JSON.parse(cookiePayload);
-        console.log("Received Payload Array from Cookies:", payloadArray);
+        // console.log("Received Payload Array from Cookies:", payloadArray);
         setChartPayload(payloadArray);
         payloadArray.forEach((item, index) => {
-          console.log(`Item ${index + 1}:`, item);
+          // console.log(`Item ${index + 1}:`, item);
 
           // If the object contains start_date and end_date, extract them
           const { start_date, end_date } = item;
-          console.log(`Start Date: ${start_date}`);
-          console.log(`End Date: ${end_date}`);
+          // console.log(`Start Date: ${start_date}`);
+          // console.log(`End Date: ${end_date}`);
           setStartDate(start_date);
           setEndDate(end_date);
         });
@@ -825,20 +804,20 @@ const QueryAnalytics = () => {
       }
 
       // Confirm the deletion of the correct chart
-      console.log("Chart Data List Before Deletion:", chartDataList);
-      console.log("Payload Array Before Deletion:", payloadArray);
-      console.log("Index to Delete:", index);
+      // console.log("Chart Data List Before Deletion:", chartDataList);
+      // console.log("Payload Array Before Deletion:", payloadArray);
+      // console.log("Index to Delete:", index);
 
       // Check if the index is valid
       if (index < 0 || index >= payloadArray.length) {
-        console.error("Invalid index for deletion:", index);
+        // console.error("Invalid index for deletion:", index);
         return;
       }
 
       // Remove the chart from the state
       setChartDataList((prevList) => {
         const updatedList = prevList.filter((_, i) => i !== index);
-        console.log("Updated Chart Data List:", updatedList);
+        // console.log("Updated Chart Data List:", updatedList);
         return updatedList;
       });
 
@@ -849,7 +828,7 @@ const QueryAnalytics = () => {
 
         // Update the cookies with the modified payload array
         Cookies.set(userChartsKey, JSON.stringify(payloadArray), { expires: 7 });
-        console.log("Updated Cookies After Deletion:", JSON.parse(Cookies.get(userChartsKey)));
+        // console.log("Updated Cookies After Deletion:", JSON.parse(Cookies.get(userChartsKey)));
       } catch (error) {
         console.error("Error updating chart payload in cookies:", error);
       }
@@ -882,7 +861,7 @@ const QueryAnalytics = () => {
       .flatMap((dataset) => dataset.data || [])
       .reduce((max, current) => Math.max(max, current), 0);
 
-    console.log("Max Value:", maxValue);
+    // console.log("Max Value:", maxValue);
 
     // Handle negative, zero, and positive values
     if (value >= 10000000) {
@@ -913,10 +892,6 @@ const QueryAnalytics = () => {
   const handleCreateClick = () => {
     setPanelOpen(true);
   };
-
-
-
-
 
   const chartOptions = (currentData) => {
     // Determine if the chart is stacked
@@ -1026,7 +1001,6 @@ const QueryAnalytics = () => {
     };
   };
 
-
   return (
     <>
       {/* <p style={{ fontSize: "13px", fontWeight: "bold"}}>
@@ -1056,12 +1030,7 @@ const QueryAnalytics = () => {
       <Grid container spacing={2}>
         {chartDataList.length > 0 &&
           chartDataList.map((chartData, index) => {
-            {
-              /* console.log("Current chartDataList:", chartData); */
-            }
-            {
-              /* console.log("Current index:", index); */
-            }
+
             const labelsLength = chartData.labels.length;
             const minWidth = getBarDivStyles(chartData.scenario, labelsLength).minWidth;
 

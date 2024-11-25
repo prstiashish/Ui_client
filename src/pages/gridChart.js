@@ -36,7 +36,8 @@ import SessionStorageService from "src/utils/browser-storage/session";
 
 import Cookies from "js-cookie";
 
-const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+// const postQueryAnlUrl = "https://aotdgyib2bvdm7hzcttncgy25a0axpwu.lambda-url.ap-south-1.on.aws/";
+const postQueryAnlUrl = "https://nqy17v7tdd.execute-api.ap-south-1.amazonaws.com/dev/data-insights";
 
 const QueryAnalytics = () => {
   const [loadingStates, setLoadingStates] = useState([]); // Track loading states for each chart
@@ -48,7 +49,7 @@ const QueryAnalytics = () => {
   const [payload, setPayload] = useState(null);
 
   const [chartDataList, setChartDataList] = useState([]);
-  console.log("chartDataList", chartDataList);
+  // console.log("chartDataList", chartDataList);
 
   const [scenario1Title, setScenario1Title] = useState(null);
   const [scenario1Dimension, setscenario1Dimension] = useState(null);
@@ -256,7 +257,7 @@ const QueryAnalytics = () => {
     topLabels.forEach((label) => {
       // Ensure data[label] is an array
       if (!Array.isArray(data[label])) {
-        console.warn(`data[${label}] is not an array. Received:`, data[label]);
+        console.log(`data[${label}] is not an array. Received:`, data[label]);
         data[label] = []; // Fallback to an empty array if it's not an array
       }
       data[label] = data[label].sort((a, b) => (a.rank || 0) - (b.rank || 0));
@@ -272,10 +273,7 @@ const QueryAnalytics = () => {
           // Update existing stack
           itemsToStack.forEach((itemConfig, iIdx) => {
             datasets[stackIndex][iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
-            // console.log(
-            //   `Updated existing stack: ${item[dimension]}, ${itemConfig.itemKey}:`,
-            //   datasets[stackIndex][iIdx][labelIdx]
-            // );
+
           });
         } else {
           // Create new stack
@@ -288,7 +286,6 @@ const QueryAnalytics = () => {
 
           itemsToStack.forEach((itemConfig, iIdx) => {
             newStackData[iIdx][labelIdx] = item[itemConfig.itemKey] || 0; // Ensure fallback to zero
-            // console.log(`New stack created for ${item[dimension]}:`, newStackData);
           });
 
           datasets.push(newStackData);
@@ -306,24 +303,8 @@ const QueryAnalytics = () => {
         if (hasNonZeroValue) {
           const baseColor = colorPalette[itemIdx % colorPalette.length]; // Use distinct color for each item
 
-          // Calculate percentageData
-          // const percentageData = dataForItem.map((_, idx) => {
-          //   const originalData = data[topLabels[idx]]; // Fetch original data using label index
-          //   if (!originalData) {
-          //     console.log(`Original data missing for top label ${topLabels[idx]}`);
-          //   }
-          //   const originalItem = originalData ? originalData[stackIdx] : undefined; // Adjust the index to safely access
-          //   if (!originalItem) {
-          //     console.log(
-          //       `Original item missing for ${stack} at index ${idx} and stackIdx ${stackIdx}`
-          //     );
-          //   }
-          //   const percentageValue = originalItem ? originalItem[itemConfig.percentageKey] : 0; // Return the percentage value or 0
-          //   // console.log(
-          //   //   `Calculating percentage for ${stack}, topLabel: ${topLabels[idx]}, percentageValue: ${percentageValue}`
-          //   // );
-          //   return percentageValue;
-          // });
+
+
           const percentageData = dataForItem.map((_, idx) => {
             const originalData = data[topLabels[idx]];
             const originalItem = originalData ? originalData[stackIdx] : undefined;
@@ -331,7 +312,6 @@ const QueryAnalytics = () => {
             return percentageValue;
           });
 
-          // console.log(`Final percentage data for ${stack} - ${itemConfig.label}:`, percentageData);
 
           values.push({
             label: `${stack} - ${itemConfig.label}`, // Dimension (stack) and label combined
@@ -347,7 +327,6 @@ const QueryAnalytics = () => {
       });
     });
 
-    // console.log("Final values to return:", values);
 
     return {
       labels: topLabels, // Labels for each dimension
@@ -420,17 +399,26 @@ const QueryAnalytics = () => {
 
   const fetchChartData = async (payload) => {
     try {
+      const token = sessionStorage.getItem("Access_Token");
+
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
       const response = await fetch(postQueryAnlUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+         Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(payload),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      return await response.json(); // Assuming the response is in JSON format
+      // return await response.json(); // Assuming the response is in JSON format
+      const responseData = await response.text();
+      const validJsonString = responseData.replace(/'/g, '"');
+      return JSON.parse(validJsonString);
     } catch (error) {
       console.error("Error fetching chart data:", error);
       return null;
@@ -438,7 +426,7 @@ const QueryAnalytics = () => {
   };
 
   const processFetchedData = (fetchedData, receivedPayload) => {
-    console.log("fetchedData", fetchedData);
+    // console.log("fetchedData", fetchedData);
     setData(fetchedData);
     const { dimension, measure, includeCOGS, partition } = receivedPayload;
     let generatedChartData;
@@ -574,11 +562,9 @@ const QueryAnalytics = () => {
 
   const currentDate = new Date(); // Get current date as end_date
   const end_date = currentDate.toISOString().split("T")[0]; // Convert to 'YYYY-MM-DD' format
-  console.log("end_date:", end_date);
   // Calculate start_date (14 days before the current date)
   currentDate.setDate(currentDate.getDate() - 14);
   const start_date = currentDate.toISOString().split("T")[0]; // Convert to 'YYYY-MM-DD' format
-  console.log("start_date:", start_date);
 
   const defaultPayload = {
     dimension: "Product:All",
@@ -594,8 +580,8 @@ const QueryAnalytics = () => {
 
   const handleSubmit = async (data, receivedPayload) => {
     // setData(data);
-    console.log("Data:", data);
-    console.log("Received Payloaddddddd:", receivedPayload);
+    // console.log("Data:", data);
+    // console.log("Received Payloaddddddd:", receivedPayload);
     setChartPayload(receivedPayload);
     const { start_date, end_date } = receivedPayload;
 
@@ -608,7 +594,7 @@ const QueryAnalytics = () => {
       if (fetchedData) {
         processFetchedData(fetchedData, receivedPayload);
       } else {
-        connsole.error("Failed to fetch chart data.");
+        console.error("Failed to fetch chart data.");
         // alert("No data");
       }
     }
@@ -646,10 +632,7 @@ const QueryAnalytics = () => {
         }
       }
 
-      // Confirm the deletion of the correct chart
-      console.log("Chart Data List Before Deletion:", chartDataList);
-      console.log("Payload Array Before Deletion:", payloadArray);
-      console.log("Index to Delete:", index);
+
 
       // Check if the index is valid
       if (index < 0 || index >= payloadArray.length) {
@@ -704,7 +687,7 @@ const QueryAnalytics = () => {
       .flatMap((dataset) => dataset.data || [])
       .reduce((max, current) => Math.max(max, current), 0);
 
-    console.log("Max Value:", maxValue);
+    // console.log("Max Value:", maxValue);
 
     // Handle negative, zero, and positive values
     if (value >= 10000000) {
@@ -909,12 +892,7 @@ const QueryAnalytics = () => {
         {chartDataList &&
           chartDataList.length > 0 &&
           chartDataList.map((chartData, index) => {
-            {
-              /* console.log("Current chartDataList:", chartData); */
-            }
-            {
-              /* console.log("Current index:", index); */
-            }
+
             const labelsLength = chartData.labels.length;
             const minWidth = getBarDivStyles(chartData.scenario, labelsLength).minWidth;
 

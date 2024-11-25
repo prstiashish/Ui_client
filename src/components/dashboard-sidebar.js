@@ -30,8 +30,7 @@ import ExploreIcon from "@mui/icons-material/Explore";
 
 import TimelineIcon from '@mui/icons-material/Timeline';
 
-import FilterListIcon from '@mui/icons-material/FilterList';  // For EDA, we can use AnalyticsIcon or any other relevant icon
-
+import FilterListIcon from '@mui/icons-material/FilterList';  // For EDA, we can use AnalyticsIcon or any other relevant icon
 
 import QrCodeIcon from '@mui/icons-material/QrCode';
 
@@ -86,6 +85,12 @@ const items = [
   },
 
 
+  // {
+  //   href: "/devDatadrilldown",
+  //  icon: <TableViewIcon fontSize="small" />,
+  //   title: "Data Grid",
+  // },
+
 
   // {
   //   href: "/datadrilldown",
@@ -136,15 +141,26 @@ const items = [
 
   {
     href: "/gridChart",
-    icon: <TableViewIcon fontSize="small" />,
+   icon: <TableViewIcon fontSize="small" />,
     title: "Data grid Chart",
   },
 
-  {
+ {
     href: "/timeSeriesForecasting",
     icon: <TimelineIcon fontSize="small" />,
-    title: "Time Series",
+    title: "Time Series Forecasting",
   },
+
+
+
+
+
+
+  // {
+  //   href: "/timeSeriesAnalysis",
+  //   icon: <TimelineIcon fontSize="small" />,
+  //   title: "Time Series Analysis",
+  // },
 
 
   {

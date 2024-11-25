@@ -18,6 +18,9 @@ import { Dialog, Grid, DialogTitle, DialogContent } from "@mui/material";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function StackedBarChartWaterfall({ chartData, title }) {
+
+  // console.log("waterrrrrrrrrrrrrrrr", chartData);
+
   const [showStackedPopupChart, setStackedShowPopupChart] = useState(false);
 
   const handleChartDoubleClick = () => {
@@ -51,7 +54,7 @@ export default function StackedBarChartWaterfall({ chartData, title }) {
     <Grid container spacing={2}>
       <Grid item xs={12}>
         <div>
-          <Bar
+          {/* <Bar
             data={chartData}
             options={{
               responsive: true,
@@ -73,7 +76,45 @@ export default function StackedBarChartWaterfall({ chartData, title }) {
                 },
               },
             }}
-          />
+          /> */}
+          <Bar
+  data={chartData}
+  options={{
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Sales and UV Comparison by Month',
+      },
+      legend: {
+        position: 'top', // Adjust legend position
+      },
+    },
+    scales: {
+      x: {
+        stacked: false, // Ensure bars are rendered side by side
+        title: {
+          display: true,
+          text: 'Months',
+        },
+      },
+      y: {
+        stacked: false, // Ensure no stacking on the Y-axis
+        ticks: {
+          callback: (value) => value.toLocaleString(), // Format Y-axis values
+        },
+        title: {
+          display: true,
+          text: 'Values',
+        },
+      },
+    },
+  }}
+/>
+
+
+
+
         </div>
       </Grid>
       <Grid item xs={12}>

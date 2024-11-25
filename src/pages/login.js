@@ -29,13 +29,13 @@ const Login = () => {
     const base64Key = Base64Key;
 
 
-    console.log("Base64Key:", base64Key);
+    // console.log("Base64Key:", base64Key);
     const secretKey = CryptoJS.enc.Base64.parse(base64Key);
 
     const data = `${username}:${password}`;
-    console.log("Data:", data);
-    console.log("username:", username);
-    console.log("password:", password);
+    // console.log("Data:", data);
+    // console.log("username:", username);
+    // console.log("password:", password);
     const iv = CryptoJS.lib.WordArray.random(16); // Random IV
     const encrypted = CryptoJS.AES.encrypt(data, secretKey, {
       iv: iv,
@@ -44,9 +44,9 @@ const Login = () => {
     });
 
     const encryptedData = iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
-    console.log("Encrypted Data:", encryptedData);
+    // console.log("Encrypted Data:", encryptedData);
     const baseAwsURL = api_gateway_url;
-    console.log("Base AWS URL:", baseAwsURL);
+    // console.log("Base AWS URL:", baseAwsURL);
 
     const config = {
       headers: {
@@ -54,25 +54,29 @@ const Login = () => {
       },
     };
 
-    console.log("Config:", config);
+    // console.log("Config:", config);
 
 
     axios.post(baseAwsURL, null, config).then((response) => {
-      console.log("Response:", response);
+      // console.log("Response:", response);
 
       if (response.data && response.data.tokens) {
         const { tokens } = response.data;
         const { access_token, id_token, refresh_token } = tokens;
 
         // Log tokens for debugging purposes
-        console.log("Tokens:", tokens);
-        console.log("AccessToken:", access_token);
-        console.log("IdToken:", id_token);
-        console.log("RefreshToken:", refresh_token);
+        // console.log("Tokens:", tokens);
+        // console.log("AccessToken:", access_token);
+
+
+        // console.log("IdToken:", id_token);
+        // console.log("RefreshToken:", refresh_token);
 
         sessionStorage.setItem("IdToken", id_token);
         //   sessionStorage.setItem("Schema_name", response.data.schema_name);
         sessionStorage.setItem("Refresh_Token", refresh_token);
+        sessionStorage.setItem("Access_Token", access_token);
+
         const session = new SessionStorageService();
         session.setItem("currentUser", username);
         router.push("ai.dashboard/");

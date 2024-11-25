@@ -18,6 +18,8 @@ import { BsArrowsFullscreen } from "react-icons/bs";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function StackedBarChart2({ chartData, title, startDate, endDate }) {
+  // console.log("chartDataStackedBarChart2", chartData);
+
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -59,11 +61,25 @@ export default function StackedBarChart2({ chartData, title, startDate, endDate 
   } else {
     console.log("chartData or its datasets are not properly initialized.");
   }
+  // useEffect(() => {
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1000);
+  // }, [chartData]);
   useEffect(() => {
+    let isMounted = true; // Flag to track component mount status
+
     setLoading(true);
     setTimeout(() => {
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false); // Only update loading state if component is still mounted
+      }
     }, 1000);
+
+    return () => {
+      isMounted = false; // Cleanup flag on unmount
+    };
   }, [chartData]);
 
   const getCosValue = (label, index) => {
@@ -93,7 +109,7 @@ export default function StackedBarChart2({ chartData, title, startDate, endDate 
         cosValue = getCosValue("Discounts Cos (Previous Year)", index);
       }
 
-      console.log(cosValue, "cosValue3333333333");
+      // console.log(cosValue, "cosValue3333333333");
       return cosValue ? `${cosValue}%` : "";
     },
     color: "#0000cc",
@@ -130,7 +146,7 @@ export default function StackedBarChart2({ chartData, title, startDate, endDate 
                 </IconButton>
               </div>
               <div>
-                <Bar
+                {/* <Bar
                   data={chartData}
                   options={{
                     responsive: true,
@@ -173,6 +189,71 @@ export default function StackedBarChart2({ chartData, title, startDate, endDate 
                     },
                   }}
                   getElementAtEvent={() => setShowLoader(false)}
+                /> */}
+                <Bar
+                  data={chartData}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      title: {
+                        display: true,
+                        text: title,
+                      },
+                      legend: {
+                        display: false,
+                        filter: (item) => item.dataset && !item.dataset.hidden,
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: function (tooltipItem) {
+                            const dataset = tooltipItem.dataset;
+                            const value = tooltipItem.raw;
+                            const percentage = dataset.percentage[tooltipItem.dataIndex]; // Get the precomputed percentage
+                            return `${dataset.label}: ${value} (${percentage}%)`;
+                          },
+                        },
+                      },
+                      datalabels: {
+                        display: true,
+                        formatter: (value, context) => {
+                          const dataset = context.dataset;
+                          const percentage = dataset.percentage[context.dataIndex]; // Get the precomputed percentage
+                          if (percentage === 0) {
+                            return ""; // Return an empty string to hide the label
+                            // Or return a custom message: return "No Data";
+                          }
+                          return `${percentage}%`;
+                        },
+                        color: "blue", // White text for contrast
+                        anchor: "center", // Center the label vertically
+                        align: "center", // Center the label horizontally
+                        rotation: "-90",
+                        font: {
+                          // weight: "bold",
+                          size: 8, // Adjust font size for better readability
+                        },
+                        clip: true, // Ensure labels are clipped within the bar
+                      },
+                    },
+                    layout: {
+                      padding: {
+                        left: 10,
+                        right: 10,
+                      },
+                    },
+                    scales: {
+                      x: {
+                        stacked: true,
+                      },
+                      y: {
+                        stacked: true,
+                        ticks: {
+                          callback: formatValue,
+                        },
+                      },
+                    },
+                  }}
+                  // plugins={[ChartDataLabels]}
                 />
               </div>
             </div>
@@ -231,8 +312,6 @@ function Modal({ children }) {
   );
 }
 
-
-
 function PopupChart({ chartData, title, onClose }) {
   const chartRef = useRef(null);
 
@@ -262,7 +341,6 @@ function PopupChart({ chartData, title, onClose }) {
       } else if (datasetLabel === "Discounts (Previous Year)") {
         cosValue = getCosValue("Discounts Cos (Previous Year)", index);
       }
-
 
       if (context.dataset.hidden) {
         return "";
@@ -309,7 +387,37 @@ function PopupChart({ chartData, title, onClose }) {
           legend: {
             display: true,
           },
-          datalabels: dataLabels,
+          tooltip: {
+            callbacks: {
+              label: function (tooltipItem) {
+                const dataset = tooltipItem.dataset;
+                const value = tooltipItem.raw;
+                const percentage = dataset.percentage[tooltipItem.dataIndex]; // Get the precomputed percentage
+                return `${dataset.label}: ${value} (${percentage}%)`;
+              },
+            },
+          },
+          datalabels: {
+            display: true,
+            formatter: (value, context) => {
+              const dataset = context.dataset;
+              const percentage = dataset.percentage[context.dataIndex]; // Get the precomputed percentage
+              if (percentage === 0) {
+                return ""; // Return an empty string to hide the label
+                // Or return a custom message: return "No Data";
+              }
+              return `${percentage}%`;
+            },
+            color: "blue", // White text for contrast
+            anchor: "center", // Center the label vertically
+            align: "center", // Center the label horizontally
+            rotation: "-90",
+            font: {
+              // weight: "bold",
+              size: 10, // Adjust font size for better readability
+            },
+            clip: true, // Ensure labels are clipped within the bar
+          },
         },
         scales: {
           x: {

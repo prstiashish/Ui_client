@@ -17,9 +17,10 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { DashboardLayout } from "src/components/dashboard-layout";
 
-const getPLUrl = "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/P%26L-Dropdown-New.json";
-const postPLUrl = "https://upt2oqihzc5nw7urbslfops6qe0dvftz.lambda-url.ap-south-1.on.aws/";
-
+const getPLUrl =
+  "https://prsti-public-data.s3.ap-south-1.amazonaws.com/tsf/P%26L-Dropdown-New.json";
+// const postPLUrl = "https://upt2oqihzc5nw7urbslfops6qe0dvftz.lambda-url.ap-south-1.on.aws/";
+const postPLUrl = "https://xu2iufbhz0.execute-api.ap-south-1.amazonaws.com/dev/profit-and-loss";
 const ProfitLossTable = () => {
   const [data, setData] = useState({ Branch: [], "Year/Month": [] });
   const [selectedYearMonth, setSelectedYearMonth] = useState("2024-01"); // Default to January 2024
@@ -51,6 +52,32 @@ const ProfitLossTable = () => {
   }, []);
 
   // Send request based on selected branch and Year/Month
+  // useEffect(() => {
+  //   const sendRequest = async () => {
+  //     const payload = {
+  //       branch: selectedBranch,
+  //       "Year/Month": selectedYearMonth,
+  //     };
+
+  //     // console.log("Payload:", payload);
+
+  //     try {
+  //       const response = await axios.post(postPLUrl, payload);
+  //       setResponseData(response.data);
+  //       // console.log("Response:", response.data);
+  //     } catch (error) {
+  //       console.error(
+  //         "Error sending request:",
+  //         error.response ? error.response.data : error.message
+  //       );
+  //     }
+  //   };
+
+  //   if (selectedBranch && selectedYearMonth) {
+  //     sendRequest();
+  //   }
+  // }, [selectedBranch, selectedYearMonth]);
+
   useEffect(() => {
     const sendRequest = async () => {
       const payload = {
@@ -58,12 +85,24 @@ const ProfitLossTable = () => {
         "Year/Month": selectedYearMonth,
       };
 
-      // console.log("Payload:", payload);
+      const token = sessionStorage.getItem("Access_Token");
 
+      if (!token) {
+        console.error("Access Token is missing");
+        return;
+      }
+      console.log("Using Access Token:", token);
       try {
-        const response = await axios.post(postPLUrl, payload);
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`, // Replace `yourBearerToken` with the actual token
+          },
+        };
+        console.log("Payload:", payload);
+        console.log("Post URL:", postPLUrl);
+        const response = await axios.post(postPLUrl, payload, config);
+        console.log("Response:", response);
         setResponseData(response.data);
-        // console.log("Response:", response.data);
       } catch (error) {
         console.error(
           "Error sending request:",
